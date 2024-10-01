@@ -4,7 +4,7 @@ const app = express();
 const port = 3000;  // Può essere cambiata la porta se necessario
 
 // Rotta di prova
-app.get('/', (req: any, res: { send: (arg0: string) => void; }) => {
+app.get('/', function (req, res) {
     res.send('Ciao, il server è attivo!');
 });
 
