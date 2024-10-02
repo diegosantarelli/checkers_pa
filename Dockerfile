@@ -19,7 +19,7 @@ COPY . .
 # Compila TypeScript in JavaScript
 RUN npm run build
 
-# Espone la porta 3000 (o quella su cui gira la tua app)
+# Espone la porta 3000
 EXPOSE 3000
 
 # Comando per avviare l'applicazione
