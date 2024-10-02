@@ -8,12 +8,12 @@ import dotenv from 'dotenv';
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
-const port = 3000;  // Può essere cambiata la porta se necessario
+const port = process.env.PORT;  // Usa una variabile d'ambiente per la porta
 
 // Configura la connessione a PostgreSQL
 const sequelize = new Sequelize(process.env.POSTGRES_DB!, process.env.POSTGRES_USER!, process.env.POSTGRES_PASSWORD!, {
-    host: process.env.POSTGRES_HOST || 'db', // Usa il nome del servizio 'db' per Docker
-    port: Number(process.env.POSTGRES_PORT) || 5432,
+    host: process.env.POSTGRES_HOST, // Usa il nome del servizio 'db' per Docker
+    port: Number(process.env.POSTGRES_PORT),
     dialect: 'postgres',
 });
 
@@ -34,14 +34,10 @@ app.get('/', (req, res) => {
     res.send('Ciao, il server è attivo!');
 });
 
-// Avvio del server
-app.listen(port, () => {
-    console.log(`Server in esecuzione su http://localhost:${port}`);
-});
-
 // Collega le rotte
 app.use('/api', gameRoutes);
 
+// Avvio del server
 app.listen(port, () => {
     console.log(`Server in esecuzione su http://localhost:${port}`);
 });

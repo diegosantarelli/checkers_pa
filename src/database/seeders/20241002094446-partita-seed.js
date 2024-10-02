@@ -2,10 +2,20 @@
 
 /** @type {import('sequelize-cli').Seeder} */
 module.exports = {
+
+  getRandomDate(start, end) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  },
+
   async up (queryInterface, Sequelize) {
+
+    const currentDate = new Date();
+    const startDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()); // Un anno fa
+    const endDate = currentDate; // Oggi
+
     await queryInterface.bulkInsert('Partita', [
       {
-        data_creazione: new Date(),
+        data_creazione: this.getRandomDate(startDate, endDate),
         stato: 'Completata',
         tipo: 'Competitiva',
         token_iniziali: 10,
@@ -20,7 +30,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        data_creazione: new Date(),
+        data_creazione: this.getRandomDate(startDate, endDate),
         stato: 'Completata',
         tipo: 'Normale',
         token_iniziali: 20,
@@ -35,7 +45,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        data_creazione: new Date(),
+        data_creazione: this.getRandomDate(startDate, endDate),
         stato: 'Completata',
         tipo: 'Amichevole',
         token_iniziali: 15,
@@ -50,7 +60,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        data_creazione: new Date(),
+        data_creazione: this.getRandomDate(startDate, endDate),
         stato: 'In corso', // Partita in corso
         tipo: 'Amichevole',
         token_iniziali: 15,

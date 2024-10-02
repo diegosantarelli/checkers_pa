@@ -1,11 +1,9 @@
-// database.js
-
 const { Sequelize } = require('sequelize');
 
 // Configura la connessione a PostgreSQL nel container Docker
 const sequelize = new Sequelize('checkers_game', 'postgres', 'avanzata', {
-    host: 'db', // Usa il nome del servizio definito nel docker-compose
-    port: 5432,
+    host: process.env.POSTGRES_HOST, // Usa il nome del servizio definito nel docker-compose
+    port: process.env.POSTGRES_PORT,
     dialect: 'postgres',
 });
 
