@@ -1,9 +1,8 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Mossa', { // Usa un oggetto invece di un array
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Mossa', {
       id_mossa: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -15,22 +14,22 @@ module.exports = {
         allowNull: false,
       },
       tavola: {
-        type: Sequelize.JSON,
+        type: Sequelize.JSON, // Stato della scacchiera dopo la mossa
         allowNull: false,
       },
       id_partita: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Partita', // Assicurati che il nome della tabella sia corretto
-          key: 'id_partita', // Assicurati che il campo di riferimento sia corretto
+          model: 'Partita',
+          key: 'id_partita',
         },
         allowNull: false,
       },
       id_giocatore: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Giocatore', // Assicurati che il nome della tabella sia corretto
-          key: 'id_giocatore', // Assicurati che il campo di riferimento sia corretto
+          model: 'Giocatore',
+          key: 'id_giocatore',
         },
         allowNull: false,
       },
@@ -43,6 +42,22 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      tipo_pezzo: {
+        type: Sequelize.ENUM('singolo', 'dama'),
+        allowNull: false,
+      },
+      direzione: {
+        type: Sequelize.ENUM('avanti', 'indietro'),
+        allowNull: false,
+      },
+      cattura: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      promozione: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -53,10 +68,10 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
       }
-    }); // Nota la rimozione delle parentesi quadre
+    });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     return queryInterface.dropTable('Mossa');
   }
 };
