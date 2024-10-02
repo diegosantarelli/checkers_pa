@@ -7,11 +7,12 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true // Permette l'uso di file JavaScript
   },
-  "include": [
-    "src/**/*.ts"
-  ],
+
+  "include": ["src/**/*.ts", "src/**/*.js"], // Assicurati di includere anche i file .js
+
   "exclude": [
     "node_modules"
   ]
