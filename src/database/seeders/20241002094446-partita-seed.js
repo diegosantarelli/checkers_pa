@@ -60,7 +60,7 @@ module.exports = {
         id_giocatore2: null, // Nessun secondo giocatore
         id_ai: 2, // ID dell'AI
         id_vincitore: null, // Non c'è vincitore ancora
-        vincitore_è_ai: null, // Non c'è vincitore ancora
+        vincitore_ai: null, // Non c'è vincitore ancora
         createdAt: new Date(),
         updatedAt: new Date(),
       },
