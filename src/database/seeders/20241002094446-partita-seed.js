@@ -42,7 +42,7 @@ module.exports = {
         mosse_totali: 8,
         tempo_totale: 90,
         id_giocatore1: 4, // ID del primo giocatore
-        id_giocatore2: 5, // ID del secondo giocatore
+        id_giocatore2: 3, // ID del secondo giocatore
         id_ai: null, // Nessuna AI presente
         id_vincitore: 4, // Giocatore 1 vince
         vincitore_ai: false, // Il vincitore è un giocatore
