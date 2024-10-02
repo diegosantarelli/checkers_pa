@@ -11,11 +11,16 @@ const app = express();
 const port = process.env.PORT;  // Usa una variabile d'ambiente per la porta
 
 // Configura la connessione a PostgreSQL
-const sequelize = new Sequelize(process.env.POSTGRES_DB!, process.env.POSTGRES_USER!, process.env.POSTGRES_PASSWORD!, {
-    host: process.env.POSTGRES_HOST, // Usa il nome del servizio 'db' per Docker
-    port: Number(process.env.POSTGRES_PORT),
-    dialect: 'postgres',
-});
+const sequelize = new Sequelize(
+    process.env.POSTGRES_DB!,
+    process.env.POSTGRES_USER!,
+    process.env.POSTGRES_PASSWORD!,
+    {
+        host: process.env.POSTGRES_HOST || 'db', // Usa 'db' per Docker
+        port: Number(process.env.POSTGRES_PORT) || 5432,
+        dialect: 'postgres',
+    }
+);
 
 // Test della connessione al database
 sequelize.authenticate()

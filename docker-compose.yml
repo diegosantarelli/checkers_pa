@@ -1,11 +1,21 @@
+version: '3.8'
 services:
   app:
     build: .
     container_name: node-app
     ports:
-      - "3001:3000"
+      - "3001:3000"  # Porta esposta al di fuori del container
     depends_on:
       - db
+    environment:
+      POSTGRES_DB: checkers_game
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: avanzata
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      PORT: 3000
+    command: npm start
+
   db:
     image: postgres:13
     container_name: postgres-database
