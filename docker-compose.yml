@@ -13,7 +13,7 @@ services:
     container_name: postgres-database
     restart: always
     environment:
-      POSTGRES_USER: user
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: avanzata
       POSTGRES_DB: checkers_game
     ports:

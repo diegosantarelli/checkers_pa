@@ -1,10 +1,13 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
 module.exports = {
     development: {
-        username: process.env.POSTGRES_USER || "default_user", // da eliminare il default
-        password: process.env.POSTGRES_PASSWORD || "default_password", // da eliminare il default
-        database: process.env.POSTGRES_DB || "default_database", // da eliminare il default
-        host: process.env.POSTGRES_HOST || "localhost", // da eliminare il default
-        port: process.env.POSTGRES_PORT || 5432, // da eliminare il default
+        username: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD,
+        database: process.env.POSTGRES_DB,
+        host: process.env.POSTGRES_HOST,
+        port: process.env.POSTGRES_PORT,
         dialect: "postgres"
     },
 };
