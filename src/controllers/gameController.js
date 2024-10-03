@@ -1,4 +1,3 @@
-// src/controllers/gameController.js
 import { Giocatore } from '../models'; // Assicurati che il modello sia importato correttamente
 
 export const addPlayer = async (req, res) => {

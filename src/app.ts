@@ -10,13 +10,13 @@ import dotenv from 'dotenv';
 // Configurazione delle variabili d'ambiente
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT;  // Usa una variabile d'ambiente per la porta
 
 // Middleware per analizzare il corpo delle richieste in formato JSON
 app.use(express.json());
-app.use('/game', require('./routes/game')); // Rotte per la gestione delle partite
+// app.use('/game', require('./routes/game')); // Rotte per la gestione delle partite
 
 // Configura la connessione a PostgreSQL
 const sequelize = new Sequelize(

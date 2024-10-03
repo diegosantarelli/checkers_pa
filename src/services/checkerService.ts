@@ -1,4 +1,5 @@
-import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts';
+/*import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts';
+
 import {
     EnglishDraughts as Draughts,
     EnglishDraughtsComputerFactory as ComputerFactory,
@@ -58,3 +59,5 @@ class checkerService {
 }
 
 export default checkerService;
+
+*/
