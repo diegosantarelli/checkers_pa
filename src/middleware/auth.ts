@@ -1,29 +1,34 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { verifyToken } from '../helpers/jwtHelper';
+import HttpException from '../helpers/errorHandler';
+import { StatusCodes } from 'http-status-codes';
+import { JwtPayload } from 'jsonwebtoken';
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+// interfaccia per il payload del token
+interface TokenPayload extends JwtPayload {
+    id_giocatore: number;
+    ruolo: string;
+}
 
-    if (!token) {
-        res.sendStatus(401);  // Unauthorized
-        return;
+export const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Autenticazione richiesta'));
     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string, (err, user) => {
-        if (err) {
-            res.sendStatus(403);  // Forbidden
-            return;
-        }
+    const token = authHeader.split(' ')[1];
 
-        // Ci assicuriamo che req.user contenga solo i dati necessari (id e ruolo)
-        if (typeof user === 'object' && user && 'id' in user && 'role' in user) {
-            req.user = user as { id: string; role: string };
+    try {
+        const decoded = verifyToken(token);
+        // Verifica che il token decodificato abbia la struttura corretta
+        if (decoded && typeof decoded !== 'string' && 'id_giocatore' in decoded) {
+            req.user = decoded as TokenPayload;
+            next(); // Continua verso il controller
         } else {
-            res.status(400).json({ message: 'Invalid token payload.' });
-            return;
+            return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido'));
         }
-
-        next();
-    });
+    } catch (error) {
+        next(error);
+    }
 };

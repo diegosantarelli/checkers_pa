@@ -12,10 +12,10 @@ interface GiocatoreAttributes {
     ruolo: 'utente' | 'admin';
 }
 
-// Definisci gli attributi opzionali per l'inizializzazione (id può essere opzionale durante la creazione)
+// Definisci gli attributi opzionali per l'inizializzazione
 interface GiocatoreCreationAttributes extends Optional<GiocatoreAttributes, 'id_giocatore'> {}
 
-// Definisci la classe Giocatore che estende Model
+// Definisci la classe Giocatore
 class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> implements GiocatoreAttributes {
     public id_giocatore!: number;
     public nome!: string;
@@ -29,6 +29,15 @@ class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> 
     // timestamps!
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    // Funzione per sottrarre i token all'avvio della partita
+    public sottraiToken(quantita: number): boolean {
+        if (this.token_residuo >= quantita) {
+            this.token_residuo -= quantita;
+            return true;
+        }
+        return false;
+    }
 
     static associate(models: any) {
         // Associazioni con il modello Mossa
@@ -82,8 +91,8 @@ export default (sequelize: Sequelize) => {
     }, {
         sequelize,
         modelName: 'Giocatore',
-        tableName: 'giocatori', // Facoltativo, ma utile per specificare la tabella
-        timestamps: true, // Se usi timestamp come createdAt/updatedAt
+        tableName: 'giocatori',
+        timestamps: true,
     });
 
     return Giocatore;
