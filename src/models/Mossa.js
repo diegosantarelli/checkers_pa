@@ -1,15 +1,15 @@
-// src/models/Mossa.js
-
 'use strict';
 import { Model, DataTypes } from 'sequelize';
 
 export default (sequelize) => {
     class Mossa extends Model {
         static associate(models) {
+            // Associazione con la Partita
             Mossa.belongsTo(models.Partita, {
                 foreignKey: 'id_partita',
                 as: 'partita',
             });
+            // Associazione con il Giocatore
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
                 as: 'giocatore',
@@ -31,7 +31,7 @@ export default (sequelize) => {
             allowNull: false,
             references: {
                 model: 'Partita',
-                key: 'id_partita',
+                key: 'id_partita',  // Assicurati che la chiave primaria di 'Partita' sia corretta
             },
         },
         id_giocatore: {
@@ -39,7 +39,7 @@ export default (sequelize) => {
             allowNull: false,
             references: {
                 model: 'Giocatore',
-                key: 'id_giocatore',
+                key: 'id_giocatore',  // Assicurati che la chiave primaria di 'Giocatore' sia corretta
             },
         },
         data: {

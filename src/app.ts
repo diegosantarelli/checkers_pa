@@ -1,5 +1,8 @@
 import express from 'express';
-import gameRoutes from './routes/gameRoutes';
+import gameRoutes from './routes/checkerRoutes';
+import Giocatore from "./models/Giocatore";
+import Mossa from "./models/Mossa";
+import Partita from "./models/Partita";
 import { Sequelize } from 'sequelize';
 import path from 'path';
 import dotenv from 'dotenv';
@@ -7,8 +10,13 @@ import dotenv from 'dotenv';
 // Configurazione delle variabili d'ambiente
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT;  // Usa una variabile d'ambiente per la porta
+
+// Middleware per analizzare il corpo delle richieste in formato JSON
+app.use(express.json());
+app.use('/game', require('./routes/game')); // Rotte per la gestione delle partite
 
 // Configura la connessione a PostgreSQL
 const sequelize = new Sequelize(
@@ -30,9 +38,6 @@ sequelize.authenticate()
     .catch(err => {
         console.error('Impossibile connettersi al database:', err);
     });
-
-// Middleware per analizzare il corpo delle richieste in formato JSON
-app.use(express.json());
 
 // Rotta di prova
 app.get('/', (req, res) => {

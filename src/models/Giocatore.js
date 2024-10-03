@@ -1,5 +1,3 @@
-// src/models/Giocatore.js
-
 'use strict';
 import { Model, DataTypes } from 'sequelize';
 
@@ -27,22 +25,28 @@ export default (sequelize) => {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
+            validate: {
+                isEmail: true, // Verifica che l'email sia valida
+            }
         },
         hash: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: false, // Assicurati di hashare la password prima di salvarla
         },
         token_residuo: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.FLOAT, // Float per gestire valori decimali (come 0.0125 per ogni mossa)
             allowNull: false,
+            defaultValue: 0.45, // Default di partenza
         },
         punteggio_totale: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.FLOAT, // Anche qui un float in caso di punti parziali (come -0.5 per interruzione)
             allowNull: false,
+            defaultValue: 0, // Default iniziale
         },
         ruolo: {
-            type: DataTypes.STRING,
+            type: DataTypes.ENUM('utente', 'admin'), // Limita i valori possibili
             allowNull: false,
+            defaultValue: 'utente', // Ruolo predefinito
         },
     }, {
         sequelize,
