@@ -1,15 +1,13 @@
-'use strict';
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
 
-export default (sequelize) => {
+export default (sequelize: Sequelize) => {
     class Mossa extends Model {
-        static associate(models) {
-            // Associazione con la Partita
+        static associate(models: any) {
+            // Associazioni con Partita e Giocatore
             Mossa.belongsTo(models.Partita, {
                 foreignKey: 'id_partita',
                 as: 'partita',
             });
-            // Associazione con il Giocatore
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
                 as: 'giocatore',
@@ -31,7 +29,7 @@ export default (sequelize) => {
             allowNull: false,
             references: {
                 model: 'Partita',
-                key: 'id_partita',  // Assicurati che la chiave primaria di 'Partita' sia corretta
+                key: 'id_partita',
             },
         },
         id_giocatore: {
@@ -39,7 +37,7 @@ export default (sequelize) => {
             allowNull: false,
             references: {
                 model: 'Giocatore',
-                key: 'id_giocatore',  // Assicurati che la chiave primaria di 'Giocatore' sia corretta
+                key: 'id_giocatore',
             },
         },
         data: {

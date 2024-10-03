@@ -1,20 +1,17 @@
-'use strict';
-import { Model, DataTypes } from 'sequelize';
+import { Model, DataTypes, Sequelize } from 'sequelize';
 
-export default (sequelize) => {
+export default (sequelize: Sequelize) => {
     class Partita extends Model {
-        static associate(models) {
-            // Associazione con il Giocatore 1
+        static associate(models: any) {
+            // Associazioni con i giocatori e le mosse
             Partita.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore1',
                 as: 'giocatore1',
             });
-            // Associazione con il Giocatore 2
             Partita.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore2',
                 as: 'giocatore2',
             });
-            // Associazione con le mosse
             Partita.hasMany(models.Mossa, {
                 foreignKey: 'id_partita',
                 as: 'mosse',
@@ -28,7 +25,7 @@ export default (sequelize) => {
             allowNull: false,
             references: {
                 model: 'Giocatore',
-                key: 'id_giocatore',  // Chiave primaria del modello Giocatore
+                key: 'id_giocatore',
             },
         },
         id_giocatore2: {
@@ -36,18 +33,18 @@ export default (sequelize) => {
             allowNull: false,
             references: {
                 model: 'Giocatore',
-                key: 'id_giocatore',  // Chiave primaria del modello Giocatore
+                key: 'id_giocatore',
             },
         },
         stato: {
             type: DataTypes.ENUM('in corso', 'completata', 'abbandonata'),
             allowNull: false,
-            defaultValue: 'in corso', // Stato predefinito
+            defaultValue: 'in corso',
         },
         data_inizio: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW, // Imposta la data di creazione automaticamente
+            defaultValue: DataTypes.NOW,
         },
     }, {
         sequelize,

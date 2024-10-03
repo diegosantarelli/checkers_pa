@@ -1,11 +1,12 @@
 import express from 'express';
-import gameRoutes from './routes/checkerRoutes';
+//import gameRoutes from './routes/checkerRoutes';
 import Giocatore from "./models/Giocatore";
 import Mossa from "./models/Mossa";
 import Partita from "./models/Partita";
 import { Sequelize } from 'sequelize';
 import path from 'path';
 import dotenv from 'dotenv';
+//import checkerRoutes from "./routes/checkerRoutes";
 
 // Configurazione delle variabili d'ambiente
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -44,8 +45,8 @@ app.get('/', (req, res) => {
     res.send('Ciao, il server è attivo!');
 });
 
-// Collega le rotte
-app.use('/api', gameRoutes);
+// ROTTE DEL GIOCO
+//app.use('/api', checkerRoutes);
 
 // Avvio del server
 app.listen(port, () => {

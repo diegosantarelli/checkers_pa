@@ -8,10 +8,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": true // Permette l'uso di file JavaScript
+    "allowJs": true,// Permette l'uso di file JavaScript
+    "types": ["node", "express"],
+    "resolveJsonModule": true
   },
 
-  "include": ["src/**/*.ts", "src/**/*.js"], // Assicurati di includere anche i file .js
+  "include": ["src/**/*.ts", "src/**/*.js", "types/**/*.d.ts"], // Assicurati di includere anche i file .js
 
   "exclude": [
     "node_modules"
