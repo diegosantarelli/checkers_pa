@@ -72,7 +72,7 @@ export default (sequelize: Sequelize) => {
     }, {
         sequelize,
         modelName: 'Partita',
-        tableName: 'partite',  // Specifica il nome della tabella se necessario
+        tableName: 'Partita',
         timestamps: false,  // Imposta su true se usi createdAt/updatedAt
     });
 

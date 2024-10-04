@@ -1,15 +1,18 @@
 'use strict';
-const bcrypt = require('bcrypt');
 
-/** @type {import('sequelize-cli').Migration} */
+const bcrypt = require('bcrypt'); // Assicurati di importare bcrypt
+
 module.exports = {
   async up (queryInterface, Sequelize) {
     const saltRounds = 12;  // Numero di cicli di hashing
+
+    // Genera gli hash all'interno della funzione up
     const hashSimone = await bcrypt.hash('progavanzata', saltRounds);
     const hashDiego = await bcrypt.hash('provaprova', saltRounds);
     const hashPiero = await bcrypt.hash('testtest', saltRounds);
     const hashDavide = await bcrypt.hash('cracovia', saltRounds);
 
+    // Inserisci i giocatori nel database
     return queryInterface.bulkInsert('Giocatore', [{
       nome: 'Simone',
       cognome: 'Recinelli',
@@ -17,7 +20,7 @@ module.exports = {
       hash: hashSimone,
       token_residuo: 10,
       punteggio_totale: 100,
-      ruolo: 'giocatore',
+      ruolo: 'utente',
       createdAt: new Date(),
       updatedAt: new Date(),
     }, {
@@ -47,7 +50,7 @@ module.exports = {
       hash: hashDavide,
       token_residuo: 18,
       punteggio_totale: 160,
-      ruolo: 'giocatore',
+      ruolo: 'utente',
       createdAt: new Date(),
       updatedAt: new Date(),
     }]);

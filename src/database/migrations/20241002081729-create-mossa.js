@@ -21,9 +21,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: 'Partita',
-          key: 'id_partita',
+          key: 'id_partita',  // Deve corrispondere alla chiave primaria della tabella Partita
         },
         allowNull: false,
+        onDelete: 'CASCADE', // Opzionale: elimina tutte le mosse quando la partita viene eliminata
       },
       id_giocatore: {
         type: Sequelize.INTEGER,
@@ -32,6 +33,7 @@ module.exports = {
           key: 'id_giocatore',
         },
         allowNull: false,
+        onDelete: 'CASCADE', // Opzionale: elimina tutte le mosse associate se il giocatore viene eliminato
       },
       data: {
         type: Sequelize.DATE,

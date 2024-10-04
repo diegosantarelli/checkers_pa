@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Giocatore', { // Cambia [] in {}
+    await queryInterface.createTable('Giocatore', {
       id_giocatore: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -28,16 +28,19 @@ module.exports = {
         allowNull: false,
       },
       token_residuo: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
+        type: Sequelize.FLOAT,  // Cambiato a FLOAT
+        allowNull: false,        // Imposto non nullabile
+        defaultValue: 0.45,      // Valore predefinito
       },
       punteggio_totale: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
+        type: Sequelize.FLOAT,  // Anche qui, potrebbe essere più preciso usare FLOAT
+        allowNull: false,
+        defaultValue: 0.0,
       },
       ruolo: {
-        type: Sequelize.STRING,
-        defaultValue: 'giocatore',  // Può essere 'giocatore' o 'admin'
+        type: Sequelize.ENUM('utente', 'admin'),  // Utilizzo di ENUM per valori specifici
+        allowNull: false,
+        defaultValue: 'utente',
       },
       JWT: {
         type: Sequelize.STRING,
@@ -53,7 +56,7 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
       }
-    }); // Nota la rimozione delle parentesi quadre
+    });
   },
 
   async down (queryInterface, Sequelize) {

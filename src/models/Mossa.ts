@@ -48,6 +48,7 @@ export default (sequelize: Sequelize) => {
     }, {
         sequelize,
         modelName: 'Mossa',
+        tableName: 'Mossa',
     });
 
     return Mossa;

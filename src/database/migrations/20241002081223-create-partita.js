@@ -1,16 +1,15 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('Partita', { // Usa un oggetto invece di un array
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('Partita', {
       id_partita: {
         type: Sequelize.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
+        primaryKey: true,
         allowNull: false,
       },
-      data_creazione: {
+      data_inizio: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
@@ -24,7 +23,7 @@ module.exports = {
         allowNull: false,
       },
       token_iniziali: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
         allowNull: false,
       },
       mosse_totali: {
@@ -35,11 +34,15 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
+      livello_IA: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       id_giocatore1: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'Giocatore',  // Assicurati che il nome della tabella sia corretto
-          key: 'id_giocatore',  // Assicurati che il campo di riferimento sia corretto
+          model: 'Giocatore',
+          key: 'id_giocatore',
         },
         allowNull: false,
       },
@@ -81,11 +84,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
-      }
-    }); // Nota la rimozione delle parentesi quadre
+      },
+    });
   },
 
-  async down (queryInterface, Sequelize) {
-    return queryInterface.dropTable('Partita');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('Partita');
   }
 };

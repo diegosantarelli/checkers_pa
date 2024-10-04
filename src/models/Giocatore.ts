@@ -91,7 +91,7 @@ export default (sequelize: Sequelize) => {
     }, {
         sequelize,
         modelName: 'Giocatore',
-        tableName: 'giocatori',
+        tableName: 'Giocatore',
         timestamps: true,
     });
 

@@ -1,26 +1,14 @@
 import express, { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import Giocatore from '../models/Giocatore';  // Importa il tuo modello
+import Giocatore from '../models/Giocatore';
 import { verifyPassword } from '../helpers/passwordHelper';
-import {sequelize} from "../models";  // Funzione che verifica le password
+import { generateToken } from '../helpers/jwtHelper'; // Usa la funzione del jwtHelper
+import { sequelize } from "../models";
 
 const router = express.Router();
 const giocatore = Giocatore(sequelize);
 
-// Funzione per generare il token JWT
-const generateToken = (userId: string, role: string): string => {
-    const payload = {
-        id: userId,
-        role: role
-    };
-
-    return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, {
-        expiresIn: '1h'  // Durata del token
-    });
-};
-
 // Rotta di login
-router.post('/login', async (req: Request, res: Response): Promise<void> => {
+router.post('/', async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
     try {
@@ -30,8 +18,13 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
             res.status(401).json({ message: 'Credenziali non valide' });
             return;
         }
-        // Generazione del token JWT
-        const token = generateToken(user.id_giocatore.toString(), user.ruolo);
+
+        // Usa la funzione generateToken di jwtHelper per generare il token
+        const token = generateToken({
+            id_giocatore: user.id_giocatore,
+            ruolo: user.ruolo
+        });
+
         // Risposta con il token JWT
         res.status(200).json({ token });
     } catch (error) {
