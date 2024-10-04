@@ -7,7 +7,7 @@ module.exports = {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   },
 
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
 
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()); // Un anno fa
@@ -15,7 +15,7 @@ module.exports = {
 
     await queryInterface.bulkInsert('Partita', [
       {
-        data_creazione: this.getRandomDate(startDate, endDate),
+        data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'Completata',
         tipo: 'Competitiva',
         token_iniziali: 10,
@@ -30,7 +30,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        data_creazione: this.getRandomDate(startDate, endDate),
+        data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'Completata',
         tipo: 'Normale',
         token_iniziali: 20,
@@ -45,7 +45,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        data_creazione: this.getRandomDate(startDate, endDate),
+        data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'Completata',
         tipo: 'Amichevole',
         token_iniziali: 15,
@@ -60,7 +60,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        data_creazione: this.getRandomDate(startDate, endDate),
+        data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'In corso', // Partita in corso
         tipo: 'Amichevole',
         token_iniziali: 15,
@@ -77,7 +77,7 @@ module.exports = {
     ]);
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('Partita', null, {});
   }
 };

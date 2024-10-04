@@ -14,17 +14,17 @@ module.exports = {
         allowNull: false,
       },
       tavola: {
-        type: Sequelize.JSON, // Stato della scacchiera dopo la mossa
+        type: Sequelize.JSON,
         allowNull: false,
       },
       id_partita: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Partita',
-          key: 'id_partita',  // Deve corrispondere alla chiave primaria della tabella Partita
+          key: 'id_partita',  // Questo deve corrispondere esattamente alla colonna della chiave primaria in Partita
         },
         allowNull: false,
-        onDelete: 'CASCADE', // Opzionale: elimina tutte le mosse quando la partita viene eliminata
+        onDelete: 'CASCADE',
       },
       id_giocatore: {
         type: Sequelize.INTEGER,
@@ -33,7 +33,7 @@ module.exports = {
           key: 'id_giocatore',
         },
         allowNull: false,
-        onDelete: 'CASCADE', // Opzionale: elimina tutte le mosse associate se il giocatore viene eliminato
+        onDelete: 'CASCADE',
       },
       data: {
         type: Sequelize.DATE,

@@ -3,7 +3,7 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Partita', {
-      id_partita: {
+      id_partita: {  // Assicurati che questa colonna sia chiamata 'id_partita'
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
