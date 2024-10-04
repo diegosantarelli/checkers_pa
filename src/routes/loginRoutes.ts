@@ -22,7 +22,8 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
         // Usa la funzione generateToken di jwtHelper per generare il token
         const token = generateToken({
             id_giocatore: user.id_giocatore,
-            ruolo: user.ruolo
+            ruolo: user.ruolo,
+            email: user.email
         });
 
         // Risposta con il token JWT

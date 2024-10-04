@@ -10,6 +10,7 @@ const secret = process.env.JWT_SECRET as string; // Estrae la variabile d’ambi
 // Interfaccia per tipizzare il payload
 interface TokenPayload {
     id_giocatore: number;
+    email: string;
     ruolo: string;
 }
 

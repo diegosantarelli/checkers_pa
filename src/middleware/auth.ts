@@ -4,9 +4,10 @@ import HttpException from '../helpers/errorHandler';
 import { StatusCodes } from 'http-status-codes';
 import { JwtPayload } from 'jsonwebtoken';
 
-// interfaccia per il payload del token
+// Interfaccia per il payload del token
 interface TokenPayload extends JwtPayload {
     id_giocatore: number;
+    email: string; // Assicurati di includere questa proprietà se necessaria
     ruolo: string;
 }
 
@@ -22,13 +23,13 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
     try {
         const decoded = verifyToken(token);
         // Verifica che il token decodificato abbia la struttura corretta
-        if (decoded && typeof decoded !== 'string' && 'id_giocatore' in decoded) {
+        if (decoded && typeof decoded !== 'string' && 'id_giocatore' in decoded && 'email' in decoded) {
             req.user = decoded as TokenPayload;
             next(); // Continua verso il controller
         } else {
-            return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido'));
+            return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido o payload mancante'));
         }
     } catch (error) {
-        next(error);
+        next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido')); // Gestione errore
     }
 };
