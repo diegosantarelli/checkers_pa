@@ -18,7 +18,6 @@ module.exports = {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'Completata',
         tipo: 'Competitiva',
-        token_iniziali: 10,
         mosse_totali: 5,
         tempo_totale: 60,
         id_giocatore1: 1, // ID del primo giocatore (assicurati che esista)
@@ -33,7 +32,6 @@ module.exports = {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'Completata',
         tipo: 'Normale',
-        token_iniziali: 20,
         mosse_totali: 10,
         tempo_totale: 120,
         id_giocatore1: 2, // ID del primo giocatore
@@ -48,7 +46,6 @@ module.exports = {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'Completata',
         tipo: 'Amichevole',
-        token_iniziali: 15,
         mosse_totali: 8,
         tempo_totale: 90,
         id_giocatore1: 4, // ID del primo giocatore
@@ -63,7 +60,6 @@ module.exports = {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
         stato: 'In corso', // Partita in corso
         tipo: 'Amichevole',
-        token_iniziali: 15,
         mosse_totali: 3, // Alcune mosse già effettuate
         tempo_totale: 30, // Tempo totale trascorso
         id_giocatore1: 4, // ID del primo giocatore
