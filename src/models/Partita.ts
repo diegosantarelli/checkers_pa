@@ -5,9 +5,9 @@ interface PartitaAttributes {
     id_partita: number;
     id_giocatore1: number;
     id_giocatore2: number | null;
-    livello_IA: number | null;
+    livello_IA: string | null; // Cambiato a string per il livello di IA
     stato: 'in corso' | 'completata' | 'abbandonata';
-    tipo: string; // Aggiungi la proprietà `tipo`
+    tipo: string; // Proprietà tipo
     data_inizio: Date;
 }
 
@@ -19,9 +19,9 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public id_partita!: number;
     public id_giocatore1!: number;
     public id_giocatore2!: number | null;
-    public livello_IA!: number | null;
+    public livello_IA!: string | null; // Cambiato a string
     public stato!: 'in corso' | 'completata' | 'abbandonata';
-    public tipo!: string; // Aggiungi la proprietà `tipo`
+    public tipo!: string; // Proprietà tipo
     public data_inizio!: Date;
 
     static associate(models: any) {
@@ -54,7 +54,7 @@ export default (sequelize: Sequelize) => {
             },
         },
         livello_IA: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING, // Cambiato a string
             allowNull: true,
         },
         stato: {

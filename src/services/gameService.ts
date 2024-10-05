@@ -12,7 +12,7 @@ const Giocatore = initGiocatore(sequelize);
 const Partita = initPartita(sequelize); // Inizializza il modello con l'istanza di sequelize
 
 // Definisci un'interfaccia per il risultato della creazione della partita
-interface RisultatoPartitaPvP {
+interface creaPartitaPvP {
     success: boolean;
     statusCode: number;
     message: string;
@@ -20,30 +20,36 @@ interface RisultatoPartitaPvP {
         id_partita: number;
         id_giocatore1: number;
         id_giocatore2: number | null;
-        difficolta: null;
         stato: string;
         data_inizio: Date;
     };
 }
 
-interface RisultatoPartitaPvAI {
+interface creaPartitaPvAI {
     success: boolean;
     statusCode: number;
     message: string;
     data: {
+        id_partita: number;
         stato: string;
-        mosse: number;
-        tavola: string;
+        id_giocatore1: number; // Aggiungi ID del giocatore
+        data_inizio: Date;
     };
 }
+
+// Funzione per trovare l'ID del giocatore in base all'email
+const trovaIdGiocatore = async (email: string): Promise<number | null> => {
+    const giocatore: any = await Giocatore.findOne({ where: { email } });
+    return giocatore ? giocatore.id_giocatore : null; // Restituisce l'ID o null se non trovato
+};
 
 // Funzione per creare una nuova partita
 export const creaPartita = async (
     id_giocatore1: number,
-    id_giocatore2: number | null,
+    email_giocatore2: string | null,
     tipo: string,
-    difficolta?: string // Aggiungi un livello di IA opzionale
-): Promise<RisultatoPartitaPvP | RisultatoPartitaPvAI> => {
+    livello_IA?: string // Aggiungi un livello di IA opzionale
+): Promise<creaPartitaPvP | creaPartitaPvAI> => {
     const costoCreazione = 0.45;
 
     // Verifica il credito del giocatore 1
@@ -52,12 +58,16 @@ export const creaPartita = async (
         throw new Error('Credito insufficiente per creare la partita.');
     }
 
+    // Trova id_giocatore2 usando l'email
+    const id_giocatore2 = email_giocatore2 ? await trovaIdGiocatore(email_giocatore2) : null;
+
     // Crea la nuova partita
     const partita = await Partita.create({
         id_giocatore1: id_giocatore1,
         id_giocatore2: id_giocatore2,
         stato: 'in corso',
-        tipo: tipo, // Aggiungi il tipo alla creazione della partita
+        tipo: tipo,
+        livello_IA: livello_IA || null, // Imposta livello_IA a null se non fornito
         data_inizio: new Date(),
     });
 
@@ -65,67 +75,34 @@ export const creaPartita = async (
     await addebitaCrediti(id_giocatore1, costoCreazione);
 
     // Inizializza il gioco Draughts per la partita
-    const draughts = Draughts.setup(); // Usa solo Draughts.setup() senza specificare il giocatore
+    const draughts = Draughts.setup();
 
-    // Se è una partita contro IA, gestisci la logica dell'IA
-    if (difficolta) {
-        return await gestisciPartitaIA(draughts, difficolta); // Inizia la partita contro l'IA
+    // Se è una partita contro IA
+    if (livello_IA) {
+        return {
+            success: true,
+            statusCode: 200,
+            message: "Partita contro IA creata con successo",
+            data: {
+                id_partita: partita.id_partita,
+                stato: draughts.status,
+                id_giocatore1: id_giocatore1,
+                data_inizio: partita.data_inizio,
+            }
+        };
     }
 
     // Restituisci la partita creata e lo stato del gioco per PvP
     return {
         success: true,
         statusCode: 201,
-        message: "Partita creata con successo",
+        message: "Partita PvP creata con successo",
         data: {
-            id_partita: partita.id_partita, // Assicurati che il campo id sia corretto
+            id_partita: partita.id_partita,
             id_giocatore1: partita.id_giocatore1,
             id_giocatore2: partita.id_giocatore2,
-            difficolta: null,
             stato: partita.stato,
             data_inizio: partita.data_inizio,
-        }
-    };
-};
-
-// Funzione per gestire una partita contro IA
-const gestisciPartitaIA = async (draughts: any, difficolta: string) => {
-    let iaPlayer: (draughts: any) => Promise<any>; // Funzione per generare la mossa IA
-
-    // Scegli la strategia basata sul livello di difficoltà
-    switch (difficolta) {
-        case 'facile':
-            iaPlayer = ComputerFactory.random(); // Strategia casuale
-            break;
-        case 'normale':
-            iaPlayer = ComputerFactory.alphaBeta({ maxDepth: 3 }); // Profondità bassa
-            break;
-        case 'difficile':
-            iaPlayer = ComputerFactory.alphaBeta({ maxDepth: 5 }); // Profondità media
-            break;
-        case 'estrema':
-            iaPlayer = ComputerFactory.alphaBeta({ maxDepth: 7 }); // Profondità alta
-            break;
-        default:
-            throw new Error("Livello IA non valido");
-    }
-
-    // Loop per far giocare la partita fino a che non si trova un vincitore
-    while (draughts.status === DraughtsStatus.PLAYING) {
-        const mossaIA = await iaPlayer(draughts); // Genera la mossa IA
-        draughts.move(mossaIA); // Applica la mossa IA
-        console.log(`Mossa IA eseguita: ${mossaIA}`);
-    }
-
-    // Ritorna lo stato finale della partita
-    return {
-        success: true,
-        statusCode: 200,
-        message: "Partita terminata",
-        data: {
-            stato: draughts.status, // Modificato per allinearsi con l'interfaccia
-            mosse: draughts.history.moves.length, // Modificato per allinearsi con l'interfaccia
-            tavola: draughts.asciiBoard(), // Modificato per allinearsi con l'interfaccia
         }
     };
 };
@@ -151,5 +128,4 @@ const addebitaCrediti = async (id_giocatore1: number, importo: number): Promise<
 
 export default {
     creaPartita,
-    // Altre esportazioni se necessario
 };

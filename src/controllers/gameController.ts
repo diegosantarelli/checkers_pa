@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { creaPartita } from '../services/gameService';
-import HttpException from "../helpers/errorHandler"; // Importa il nuovo servizio
+import HttpException from "../helpers/errorHandler";
 
 class GameController {
     public static async createGame(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -10,36 +10,37 @@ class GameController {
             }
 
             const { id_giocatore } = req.user!;
-            const { id_giocatore2, tipo, livello_IA } = req.body; // Assicurati di ricevere livello_IA
+            const { email_giocatore2, tipo, livello_IA } = req.body;
 
-            const result = await creaPartita(id_giocatore, id_giocatore2, tipo, livello_IA);
+            // Determina il tipo di partita da creare
+            const result = await creaPartita(id_giocatore, email_giocatore2, tipo, livello_IA);
 
-            // Controlla se il risultato è una partita PvP
-            if ('id_partita' in result.data) {
+            // Usa il tipo di guardia per verificare il tipo di `result`
+            if ('id_giocatore2' in result.data) {
+                // Risultato PvP
                 res.status(201).json({
                     success: true,
                     statusCode: 201,
-                    message: "Game created successfully",
+                    message: "Partita PvP creata con successo",
                     data: {
                         id_partita: result.data.id_partita,
                         id_giocatore1: result.data.id_giocatore1,
                         id_giocatore2: result.data.id_giocatore2,
-                        difficolta: result.data.difficolta,
                         stato: result.data.stato,
                         data_inizio: result.data.data_inizio,
                     }
                 });
-            }
-            // Controlla se il risultato è una partita PvAI
-            else if ('stato' in result.data) {
+            } else {
+                // Risultato PvAI
                 res.status(200).json({
                     success: true,
                     statusCode: 200,
-                    message: "AI Game started successfully",
+                    message: "Partita contro IA creata con successo",
                     data: {
+                        id_partita: result.data.id_partita,
                         stato: result.data.stato,
-                        mosse: result.data.mosse,
-                        tavola: result.data.tavola,
+                        id_giocatore1: result.data.id_giocatore1,
+                        data_inizio: result.data.data_inizio, // Aggiungi data_inizio
                     }
                 });
             }
