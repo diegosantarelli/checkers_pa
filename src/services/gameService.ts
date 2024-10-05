@@ -1,8 +1,11 @@
 import sequelize from '../database/database'; // La tua configurazione di Sequelize
 import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
-const { Draughts, DraughtsPlayer, DraughtsStatus } = require('rapid-draughts'); // Importazione della libreria Draughts
-const { EnglishDraughtsComputerFactory: ComputerFactory } = require('rapid-draughts/english');
+import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts';
+import {
+    EnglishDraughts as Draughts,
+    EnglishDraughtsComputerFactory as ComputerFactory,
+} from 'rapid-draughts/english';
 
 // Inizializza i modelli con sequelize
 const Giocatore = initGiocatore(sequelize);
@@ -28,9 +31,9 @@ interface RisultatoPartitaPvAI {
     statusCode: number;
     message: string;
     data: {
-        stato: string; // Modificato per allinearsi con l'interfaccia
-        mosse: number; // Modificato per allinearsi con l'interfaccia
-        tavola: string; // Modificato per allinearsi con l'interfaccia
+        stato: string;
+        mosse: number;
+        tavola: string;
     };
 }
 
@@ -62,11 +65,7 @@ export const creaPartita = async (
     await addebitaCrediti(id_giocatore1, costoCreazione);
 
     // Inizializza il gioco Draughts per la partita
-    const draughts = Draughts.setup({
-        player: Draughts.Player[`giocatore${id_giocatore1}`], // Imposta il giocatore attuale
-    });
-
-    console.log(Draughts);
+    const draughts = Draughts.setup(); // Usa solo Draughts.setup() senza specificare il giocatore
 
     // Se è una partita contro IA, gestisci la logica dell'IA
     if (difficolta) {
@@ -148,4 +147,9 @@ const addebitaCrediti = async (id_giocatore1: number, importo: number): Promise<
     }
     giocatore.token_residuo -= importo; // Deduci l'importo dal saldo dei token
     await giocatore.save(); // Salva le modifiche
+};
+
+export default {
+    creaPartita,
+    // Altre esportazioni se necessario
 };

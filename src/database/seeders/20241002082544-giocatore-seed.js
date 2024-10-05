@@ -45,7 +45,7 @@ module.exports = {
       updatedAt: new Date(),
     }, {
       nome: 'Davide',
-      cognome: 'Ciotti',
+      cognome: 'Santurbano',
       email: 'davide@example.com',
       hash: hashDavide,
       token_residuo: 18,
