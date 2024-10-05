@@ -21,7 +21,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         references: {
           model: 'Partita',
-          key: 'id_partita',  // Questo deve corrispondere esattamente alla colonna della chiave primaria in Partita
+          key: 'id_partita',
         },
         allowNull: false,
         onDelete: 'CASCADE',
@@ -43,14 +43,9 @@ module.exports = {
       pezzo: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      tipo_pezzo: {
-        type: Sequelize.ENUM('singolo', 'dama'),
-        allowNull: false,
-      },
-      direzione: {
-        type: Sequelize.ENUM('avanti', 'indietro'),
-        allowNull: false,
+        validate: {
+          isIn: [['singolo', 'dama']],
+        },
       },
       cattura: {
         type: Sequelize.BOOLEAN,
@@ -69,11 +64,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
-      }
+      },
     });
   },
 
   async down(queryInterface, Sequelize) {
-    return queryInterface.dropTable('Mossa');
+    await queryInterface.dropTable('Mossa');
   }
 };

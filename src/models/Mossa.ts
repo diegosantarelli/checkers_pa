@@ -3,7 +3,6 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 export default (sequelize: Sequelize) => {
     class Mossa extends Model {
         static associate(models: any) {
-            // Associazioni con Partita e Giocatore
             Mossa.belongsTo(models.Partita, {
                 foreignKey: 'id_partita',
                 as: 'partita',
@@ -16,6 +15,11 @@ export default (sequelize: Sequelize) => {
     }
 
     Mossa.init({
+        id_mossa: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
         numero_mossa: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -23,6 +27,10 @@ export default (sequelize: Sequelize) => {
         tavola: {
             type: DataTypes.JSON,
             allowNull: false,
+        },
+        pezzo: {
+            type: DataTypes.STRING,  // Definisci il tipo per la colonna pezzo
+            allowNull: true,  // Consenti valori null se pezzo non è sempre necessario
         },
         id_partita: {
             type: DataTypes.INTEGER,
