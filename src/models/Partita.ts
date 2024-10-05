@@ -5,9 +5,10 @@ interface PartitaAttributes {
     id_partita: number;
     id_giocatore1: number;
     id_giocatore2: number | null;
-    livello_IA: "facile" | "normale" | "difficile" | "estrema" | null; // Cambiato a string per il livello di IA
+    livello_IA: 'facile' | 'normale' | 'difficile' | 'estrema' | null; // Cambiato a string per il livello di IA
     stato: 'in corso' | 'completata' | 'abbandonata';
-    tipo: string; // Proprietà tipo
+    tipo: 'Amichevole' | 'Normale' | 'Competitiva'; // Tipi validi
+    tavola: string; // Aggiunta per rappresentare la configurazione della tavola
     data_inizio: Date;
 }
 
@@ -21,7 +22,8 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public id_giocatore2!: number | null;
     public livello_IA!: 'facile' | 'normale' | 'difficile' | 'estrema' | null;
     public stato!: 'in corso' | 'completata' | 'abbandonata';
-    public tipo!: string; // Proprietà tipo
+    public tipo!: 'Amichevole' | 'Normale' | 'Competitiva'; // Tipi validi
+    public tavola!: string; // Rappresentazione della tavola
     public data_inizio!: Date;
 
     static associate(models: any) {
@@ -54,7 +56,7 @@ export default (sequelize: Sequelize) => {
             },
         },
         livello_IA: {
-            type: DataTypes.ENUM('facile', 'normale', 'difficile', 'estrema'),
+            type: DataTypes.ENUM('facile', 'normale', 'difficile', 'estrema'), // Uso di ENUM per livello IA
             allowNull: true,
         },
         stato: {
@@ -62,8 +64,12 @@ export default (sequelize: Sequelize) => {
             allowNull: false,
             defaultValue: 'in corso',
         },
-        tipo: {  // Definisci la colonna `tipo`
-            type: DataTypes.ENUM('Amichevole', 'Normale', 'Competitiva'),
+        tipo: {
+            type: DataTypes.ENUM('Amichevole', 'Normale', 'Competitiva'), // Uso di ENUM per tipo
+            allowNull: false,
+        },
+        tavola: {
+            type: DataTypes.STRING, // Usa STRING o TEXT a seconda delle tue necessità
             allowNull: false,
         },
         data_inizio: {

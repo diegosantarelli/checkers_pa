@@ -3,6 +3,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes'; // Corretto import per loginRoutes
 import checkerRoutes from './routes/checkerRoutes'; // Corretto import per checkerRoutes
+import mossaRoutes from './routes/mossaRoutes';
 
 // Configurazione delle variabili d'ambiente
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -24,8 +25,8 @@ app.use('/login', loginRoutes);
 // Rotta protetta per creare la partita
 app.use('/game', checkerRoutes);
 
-// Middleware per la gestione degli errori (opzionale, se lo hai implementato)
-// app.use(errorHandler);
+// Rotta per validazione mossa
+app.use('/do', mossaRoutes);
 
 // Avvio del server
 app.listen(port, () => {

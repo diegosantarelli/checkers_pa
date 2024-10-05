@@ -71,6 +71,10 @@ module.exports = {
         allowNull: true,
         defaultValue: false,
       },
+      tavola: {
+        type: Sequelize.JSON, // Cambiato a JSON per gestire le configurazioni della tavola
+        allowNull: false,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

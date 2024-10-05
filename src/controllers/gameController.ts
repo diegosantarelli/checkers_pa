@@ -12,6 +12,11 @@ class GameController {
             const { id_giocatore } = req.user!;
             const { email_giocatore2, tipo, livello_IA } = req.body;
 
+            // Verifica che solo uno dei due sia fornito
+            if ((email_giocatore2 && livello_IA) || (!email_giocatore2 && !livello_IA)) {
+                throw new HttpException(400, 'Devi specificare o l\'email del giocatore 2 oppure il livello IA.');
+            }
+
             const result = await creaPartita(id_giocatore, email_giocatore2, tipo, livello_IA);
 
             if ('id_giocatore2' in result.data && result.data.id_giocatore2 !== null) {
@@ -35,7 +40,6 @@ class GameController {
             next(error);
         }
     }
-
 }
 
 export default GameController;

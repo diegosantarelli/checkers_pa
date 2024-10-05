@@ -2,6 +2,11 @@ import sequelize from '../database/database'; // La tua configurazione di Sequel
 import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
 import HttpException from "../helpers/errorHandler"; // Importa l'eccezione personalizzata
+import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts'; // Importa i moduli necessari
+import {
+    EnglishDraughts as Draughts,
+    EnglishDraughtsComputerFactory as ComputerFactory,
+} from 'rapid-draughts/english';
 
 // Inizializza i modelli con sequelize
 const Giocatore = initGiocatore(sequelize);
@@ -17,6 +22,7 @@ interface creaPartitaPvP {
         id_giocatore1: number;
         id_giocatore2: number | null;
         stato: string;
+        tavola: string;
         data_inizio: Date;
     };
 }
@@ -84,7 +90,7 @@ export const creaPartita = async (
             // Controlla il formato email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email_giocatore2)) {
-                throw new HttpException(400, `L'email ${email_giocatore2} non è valida. Usa un formato email valido, come tuo_nome_utente@example.com.`);
+                throw new HttpException(400, `L'email ${email_giocatore2} non è valida. Usa un formato email valido.`);
             }
 
             // Trova id_giocatore2 usando l'email
@@ -94,6 +100,9 @@ export const creaPartita = async (
             }
         }
 
+        // Inizializza la scacchiera usando Draughts
+        const tavola = JSON.stringify(Draughts.setup()); // Inizializza la tavola
+
         // Crea la nuova partita
         const partita = await Partita.create({
             id_giocatore1,
@@ -101,6 +110,7 @@ export const creaPartita = async (
             stato: 'in corso',
             tipo,
             livello_IA,
+            tavola,
             data_inizio: new Date(),
         });
 
