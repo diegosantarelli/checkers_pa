@@ -15,11 +15,11 @@ module.exports = {
         defaultValue: Sequelize.fn('now'),
       },
       stato: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM('in corso', 'completata', 'abbandonata'),
         allowNull: false,
       },
       tipo: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM('Amichevole', 'Normale', 'Competitiva'),
         allowNull: false,
       },
       mosse_totali: {
@@ -31,7 +31,7 @@ module.exports = {
         defaultValue: 0,
       },
       livello_IA: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.ENUM('facile', 'normale', 'difficile', 'estrema'),
         allowNull: true,
       },
       id_giocatore1: {

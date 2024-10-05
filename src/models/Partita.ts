@@ -5,7 +5,7 @@ interface PartitaAttributes {
     id_partita: number;
     id_giocatore1: number;
     id_giocatore2: number | null;
-    livello_IA: string | null; // Cambiato a string per il livello di IA
+    livello_IA: "facile" | "normale" | "difficile" | "estrema" | null; // Cambiato a string per il livello di IA
     stato: 'in corso' | 'completata' | 'abbandonata';
     tipo: string; // Proprietà tipo
     data_inizio: Date;
@@ -19,7 +19,7 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public id_partita!: number;
     public id_giocatore1!: number;
     public id_giocatore2!: number | null;
-    public livello_IA!: string | null; // Cambiato a string
+    public livello_IA!: 'facile' | 'normale' | 'difficile' | 'estrema' | null;
     public stato!: 'in corso' | 'completata' | 'abbandonata';
     public tipo!: string; // Proprietà tipo
     public data_inizio!: Date;
@@ -54,7 +54,7 @@ export default (sequelize: Sequelize) => {
             },
         },
         livello_IA: {
-            type: DataTypes.STRING, // Cambiato a string
+            type: DataTypes.ENUM('facile', 'normale', 'difficile', 'estrema'),
             allowNull: true,
         },
         stato: {
@@ -63,7 +63,7 @@ export default (sequelize: Sequelize) => {
             defaultValue: 'in corso',
         },
         tipo: {  // Definisci la colonna `tipo`
-            type: DataTypes.STRING,
+            type: DataTypes.ENUM('Amichevole', 'Normale', 'Competitiva'),
             allowNull: false,
         },
         data_inizio: {

@@ -16,7 +16,7 @@ module.exports = {
     await queryInterface.bulkInsert('Partita', [
       {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
-        stato: 'Completata',
+        stato: 'completata',
         tipo: 'Competitiva',
         mosse_totali: 5,
         tempo_totale: 60,
@@ -30,7 +30,7 @@ module.exports = {
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
-        stato: 'Completata',
+        stato: 'completata',
         tipo: 'Normale',
         mosse_totali: 10,
         tempo_totale: 120,
@@ -44,7 +44,7 @@ module.exports = {
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
-        stato: 'Completata',
+        stato: 'completata',
         tipo: 'Amichevole',
         mosse_totali: 8,
         tempo_totale: 90,
@@ -58,7 +58,7 @@ module.exports = {
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate), // Corretto a `data_inizio`
-        stato: 'In corso', // Partita in corso
+        stato: 'in corso', // Partita in corso
         tipo: 'Amichevole',
         mosse_totali: 3, // Alcune mosse già effettuate
         tempo_totale: 30, // Tempo totale trascorso
