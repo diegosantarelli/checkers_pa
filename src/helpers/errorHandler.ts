@@ -21,7 +21,11 @@ export const handleError = (err: HttpException, res: any) => {
     res.status(statusCode || StatusCodes.INTERNAL_SERVER_ERROR).json({
         status: "error",
         statusCode: statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-        message: message || "Internal Server Error"
+        message: message.replace(/&#39;/g, "'") // Sostituisci &#39; con '
+            .replace(/&quot;/g, '"') // Sostituisci &quot; con "
+            .replace(/&amp;/g, '&') // Sostituisci &amp; con &
+            .replace(/&lt;/g, '<') // Sostituisci &lt; con <
+            .replace(/&gt;/g, '>') // Sostituisci &gt; con >
     });
 };
 

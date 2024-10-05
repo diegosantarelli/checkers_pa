@@ -54,11 +54,17 @@ export const creaPartita = async (
         const livelliValidi = ["facile", "normale", "difficile", "estrema"];
 
         if (!tipiValidi.includes(tipo)) {
-            throw new HttpException(400, `Il tipo '${tipo}' non è valido. I tipi validi sono: ${tipiValidi.join(", ")}`);
+            throw new HttpException(400, `Il tipo ${tipo} non è valido. I tipi validi sono: ${tipiValidi.join(", ")}`);
         }
 
         if (livello_IA && !livelliValidi.includes(livello_IA)) {
-            throw new HttpException(400, `Il livello IA '${livello_IA}' non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
+            throw new HttpException(400, `Il livello IA ${livello_IA} non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
+        }
+
+        // Controlla se email_giocatore2 è uguale all'email di id_giocatore1
+        const giocatore1 = await Giocatore.findByPk(id_giocatore1);
+        if (giocatore1 && email_giocatore2 === giocatore1.email) {
+            throw new HttpException(400, "Non puoi sfidare te stesso.");
         }
 
         // Verifica il credito del giocatore 1
@@ -67,26 +73,19 @@ export const creaPartita = async (
             throw new HttpException(400, 'Credito insufficiente per creare la partita.');
         }
 
-        // Validazione email giocatore2 per PvP
+        // Trova id_giocatore2 usando l'email
         let id_giocatore2: number | null = null;
-
         if (email_giocatore2) {
             // Controlla il formato email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email_giocatore2)) {
-                throw new HttpException(400, `L'email '${email_giocatore2}' non è valida. Usa un formato email valido, come 'tuo_nome_utente@example.com'.`);
+                throw new HttpException(400, `L'email ${email_giocatore2} non è valida. Usa un formato email valido, come tuo_nome_utente@example.com.`);
             }
 
             // Trova id_giocatore2 usando l'email
             id_giocatore2 = await trovaIdGiocatore(email_giocatore2);
             if (!id_giocatore2) {
-                throw new HttpException(404, `Il giocatore con email '${email_giocatore2}' non è stato trovato.`);
-            }
-
-            // Controlla che il giocatore 2 sia effettivamente il giocatore registrato con quella email
-            const giocatore2 = await Giocatore.findByPk(id_giocatore2);
-            if (giocatore2 && giocatore2.email !== email_giocatore2) {
-                throw new HttpException(400, `L'email fornita non corrisponde al giocatore registrato.`);
+                throw new HttpException(404, `Il giocatore con email ${email_giocatore2} non è stato trovato. Inserisci la email di un giocatore esistente.`);
             }
         }
 
