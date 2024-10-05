@@ -49,6 +49,12 @@ export const creaPartita = async (
     const costoCreazione = 0.45;
 
     try {
+        // Verifica se l'utente è normale
+        const giocatore1 = await Giocatore.findByPk(id_giocatore1);
+        if (!giocatore1 || giocatore1.ruolo !== 'utente') {
+            throw new HttpException(403, 'Solo gli utenti normali possono creare una partita.');
+        }
+
         // Validazione dei parametri
         const tipiValidi = ["Amichevole", "Normale", "Competitiva"];
         const livelliValidi = ["facile", "normale", "difficile", "estrema"];
@@ -62,8 +68,7 @@ export const creaPartita = async (
         }
 
         // Controlla se email_giocatore2 è uguale all'email di id_giocatore1
-        const giocatore1 = await Giocatore.findByPk(id_giocatore1);
-        if (giocatore1 && email_giocatore2 === giocatore1.email) {
+        if (email_giocatore2 && email_giocatore2 === giocatore1.email) {
             throw new HttpException(400, "Non puoi sfidare te stesso.");
         }
 
@@ -85,7 +90,7 @@ export const creaPartita = async (
             // Trova id_giocatore2 usando l'email
             id_giocatore2 = await trovaIdGiocatore(email_giocatore2);
             if (!id_giocatore2) {
-                throw new HttpException(404, `Il giocatore con email ${email_giocatore2} non è stato trovato. Inserisci la email di un giocatore esistente.`);
+                throw new HttpException(404, `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
             }
         }
 
