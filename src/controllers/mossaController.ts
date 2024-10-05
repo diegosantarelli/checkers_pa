@@ -16,11 +16,11 @@ class MoveController {
             // Esegui la mossa e ottieni il risultato
             const result = await MoveService.executeMove(id_partita, from, to, id_giocatore1);
 
-            // Modifica la risposta qui
+            // Risposta senza parsing della tavola
             res.status(200).json({
                 message: "Mossa eseguita con successo",
                 id_partita: result.id_partita,
-                tavola: JSON.parse(result.tavola) // Assicurati che la tavola sia un oggetto
+                tavola: result.tavola // Tavola è già un oggetto
             });
         } catch (error) {
             next(error); // Passa l'errore al middleware per la gestione degli errori

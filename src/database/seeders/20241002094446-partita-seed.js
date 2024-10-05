@@ -24,8 +24,8 @@ module.exports = {
       }
     }
 
-    // Restituisci la configurazione come oggetto
-    return board;
+    // Restituisci la configurazione come JSON serializzato
+    return JSON.stringify({ initialBoard: board });
   },
 
   async up(queryInterface, Sequelize) {
@@ -46,7 +46,7 @@ module.exports = {
         id_vincitore: 1,
         vincitore_ai: true,
         livello_IA: 'facile',
-        tavola: JSON.stringify(this.generateRandomBoardConfig()), // Tavola inizializzata con configurazione casuale
+        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -62,7 +62,7 @@ module.exports = {
         id_vincitore: 2,
         vincitore_ai: false,
         livello_IA: null,
-        tavola: JSON.stringify(this.generateRandomBoardConfig()), // Tavola inizializzata con configurazione casuale
+        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -78,7 +78,7 @@ module.exports = {
         id_vincitore: 4,
         vincitore_ai: false,
         livello_IA: null,
-        tavola: JSON.stringify(this.generateRandomBoardConfig()), // Tavola inizializzata con configurazione casuale
+        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -94,7 +94,7 @@ module.exports = {
         id_vincitore: null,
         vincitore_ai: null,
         livello_IA: 'estrema',
-        tavola: JSON.stringify(this.generateRandomBoardConfig()), // Tavola inizializzata con configurazione casuale
+        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
         createdAt: new Date(),
         updatedAt: new Date(),
       },

@@ -8,7 +8,7 @@ interface PartitaAttributes {
     livello_IA: 'facile' | 'normale' | 'difficile' | 'estrema' | null; // Cambiato a string per il livello di IA
     stato: 'in corso' | 'completata' | 'abbandonata';
     tipo: 'Amichevole' | 'Normale' | 'Competitiva'; // Tipi validi
-    tavola: string; // Aggiunta per rappresentare la configurazione della tavola
+    tavola: any; // Aggiunta per rappresentare la configurazione della tavola come JSON
     data_inizio: Date;
 }
 
@@ -23,7 +23,7 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public livello_IA!: 'facile' | 'normale' | 'difficile' | 'estrema' | null;
     public stato!: 'in corso' | 'completata' | 'abbandonata';
     public tipo!: 'Amichevole' | 'Normale' | 'Competitiva'; // Tipi validi
-    public tavola!: string; // Rappresentazione della tavola
+    public tavola!: any; // JSON per la configurazione della tavola
     public data_inizio!: Date;
 
     static associate(models: any) {
@@ -69,7 +69,7 @@ export default (sequelize: Sequelize) => {
             allowNull: false,
         },
         tavola: {
-            type: DataTypes.STRING, // Usa STRING o TEXT a seconda delle tue necessità
+            type: DataTypes.JSON, // Usa JSON per rappresentare la tavola
             allowNull: false,
         },
         data_inizio: {
