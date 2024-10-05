@@ -1,11 +1,7 @@
 import sequelize from '../database/database'; // La tua configurazione di Sequelize
 import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
-/*import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts';
-import {
-    EnglishDraughts as Draughts,
-    EnglishDraughtsComputerFactory as ComputerFactory,
-} from 'rapid-draughts/english';*/
+import HttpException from "../helpers/errorHandler"; // Importa l'eccezione personalizzata
 
 // Inizializza i modelli con sequelize
 const Giocatore = initGiocatore(sequelize);
@@ -39,7 +35,7 @@ interface creaPartitaPvAI {
 
 // Funzione per trovare l'ID del giocatore in base all'email
 const trovaIdGiocatore = async (email: string): Promise<number | null> => {
-    const giocatore: any = await Giocatore.findOne({ where: { email } });
+    const giocatore = await Giocatore.findOne({ where: { email } });
     return giocatore ? giocatore.id_giocatore : null;
 };
 
@@ -53,14 +49,46 @@ export const creaPartita = async (
     const costoCreazione = 0.45;
 
     try {
+        // Validazione dei parametri
+        const tipiValidi = ["Amichevole", "Normale", "Competitiva"];
+        const livelliValidi = ["facile", "normale", "difficile", "estrema"];
+
+        if (!tipiValidi.includes(tipo)) {
+            throw new HttpException(400, `Il tipo '${tipo}' non è valido. I tipi validi sono: ${tipiValidi.join(", ")}`);
+        }
+
+        if (livello_IA && !livelliValidi.includes(livello_IA)) {
+            throw new HttpException(400, `Il livello IA '${livello_IA}' non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
+        }
+
         // Verifica il credito del giocatore 1
         const creditoGiocatore1 = await verificaCredito(id_giocatore1);
         if (creditoGiocatore1 < costoCreazione) {
-            throw new Error('Credito insufficiente per creare la partita.');
+            throw new HttpException(400, 'Credito insufficiente per creare la partita.');
         }
 
-        // Trova id_giocatore2 usando l'email
-        const id_giocatore2 = email_giocatore2 ? await trovaIdGiocatore(email_giocatore2) : null;
+        // Validazione email giocatore2 per PvP
+        let id_giocatore2: number | null = null;
+
+        if (email_giocatore2) {
+            // Controlla il formato email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email_giocatore2)) {
+                throw new HttpException(400, `L'email '${email_giocatore2}' non è valida. Usa un formato email valido, come 'tuo_nome_utente@example.com'.`);
+            }
+
+            // Trova id_giocatore2 usando l'email
+            id_giocatore2 = await trovaIdGiocatore(email_giocatore2);
+            if (!id_giocatore2) {
+                throw new HttpException(404, `Il giocatore con email '${email_giocatore2}' non è stato trovato.`);
+            }
+
+            // Controlla che il giocatore 2 sia effettivamente il giocatore registrato con quella email
+            const giocatore2 = await Giocatore.findByPk(id_giocatore2);
+            if (giocatore2 && giocatore2.email !== email_giocatore2) {
+                throw new HttpException(400, `L'email fornita non corrisponde al giocatore registrato.`);
+            }
+        }
 
         // Crea la nuova partita
         const partita = await Partita.create({
@@ -109,12 +137,11 @@ export const creaPartita = async (
     }
 };
 
-
 // Funzione di verifica del credito
 const verificaCredito = async (id_giocatore1: number): Promise<number> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
     if (!giocatore) {
-        throw new Error('Giocatore non trovato.');
+        throw new HttpException(404, 'Giocatore non trovato.');
     }
     return giocatore.token_residuo;
 };
@@ -123,7 +150,7 @@ const verificaCredito = async (id_giocatore1: number): Promise<number> => {
 const addebitaCrediti = async (id_giocatore1: number, importo: number): Promise<void> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
     if (!giocatore) {
-        throw new Error('Giocatore non trovato.');
+        throw new HttpException(404, 'Giocatore non trovato.');
     }
     giocatore.token_residuo -= importo;
     await giocatore.save();

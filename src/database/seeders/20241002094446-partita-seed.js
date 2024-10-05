@@ -25,6 +25,7 @@ module.exports = {
         id_ai: 1, // ID dell'AI
         id_vincitore: 1, // L'AI vince
         vincitore_ai: true, // L'AI è il vincitore
+        livello_IA: 'facile',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -39,6 +40,7 @@ module.exports = {
         id_ai: null, // Nessuna AI presente
         id_vincitore: 2, // Giocatore 2 vince
         vincitore_ai: false, // Il vincitore è un giocatore
+        livello_IA: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -53,6 +55,7 @@ module.exports = {
         id_ai: null, // Nessuna AI presente
         id_vincitore: 4, // Giocatore 1 vince
         vincitore_ai: false, // Il vincitore è un giocatore
+        livello_IA: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -67,6 +70,7 @@ module.exports = {
         id_ai: 2, // ID dell'AI
         id_vincitore: null, // Non c'è vincitore ancora
         vincitore_ai: null, // Non c'è vincitore ancora
+        livello_IA: 'estrema',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
