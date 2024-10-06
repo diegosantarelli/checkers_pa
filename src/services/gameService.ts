@@ -58,12 +58,10 @@ export const creaPartita = async (
             throw new HttpException(403, 'Solo gli utenti normali possono creare una partita.');
         }
 
-        // **CONTROLLA SE I TOKEN SONO ESAURITI**
         if (giocatore1.token_residuo <= 0) {
             throw new HttpException(401, 'Token terminati. Non puoi effettuare questa operazione.');
         }
 
-        // **AGGIUNGI IL CONTROLLO PER PARTITE IN CORSO**
         const partitaInCorso = await Partita.findOne({
             where: {
                 [Op.or]: [
@@ -95,7 +93,7 @@ export const creaPartita = async (
 
         const creditoGiocatore1 = await verificaCredito(id_giocatore1);
         if (creditoGiocatore1 < costoCreazione) {
-            throw new HttpException(401, 'Token terminati. Non puoi effettuare questa operazione.'); // Restituisci 401 se il credito è insufficiente
+            throw new HttpException(401, 'Token terminati. Non puoi effettuare questa operazione.');
         }
 
         let id_giocatore2: number | null = null;
@@ -111,7 +109,20 @@ export const creaPartita = async (
             }
         }
 
-        const tavola = JSON.stringify(Draughts.setup());
+        // Ottieni solo le caselle nere e i pezzi
+        const draughts = Draughts.setup();
+        const initialBoard = draughts.board.map((square: any, index: number) => {
+            if (square && square.dark) {
+                return {
+                    dark: true,
+                    position: index,
+                    piece: square.piece
+                };
+            }
+            return null;
+        }).filter(Boolean);  // Filtra i valori nulli
+
+        const tavola = JSON.stringify({ initialBoard });
 
         const partita = await Partita.create({
             id_giocatore1,

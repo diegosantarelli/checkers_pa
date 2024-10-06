@@ -1,12 +1,11 @@
 'use strict';
 
-const bcrypt = require('bcrypt'); // Assicurati di importare bcrypt
+const bcrypt = require('bcrypt');
 
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    const saltRounds = 12;  // Numero di cicli di hashing
+  async up(queryInterface, Sequelize) {
+    const saltRounds = 12;
 
-    // Inserisci i giocatori nel database
     return queryInterface.bulkInsert('Giocatore', [{
       nome: 'Simone',
       cognome: 'Recinelli',
@@ -50,7 +49,7 @@ module.exports = {
     }]);
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Giocatore', null, {});
+  async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('Giocatore', { id_giocatore: 999 });
   }
 };

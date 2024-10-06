@@ -12,6 +12,7 @@ class GameStatusService {
 
             let risultato = '';
 
+            // Se la partita è completata e ha un vincitore
             if (partita.stato === 'completata' && partita.id_vincitore) {
                 const vincitore = await Giocatore.findByPk(partita.id_vincitore);
 
@@ -19,33 +20,27 @@ class GameStatusService {
                     throw new HttpException(404, 'Vincitore non trovato');
                 }
 
-                vincitore.aggiungiPunto();
-                await vincitore.save();
-
                 risultato = `La partita è stata vinta da ${vincitore.nome}`;
-            } else if (partita.stato === 'abbandonata') {
+            }
+            // Se la partita è abbandonata
+            else if (partita.stato === 'abbandonata') {
                 const giocatore = await Giocatore.findByPk(id_giocatore);
 
                 if (!giocatore) {
                     throw new HttpException(404, 'Giocatore non trovato');
                 }
 
-                giocatore.sottraiPunto();
-                await giocatore.save();
-
-                risultato = `${giocatore.nome} ha abbandonato la partita e ha perso 0.5 punti`;
-            } else if (partita.stato === 'in corso') {
+                risultato = `${giocatore.nome} ha abbandonato la partita`;
+            }
+            // Se la partita è ancora in corso
+            else if (partita.stato === 'in corso') {
                 risultato = `Partita in corso`;
             }
 
-            if (partita.stato !== 'in corso') {
-                partita.stato = 'completata';
-                await partita.save();
-            }
-
+            // Restituisce semplicemente lo stato della partita senza alterare il punteggio
             return {
                 success: true,
-                statusCode: 201,
+                statusCode: 200,
                 risultato
             };
         } catch (error: unknown) {
@@ -60,6 +55,7 @@ class GameStatusService {
         }
     }
 
+    // Metodo per abbandonare la partita
     public static async abbandonaPartita(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
@@ -86,16 +82,24 @@ class GameStatusService {
             partita.id_vincitore = id_vincitore;
             await partita.save();
 
+            // Penalizza il giocatore che ha abbandonato la partita
             const giocatore = await Giocatore.findByPk(id_giocatore);
             if (giocatore) {
                 giocatore.punteggio_totale -= 0.5;
                 await giocatore.save();
             }
 
+            // Aggiungi 1 punto al vincitore della partita abbandonata
+            const vincitore = await Giocatore.findByPk(id_vincitore);
+            if (vincitore) {
+                vincitore.punteggio_totale += 1;
+                await vincitore.save();
+            }
+
             return {
                 success: true,
                 statusCode: 201,
-                risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita. Il giocatore ${id_vincitore} ha vinto.`
+                risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita. Il giocatore ${id_vincitore} ha vinto e ha ricevuto 1 punto.`
             };
         } catch (error: unknown) {
             if (error instanceof HttpException) {

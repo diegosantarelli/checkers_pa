@@ -18,7 +18,6 @@ module.exports = {
       board[i] = { dark: true, position: i, piece: { player: 'light', king: false } }; // Giocatore 2
     }
 
-    // Restituisci la configurazione come JSON serializzato con il formato richiesto da Draughts
     return JSON.stringify({ initialBoard: board });
   },
 
@@ -40,23 +39,7 @@ module.exports = {
         id_vincitore: 1,
         vincitore_ai: true,
         livello_IA: 'facile',
-        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        data_inizio: this.getRandomDate(startDate, endDate),
-        stato: 'completata',
-        tipo: 'Normale',
-        mosse_totali: 10,
-        tempo_totale: 120,
-        id_giocatore1: 1,
-        id_giocatore2: 4,
-        id_ai: null,
-        id_vincitore: 1,
-        vincitore_ai: false,
-        livello_IA: null,
-        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
+        tavola: this.generateRandomBoardConfig(),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -66,50 +49,19 @@ module.exports = {
         tipo: 'Amichevole',
         mosse_totali: 8,
         tempo_totale: 90,
-        id_giocatore1: 4,
-        id_giocatore2: 3,
-        id_ai: null,
-        id_vincitore: null,
-        vincitore_ai: false,
-        livello_IA: null,
-        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        data_inizio: this.getRandomDate(startDate, endDate),
-        stato: 'in corso',
-        tipo: 'Amichevole',
-        mosse_totali: 3,
-        tempo_totale: 30,
         id_giocatore1: 4,
         id_giocatore2: null,
-        id_ai: 2,
+        id_ai: 1,
         id_vincitore: null,
         vincitore_ai: null,
-        livello_IA: 'estrema',
-        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        data_inizio: this.getRandomDate(startDate, endDate),
-        stato: 'in corso',
-        tipo: 'Amichevole',
-        mosse_totali: 8,
-        tempo_totale: 90,
-        id_giocatore1: 1,
-        id_giocatore2: 4,
-        id_ai: null,
-        id_vincitore: null,
-        vincitore_ai: false,
-        livello_IA: null,
-        tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
+        livello_IA: 'facile',
+        tavola: this.generateRandomBoardConfig(),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     ]);
   },
+
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('Partita', null, {});
   }
