@@ -58,7 +58,12 @@ export const creaPartita = async (
             throw new HttpException(403, 'Solo gli utenti normali possono creare una partita.');
         }
 
-        // **AGGIUNGI QUI IL CONTROLLO PER PARTITE IN CORSO**
+        // **CONTROLLA SE I TOKEN SONO ESAURITI**
+        if (giocatore1.token_residuo <= 0) {
+            throw new HttpException(401, 'Token terminati. Non puoi effettuare questa operazione.');
+        }
+
+        // **AGGIUNGI IL CONTROLLO PER PARTITE IN CORSO**
         const partitaInCorso = await Partita.findOne({
             where: {
                 [Op.or]: [
@@ -90,7 +95,7 @@ export const creaPartita = async (
 
         const creditoGiocatore1 = await verificaCredito(id_giocatore1);
         if (creditoGiocatore1 < costoCreazione) {
-            throw new HttpException(400, 'Credito insufficiente per creare la partita.');
+            throw new HttpException(401, 'Token terminati. Non puoi effettuare questa operazione.'); // Restituisci 401 se il credito è insufficiente
         }
 
         let id_giocatore2: number | null = null;
