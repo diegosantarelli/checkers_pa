@@ -12,9 +12,10 @@ class MoveController {
 
             const { id_partita, from, to } = req.body;
             const id_giocatore1 = req.user.id_giocatore; // Ottieni l'ID del giocatore
+            const ruolo = req.user.ruolo; // Ottieni il ruolo dell'utente
 
             // Esegui la mossa e ottieni il risultato
-            const result = await MoveService.executeMove(id_partita, from, to, id_giocatore1);
+            const result = await MoveService.executeMove(id_partita, from, to, id_giocatore1, ruolo);
 
             // Risposta senza parsing della tavola
             res.status(200).json({

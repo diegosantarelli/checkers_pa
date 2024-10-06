@@ -1,18 +1,17 @@
-import sequelize from '../database/database'; // La tua configurazione di Sequelize
+import sequelize from '../database/database';
 import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
-import HttpException from "../helpers/errorHandler"; // Importa l'eccezione personalizzata
-import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts'; // Importa i moduli necessari
+import HttpException from "../helpers/errorHandler";
+import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts';
 import {
     EnglishDraughts as Draughts,
     EnglishDraughtsComputerFactory as ComputerFactory,
 } from 'rapid-draughts/english';
+import {Op} from "sequelize";
 
-// Inizializza i modelli con sequelize
 const Giocatore = initGiocatore(sequelize);
-const Partita = initPartita(sequelize); // Inizializza il modello con l'istanza di sequelize
+const Partita = initPartita(sequelize);
 
-// Definisci un'interfaccia per il risultato della creazione della partita
 interface creaPartitaPvP {
     success: boolean;
     statusCode: number;
@@ -45,7 +44,6 @@ const trovaIdGiocatore = async (email: string): Promise<number | null> => {
     return giocatore ? giocatore.id_giocatore : null;
 };
 
-// Funzione per creare una nuova partita
 export const creaPartita = async (
     id_giocatore1: number,
     email_giocatore2: string | null,
@@ -55,13 +53,26 @@ export const creaPartita = async (
     const costoCreazione = 0.45;
 
     try {
-        // Verifica se l'utente è normale
         const giocatore1 = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore1 || giocatore1.ruolo !== 'utente') {
             throw new HttpException(403, 'Solo gli utenti normali possono creare una partita.');
         }
 
-        // Validazione dei parametri
+        // **AGGIUNGI QUI IL CONTROLLO PER PARTITE IN CORSO**
+        const partitaInCorso = await Partita.findOne({
+            where: {
+                [Op.or]: [
+                    { id_giocatore1: id_giocatore1 },
+                    { id_giocatore2: id_giocatore1 }
+                ],
+                stato: 'in corso'
+            }
+        });
+
+        if (partitaInCorso) {
+            throw new HttpException(400, 'Hai già una partita in corso. Devi completarla prima di crearne una nuova.');
+        }
+
         const tipiValidi = ["Amichevole", "Normale", "Competitiva"];
         const livelliValidi = ["facile", "normale", "difficile", "estrema"];
 
@@ -73,37 +84,30 @@ export const creaPartita = async (
             throw new HttpException(400, `Il livello IA ${livello_IA} non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
         }
 
-        // Controlla se email_giocatore2 è uguale all'email di id_giocatore1
         if (email_giocatore2 && email_giocatore2 === giocatore1.email) {
             throw new HttpException(400, "Non puoi sfidare te stesso.");
         }
 
-        // Verifica il credito del giocatore 1
         const creditoGiocatore1 = await verificaCredito(id_giocatore1);
         if (creditoGiocatore1 < costoCreazione) {
             throw new HttpException(400, 'Credito insufficiente per creare la partita.');
         }
 
-        // Trova id_giocatore2 usando l'email
         let id_giocatore2: number | null = null;
         if (email_giocatore2) {
-            // Controlla il formato email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email_giocatore2)) {
                 throw new HttpException(400, `L'email ${email_giocatore2} non è valida. Usa un formato email valido.`);
             }
 
-            // Trova id_giocatore2 usando l'email
             id_giocatore2 = await trovaIdGiocatore(email_giocatore2);
             if (!id_giocatore2) {
                 throw new HttpException(404, `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
             }
         }
 
-        // Inizializza la scacchiera usando Draughts
-        const tavola = JSON.stringify(Draughts.setup()); // Inizializza la tavola
+        const tavola = JSON.stringify(Draughts.setup());
 
-        // Crea la nuova partita
         const partita = await Partita.create({
             id_giocatore1,
             id_giocatore2,
@@ -114,10 +118,8 @@ export const creaPartita = async (
             data_inizio: new Date(),
         });
 
-        // Addebita i token al giocatore 1
         await addebitaCrediti(id_giocatore1, costoCreazione);
 
-        // Se è una partita contro IA
         if (livello_IA) {
             return {
                 success: true,
@@ -132,7 +134,6 @@ export const creaPartita = async (
             };
         }
 
-        // Restituisci la partita creata per PvP
         return {
             success: true,
             statusCode: 201,
@@ -147,7 +148,7 @@ export const creaPartita = async (
         };
     } catch (error) {
         console.error('Errore durante la creazione della partita:', error);
-        throw error; // Rilancia l'errore per essere gestito dal middleware degli errori
+        throw error;
     }
 };
 
