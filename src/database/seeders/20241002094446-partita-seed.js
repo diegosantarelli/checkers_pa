@@ -50,10 +50,10 @@ module.exports = {
         tipo: 'Normale',
         mosse_totali: 10,
         tempo_totale: 120,
-        id_giocatore1: 2,
-        id_giocatore2: 3,
+        id_giocatore1: 1,
+        id_giocatore2: 4,
         id_ai: null,
-        id_vincitore: 2,
+        id_vincitore: 1,
         vincitore_ai: false,
         livello_IA: null,
         tavola: this.generateRandomBoardConfig(), // Tavola come JSON serializzato
