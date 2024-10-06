@@ -1,21 +1,19 @@
 import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
-import loginRoutes from './routes/loginRoutes'; // Corretto import per loginRoutes
-import checkerRoutes from './routes/checkerRoutes'; // Corretto import per checkerRoutes
+import loginRoutes from './routes/loginRoutes';
+import checkerRoutes from './routes/checkerRoutes';
 import mossaRoutes from './routes/mossaRoutes';
 import partitaRoutes from "./routes/winnerRoutes";
+import gameStatusRoutes from "./routes/gameStatusRoutes";
 
-// Configurazione delle variabili d'ambiente
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
-const port = process.env.PORT || 3001;  // Usa una variabile d'ambiente per la porta o il default 3001
+const port = process.env.PORT || 3001;
 
-// Middleware per analizzare il corpo delle richieste in formato JSON
 app.use(express.json());
 
-// Rotta di prova
 app.get('/', (req, res) => {
     res.send('Ciao, il server è attivo!');
 });
@@ -32,7 +30,9 @@ app.use('/do', mossaRoutes);
 // Rotta per la verifica delle partite
 app.use('/winner', partitaRoutes);
 
-// Avvio del server
+// Rotta per lo stato della partita e abbandonare la partita
+app.use('/partita', gameStatusRoutes);
+
 app.listen(port, () => {
     console.log(`Server in esecuzione su http://localhost:${port}`);
 });

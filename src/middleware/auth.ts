@@ -7,7 +7,7 @@ import { JwtPayload } from 'jsonwebtoken';
 // Interfaccia per il payload del token
 interface TokenPayload extends JwtPayload {
     id_giocatore: number;
-    email: string; // Assicurati di includere questa proprietà se necessaria
+    email: string;
     ruolo: string;
 }
 

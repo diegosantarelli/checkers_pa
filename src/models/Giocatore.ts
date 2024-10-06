@@ -30,7 +30,7 @@ class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
-    // Funzione per sottrarre i token all'avvio della partita
+    // Metodo per sottrarre i token all'avvio della partita
     public sottraiToken(quantita: number): boolean {
         if (this.token_residuo >= quantita) {
             this.token_residuo -= quantita;
@@ -39,8 +39,17 @@ class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> 
         return false;
     }
 
+    // Metodo per aggiungere punti al giocatore
+    public aggiungiPunto(): void {
+        this.punteggio_totale += 1;
+    }
+
+    // Metodo per sottrarre punti in caso di abbandono
+    public sottraiPunto(): void {
+        this.punteggio_totale -= 0.5;
+    }
+
     static associate(models: any) {
-        // Associazioni con il modello Mossa
         Giocatore.hasMany(models.Mossa, {
             foreignKey: 'id_giocatore',
             as: 'mosse',
