@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import { Partita, Mossa } from '../models';
 import HttpException from '../helpers/errorHandler';
+import { isValid, parseISO } from 'date-fns'; // Importa date-fns per la validazione della data
 
 class WinnerService {
     public static async verificaPartite(id_giocatore: number, startDate?: string) {
@@ -17,8 +18,13 @@ class WinnerService {
                 stato: 'completata',
             };
 
+            // Validazione della data
             if (startDate) {
-                whereCondition.data_inizio = { [Op.gte]: new Date(startDate) };
+                const parsedDate = parseISO(startDate);
+                if (!isValid(parsedDate)) {
+                    throw new HttpException(400, 'Formato della data non valido');
+                }
+                whereCondition.data_inizio = { [Op.gte]: parsedDate };
             }
 
             // Log la condizione di query
@@ -56,7 +62,7 @@ class WinnerService {
             });
 
         } catch (error) {
-            console.error("Errore durante la verifica delle partite:", error); // Aggiungi un log dettagliato dell'errore
+            console.error("Errore durante la verifica delle partite");
             throw new HttpException(500, 'Errore durante la verifica delle partite');
         }
     }
