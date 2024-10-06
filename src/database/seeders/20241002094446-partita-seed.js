@@ -7,24 +7,18 @@ module.exports = {
   },
 
   generateRandomBoardConfig() {
-    const board = Array(8)
-        .fill(null)
-        .map(() => Array(8).fill(null)); // Crea una tavola 8x8 vuota
+    const board = Array(32).fill(null); // Crea una tavola 32-caselle per i pezzi scuri (configurazione Draughts)
 
-    // Popola la tavola con i pezzi iniziali casuali
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        if ((row + col) % 2 === 1) { // Solo celle scure
-          if (row < 3) {
-            board[row][col] = 'b'; // Giocatore 1
-          } else if (row > 4) {
-            board[row][col] = 'w'; // Giocatore 2
-          }
-        }
-      }
+    // Popola la tavola con i pezzi iniziali per Giocatore 1 e Giocatore 2
+    for (let i = 0; i < 12; i++) {
+      board[i] = { dark: true, position: i, piece: { player: 'dark', king: false } }; // Giocatore 1
     }
 
-    // Restituisci la configurazione come JSON serializzato
+    for (let i = 20; i < 32; i++) {
+      board[i] = { dark: true, position: i, piece: { player: 'light', king: false } }; // Giocatore 2
+    }
+
+    // Restituisci la configurazione come JSON serializzato con il formato richiesto da Draughts
     return JSON.stringify({ initialBoard: board });
   },
 

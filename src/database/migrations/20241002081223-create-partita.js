@@ -41,6 +41,7 @@ module.exports = {
           key: 'id_giocatore',
         },
         allowNull: false,
+        onDelete: 'CASCADE', // Se un giocatore viene eliminato, elimina la partita associata
       },
       id_giocatore2: {
         type: Sequelize.INTEGER,
@@ -49,6 +50,7 @@ module.exports = {
           key: 'id_giocatore',
         },
         allowNull: true,
+        onDelete: 'SET NULL', // Se il secondo giocatore viene eliminato, imposta il campo a NULL
       },
       id_ai: {
         type: Sequelize.INTEGER,
@@ -57,6 +59,7 @@ module.exports = {
           key: 'id_ai',
         },
         allowNull: true,
+        onDelete: 'SET NULL', // Se l'AI viene eliminato, imposta il campo a NULL
       },
       id_vincitore: {
         type: Sequelize.INTEGER,
@@ -65,6 +68,7 @@ module.exports = {
           key: 'id_giocatore',
         },
         allowNull: true,
+        onDelete: 'SET NULL', // Se il vincitore viene eliminato, imposta il campo a NULL
       },
       vincitore_ai: {
         type: Sequelize.BOOLEAN,
