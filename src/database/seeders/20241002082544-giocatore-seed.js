@@ -18,7 +18,7 @@ module.exports = {
       cognome: 'Recinelli',
       email: 'simone@example.com',
       hash: hashSimone,
-      token_residuo: 10,
+      token_residuo: 0,
       punteggio_totale: 100,
       ruolo: 'utente',
       createdAt: new Date(),
