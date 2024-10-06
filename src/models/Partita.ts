@@ -12,10 +12,11 @@ interface PartitaAttributes {
     tavola: any;
     data_inizio: Date;
     id_vincitore: number | null;
+    mosse_totali: number; // Nuovo attributo mosse_totali
 }
 
 // Definizione degli attributi opzionali durante la creazione
-interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_partita' | 'data_inizio' | 'id_vincitore'> {}
+interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_partita' | 'data_inizio' | 'id_vincitore' | 'mosse_totali'> {}
 
 // Estendi la classe Model con gli attributi tipizzati
 class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implements PartitaAttributes {
@@ -28,6 +29,7 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public tavola!: any;
     public data_inizio!: Date;
     public id_vincitore!: number | null;
+    public mosse_totali!: number; // Attributo mosse_totali
 
     static associate(models: any) {
         // Associazione tra Partita e Mossa
@@ -88,6 +90,11 @@ export default (sequelize: Sequelize) => {
                 model: 'Giocatore',
                 key: 'id_giocatore',
             },
+        },
+        mosse_totali: { // Aggiunto mosse_totali
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0, // Imposta un valore predefinito di 0
         },
     }, {
         sequelize,

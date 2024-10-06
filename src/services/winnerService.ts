@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Partita, Mossa } from '../models';
+import { Partita } from '../models'; // Non serve più importare Mossa
 import HttpException from '../helpers/errorHandler';
 import { isValid, parseISO } from 'date-fns'; // Importa date-fns per la validazione della data
 
@@ -27,42 +27,38 @@ class WinnerService {
                 whereCondition.data_inizio = { [Op.gte]: parsedDate };
             }
 
-            // Log la condizione di query
-            console.log("Condizione di query:", JSON.stringify(whereCondition));
+            // Log della condizione di query
+            console.log("Condizione di query (completa):", JSON.stringify(whereCondition));
 
+            // Esegui la query per trovare le partite completate
             const partite = await Partita.findAll({
                 where: whereCondition,
-                include: [
-                    {
-                        model: Mossa,
-                        as: 'mosse',
-                        attributes: ['id_mossa', 'numero_mossa']
-                    }
-                ]
+                attributes: ['id_partita', 'stato', 'mosse_totali', 'id_vincitore', 'data_inizio'] // Seleziona solo gli attributi necessari
             });
 
             // Log le partite trovate
             console.log("Partite trovate:", partite);
 
+            // Controllo se non ci sono partite
             if (!partite || partite.length === 0) {
-                console.error("Nessuna partita trovata per i criteri specificati");
+                console.warn("Nessuna partita trovata per i criteri specificati");
                 throw new HttpException(404, 'Nessuna partita trovata per i criteri specificati');
             }
 
+            // Mappatura dei risultati delle partite
             return partite.map((partita) => {
-                const numeroMosse = (partita as any).mosse ? (partita as any).mosse.length : 0;
                 const risultato = partita.id_vincitore === id_giocatore ? 'Vinta' : 'Persa';
                 return {
                     id_partita: partita.id_partita,
                     stato: partita.stato,
-                    numero_mosse: numeroMosse,
+                    numero_mosse: partita.mosse_totali, // Usa l'attributo 'mosse_totali'
                     risultato,
                     data_inizio: partita.data_inizio,
                 };
             });
 
         } catch (error) {
-            console.error("Errore durante la verifica delle partite");
+            console.error("Errore durante la verifica delle partite:");
             throw new HttpException(500, 'Errore durante la verifica delle partite');
         }
     }
