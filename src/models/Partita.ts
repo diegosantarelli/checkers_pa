@@ -1,19 +1,21 @@
 import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
+import Mossa from './Mossa';  // Usa il default import per Mossa
 
 // Definisci gli attributi di Partita
 interface PartitaAttributes {
     id_partita: number;
     id_giocatore1: number;
     id_giocatore2: number | null;
-    livello_IA: 'facile' | 'normale' | 'difficile' | 'estrema' | null; // Cambiato a string per il livello di IA
+    livello_IA: 'facile' | 'normale' | 'difficile' | 'estrema' | null;
     stato: 'in corso' | 'completata' | 'abbandonata';
-    tipo: 'Amichevole' | 'Normale' | 'Competitiva'; // Tipi validi
-    tavola: any; // Aggiunta per rappresentare la configurazione della tavola come JSON
+    tipo: 'Amichevole' | 'Normale' | 'Competitiva';
+    tavola: any;
     data_inizio: Date;
+    id_vincitore: number | null;
 }
 
 // Definizione degli attributi opzionali durante la creazione
-interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_partita' | 'data_inizio'> {}
+interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_partita' | 'data_inizio' | 'id_vincitore'> {}
 
 // Estendi la classe Model con gli attributi tipizzati
 class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implements PartitaAttributes {
@@ -22,12 +24,14 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public id_giocatore2!: number | null;
     public livello_IA!: 'facile' | 'normale' | 'difficile' | 'estrema' | null;
     public stato!: 'in corso' | 'completata' | 'abbandonata';
-    public tipo!: 'Amichevole' | 'Normale' | 'Competitiva'; // Tipi validi
-    public tavola!: any; // JSON per la configurazione della tavola
+    public tipo!: 'Amichevole' | 'Normale' | 'Competitiva';
+    public tavola!: any;
     public data_inizio!: Date;
+    public id_vincitore!: number | null;
 
     static associate(models: any) {
-        // Le associazioni sono già state fatte nel file index.ts
+        // Associazione tra Partita e Mossa
+        Partita.hasMany(models.Mossa, { foreignKey: 'id_partita', as: 'mosse' });
     }
 }
 
@@ -56,7 +60,7 @@ export default (sequelize: Sequelize) => {
             },
         },
         livello_IA: {
-            type: DataTypes.ENUM('facile', 'normale', 'difficile', 'estrema'), // Uso di ENUM per livello IA
+            type: DataTypes.ENUM('facile', 'normale', 'difficile', 'estrema'),
             allowNull: true,
         },
         stato: {
@@ -65,17 +69,25 @@ export default (sequelize: Sequelize) => {
             defaultValue: 'in corso',
         },
         tipo: {
-            type: DataTypes.ENUM('Amichevole', 'Normale', 'Competitiva'), // Uso di ENUM per tipo
+            type: DataTypes.ENUM('Amichevole', 'Normale', 'Competitiva'),
             allowNull: false,
         },
         tavola: {
-            type: DataTypes.JSON, // Usa JSON per rappresentare la tavola
+            type: DataTypes.JSON,
             allowNull: false,
         },
         data_inizio: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
+        },
+        id_vincitore: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            references: {
+                model: 'Giocatore',
+                key: 'id_giocatore',
+            },
         },
     }, {
         sequelize,

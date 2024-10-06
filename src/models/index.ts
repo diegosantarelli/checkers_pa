@@ -17,6 +17,7 @@ const sequelize = new Sequelize(
         host: process.env.POSTGRES_HOST,
         port: Number(process.env.POSTGRES_PORT) || 5432,
         dialect: 'postgres',  // Assicurati di includere il dialect
+        logging: false, // Disabilita il logging SQL in produzione se non necessario
     }
 );
 
@@ -27,12 +28,20 @@ const Mossa = createMossaModel(sequelize);
 const AI = createAIModel(sequelize);
 
 // Associazioni tra i modelli
-Giocatore.associate({ Mossa });
-Partita.associate({ Giocatore, Mossa });
-Mossa.associate({ Partita, Giocatore });
-AI.associate({ Partita });
+if (Giocatore.associate) {
+    Giocatore.associate({ Mossa });
+}
+if (Partita.associate) {
+    Partita.associate({ Giocatore, Mossa });
+}
+if (Mossa.associate) {
+    Mossa.associate({ Partita, Giocatore });
+}
+if (AI.associate) {
+    AI.associate({ Partita });
+}
 
-// Sincronizza i modelli con il database (facoltativo, a seconda del flusso di lavoro)
+// Sincronizza i modelli con il database
 sequelize.sync({ alter: true })  // Usa `force: true` solo in sviluppo, poiché distrugge i dati
     .then(() => {
         console.log('Database e modelli sincronizzati con successo');

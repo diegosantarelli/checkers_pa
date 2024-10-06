@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes'; // Corretto import per loginRoutes
 import checkerRoutes from './routes/checkerRoutes'; // Corretto import per checkerRoutes
 import mossaRoutes from './routes/mossaRoutes';
+import partitaRoutes from "./routes/winnerRoutes";
 
 // Configurazione delle variabili d'ambiente
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -27,6 +28,9 @@ app.use('/game', checkerRoutes);
 
 // Rotta per validazione mossa
 app.use('/do', mossaRoutes);
+
+// Rotta per la verifica delle partite
+app.use('/winner', partitaRoutes);
 
 // Avvio del server
 app.listen(port, () => {
