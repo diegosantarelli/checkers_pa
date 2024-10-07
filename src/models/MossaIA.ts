@@ -1,7 +1,21 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 
+/**
+ * @class MossaIA
+ * @extends Model
+ * @classdesc Modello che rappresenta le mosse effettuate dall'intelligenza artificiale (IA) in una partita di dama.
+ */
 export default (sequelize: Sequelize) => {
+    /**
+     * @class MossaIA
+     * @description Modello Sequelize per la tabella "MossaIA", utilizzato per tracciare le mosse eseguite dall'intelligenza artificiale in una partita di dama.
+     */
     class MossaIA extends Model {
+        /**
+         * @method associate
+         * @description Metodo che definisce le associazioni tra il modello MossaIA e gli altri modelli.
+         * @param models - Gli altri modelli Sequelize con cui è associato il modello MossaIA.
+         */
         static associate(models: any) {
             MossaIA.belongsTo(models.Partita, {
                 foreignKey: 'id_partita',
@@ -10,6 +24,22 @@ export default (sequelize: Sequelize) => {
         }
     }
 
+    /**
+     * @typedef {Object} MossaIAAttributes
+     * @property {number} id_mossa - ID univoco della mossa IA.
+     * @property {number} numero_mossa - Numero sequenziale della mossa IA.
+     * @property {object} tavola - Stato della tavola dopo la mossa (in formato JSON).
+     * @property {string|null} pezzo - Tipo di pezzo mosso dall'IA ('singolo' o 'dama').
+     * @property {number} id_partita - ID della partita associata alla mossa IA.
+     * @property {Date} data - Data e ora in cui la mossa IA è stata eseguita.
+     */
+
+    /**
+     * @function init
+     * @memberof MossaIA
+     * @description Inizializza il modello MossaIA con i suoi attributi e le relative configurazioni.
+     * @param sequelize - L'istanza di Sequelize utilizzata per l'inizializzazione del modello.
+     */
     MossaIA.init({
         id_mossa: {
             type: DataTypes.INTEGER,
