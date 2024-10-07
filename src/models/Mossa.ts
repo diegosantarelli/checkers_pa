@@ -4,20 +4,20 @@ export default (sequelize: Sequelize) => {
     class Mossa extends Model {
         id_mossa!: number;
         numero_mossa!: number;
-        tavola!: object;  // Aggiungi la definizione di tavola
+        tavola!: object;
         pezzo!: string | null;
         id_partita!: number;
         id_giocatore!: number;
+        from_position!: string; // Nuova colonna per la posizione di origine
+        to_position!: string;   // Nuova colonna per la posizione di destinazione
         data!: Date;
 
         static associate(models: any) {
-            // Associazione con il modello Partita
             Mossa.belongsTo(models.Partita, {
                 foreignKey: 'id_partita',
                 as: 'partita',
             });
 
-            // Associazione con il modello Giocatore
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
                 as: 'giocatore',
@@ -42,7 +42,7 @@ export default (sequelize: Sequelize) => {
         },
         pezzo: {
             type: DataTypes.STRING,
-            allowNull: true,  // Consenti valori null per pezzo, opzionale
+            allowNull: true,
         },
         id_partita: {
             type: DataTypes.INTEGER,
@@ -55,8 +55,15 @@ export default (sequelize: Sequelize) => {
         },
         id_giocatore: {
             type: DataTypes.INTEGER,
-            allowNull: false,  // Manteniamo il vincolo NOT NULL
-            defaultValue: -1,  // Impostiamo -1 come valore predefinito per mosse dell'IA
+            allowNull: false,
+        },
+        from_position: {
+            type: DataTypes.STRING,  // Registra la posizione di origine
+            allowNull: false,
+        },
+        to_position: {
+            type: DataTypes.STRING,  // Registra la posizione di destinazione
+            allowNull: false,
         },
         data: {
             type: DataTypes.DATE,
@@ -67,7 +74,7 @@ export default (sequelize: Sequelize) => {
         sequelize,
         modelName: 'Mossa',
         tableName: 'Mossa',
-        timestamps: true,  // Per avere createdAt e updatedAt
+        timestamps: true,
     });
 
     return Mossa;

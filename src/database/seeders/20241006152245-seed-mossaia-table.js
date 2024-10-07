@@ -24,6 +24,8 @@ module.exports = {
                     pezzo: 'singolo',
                     id_partita: partita.id_partita,  // Associa alla partita corrente
                     data: new Date(),
+                    from_position: 'A1',  // Esempio di posizione di partenza
+                    to_position: 'B2',    // Esempio di posizione di destinazione
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 },
@@ -33,6 +35,8 @@ module.exports = {
                     pezzo: 'dama',
                     id_partita: partita.id_partita,  // Associa alla partita corrente
                     data: new Date(),
+                    from_position: 'B2',
+                    to_position: 'C3',
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 }

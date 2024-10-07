@@ -3,7 +3,7 @@ import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
 import initMossa from '../models/Mossa';
 import initMossaIA from '../models/MossaIA';
-import HttpException, { handleError } from "../helpers/errorHandler";
+import HttpException from "../helpers/errorHandler";
 import { DraughtsPlayer, DraughtsSquare1D, DraughtsStatus } from 'rapid-draughts';
 import { EnglishDraughts as Draughts, EnglishDraughtsComputerFactory as ComputerFactory } from 'rapid-draughts/english';
 import { StatusCodes } from 'http-status-codes';
@@ -14,25 +14,22 @@ const Mossa = initMossa(sequelize);
 const MossaIA = initMossaIA(sequelize);
 
 class MoveService {
-    /**
-     * Converte una posizione in notazione scacchistica (es. "A2") in un indice numerico.
-     *
-     * @param {string} position - La posizione da convertire.
-     * @returns {number} - L'indice numerico corrispondente.
-     */
+
+    // Funzione per convertire la posizione in notazione scacchistica in un indice numerico
     private static convertPosition(position: string): number {
         const file = position.charCodeAt(0) - 'A'.charCodeAt(0);
         const rank = 8 - parseInt(position[1]);
         return rank * 8 + file;
     }
 
-    /**
-     * Verifica se un giocatore è coinvolto in una partita.
-     *
-     * @param {number} id_partita - L'ID della partita.
-     * @param {number} id_giocatore - L'ID del giocatore.
-     * @throws {HttpException} - Lancia un'eccezione se il giocatore non fa parte della partita.
-     */
+    // Funzione per convertire un indice numerico in notazione scacchistica
+    private static convertPositionBack(index: number): string {
+        const file = String.fromCharCode('A'.charCodeAt(0) + (index % 8));
+        const rank = 8 - Math.floor(index / 8);
+        return `${file}${rank}`;
+    }
+
+    // Funzione per verificare se il giocatore è parte della partita
     private static async verificaGiocatoreNellaPartita(id_partita: number, id_giocatore: number): Promise<void> {
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
@@ -44,17 +41,7 @@ class MoveService {
         }
     }
 
-    /**
-     * Esegue una mossa in una partita di dama.
-     *
-     * @param {number} id_partita - L'ID della partita.
-     * @param {string} from - La posizione di origine in notazione scacchistica.
-     * @param {string} to - La posizione di destinazione in notazione scacchistica.
-     * @param {number} id_giocatore1 - L'ID del giocatore che effettua la mossa.
-     * @param {string} ruolo - Il ruolo dell'utente (es. "utente").
-     * @returns {Promise<object>} - Restituisce un oggetto contenente la descrizione della mossa e lo stato della partita.
-     * @throws {HttpException} - Lancia un'eccezione in caso di errore (giocatore non autorizzato, partita non trovata, mossa non valida, ecc.).
-     */
+    // Esegue la mossa di un giocatore
     public static async executeMove(id_partita: number, from: string, to: string, id_giocatore1: number, ruolo: string) {
         if (ruolo !== 'utente') {
             throw new HttpException(StatusCodes.FORBIDDEN, "Solo gli utenti possono fare mosse. Gli admin non sono autorizzati.");
@@ -70,7 +57,7 @@ class MoveService {
             throw new HttpException(StatusCodes.UNAUTHORIZED, "Token terminati. Non puoi fare altre mosse.");
         }
 
-        // Verifica se il giocatore fa parte della partita
+        // Verifica se il giocatore è parte della partita
         await MoveService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
 
         const partita = await Partita.findByPk(id_partita);
@@ -105,63 +92,27 @@ class MoveService {
             throw new HttpException(StatusCodes.BAD_REQUEST, "Mossa non valida.");
         }
 
-        // **Nuovo controllo: Recupera l'ultima mossa**
-        const lastMove = await Mossa.findOne({
-            where: { id_partita },
-            order: [['numero_mossa', 'DESC']],
-            attributes: ['tavola']  // Includi esplicitamente il campo tavola
-        });
+        try {
+            // Recupera l'ultima mossa
+            const lastMove = await Mossa.findOne({
+                where: { id_partita },
+                order: [['numero_mossa', 'DESC']],
+                attributes: ['from_position', 'to_position']
+            });
 
-        // **Confronta l'ultima mossa con la mossa attuale**
-        if (lastMove && JSON.stringify(lastMove.tavola) === JSON.stringify({ initialBoard: draughts.board })) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, "Non puoi ripetere la stessa mossa consecutivamente.");
-        }
+            console.log("Ultima mossa trovata:", lastMove);
 
-        // Esegui la mossa del giocatore umano
-        draughts.move(moveToMake);
+            // Confronta l'ultima mossa con la mossa attuale
+            if (lastMove && lastMove.from_position === from && lastMove.to_position === to) {
+                console.log("Tentativo di ripetere la stessa mossa:", lastMove);
+                throw new HttpException(StatusCodes.BAD_REQUEST, "Non puoi ripetere la stessa mossa consecutivamente.");
+            }
 
-        // Controlla se la partita è terminata
-        if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
-            (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
-            (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
-            const gameOverResult = MoveService.handleGameOver(draughts, partita);
-            return {
-                message: gameOverResult.message,
-                id_partita: partita.id_partita,
-                tavola: gameOverResult.tavola,
-                moveDescription: `La partita è terminata: ${gameOverResult.message}`,
-            };
-        }
+            // Esegui la mossa
+            console.log("Esecuzione della mossa:", moveToMake);
+            draughts.move(moveToMake);
 
-        // Aggiorna la tavola nella partita
-        partita.tavola = JSON.stringify({ initialBoard: draughts.board });
-        partita.mosse_totali = (partita.mosse_totali || 0) + 1;
-        await partita.save();
-
-        // Registra la mossa del giocatore
-        await Mossa.create({
-            numero_mossa: await Mossa.count({ where: { id_partita } }) + 1,
-            tavola: JSON.stringify({ initialBoard: draughts.board }),
-            pezzo: savedBoard[origin]?.piece?.king ? 'dama' : 'singolo',
-            id_partita,
-            id_giocatore: id_giocatore1,
-            data: new Date(),
-        });
-
-        // Deduzione del costo della mossa
-        await MoveService.deductMoveCost(id_giocatore1);
-
-        // Descrizione della mossa del giocatore in italiano
-        const colorePezzo = savedBoard[origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
-        const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
-
-        // Se c'è un'IA nella partita, esegui la sua mossa
-        if (partita.livello_IA) {
-            const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
-
-            draughts.move(aiMove);
-
-            // Controlla se la partita è terminata dopo la mossa dell'IA
+            // Controlla se la partita è terminata
             if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
                 (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
                 (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
@@ -174,46 +125,120 @@ class MoveService {
                 };
             }
 
-            // Aggiorna la tavola dopo la mossa dell'IA
+            // Aggiorna la tavola nella partita
+            console.log("Aggiornamento della tavola con la nuova configurazione.");
             partita.tavola = JSON.stringify({ initialBoard: draughts.board });
-            partita.mosse_totali += 1;
+            partita.mosse_totali = (partita.mosse_totali || 0) + 1;
             await partita.save();
 
-            // Registra la mossa dell'IA
-            await MossaIA.create({
-                numero_mossa: await MossaIA.count({ where: { id_partita } }) + 1,
+            console.log("Tavola aggiornata e partita salvata con successo.");
+
+            // Registra la mossa del giocatore
+            await Mossa.create({
+                numero_mossa: await Mossa.count({ where: { id_partita } }) + 1,
                 tavola: JSON.stringify({ initialBoard: draughts.board }),
-                pezzo: draughts.board[aiMove.origin]?.piece?.king ? 'dama' : 'singolo',
+                from_position: from,  // Registra la posizione di origine
+                to_position: to,      // Registra la posizione di destinazione
+                pezzo: savedBoard[origin]?.piece?.king ? 'dama' : 'singolo',
                 id_partita,
+                id_giocatore: id_giocatore1,
                 data: new Date(),
             });
 
-            const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
-            const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MoveService.convertPositionBack(aiMove.origin)} a ${MoveService.convertPositionBack(aiMove.destination)}.`;
+            // Deduzione del costo della mossa
+            await MoveService.deductMoveCost(id_giocatore1);
+
+            // Descrizione della mossa
+            const colorePezzo = savedBoard[origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
+            const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
+
+            // Se c'è un'IA nella partita, esegui la sua mossa
+            if (partita.livello_IA) {
+                const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
+
+                draughts.move(aiMove);
+
+                // Controlla se la partita è terminata dopo la mossa dell'IA
+                if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
+                    (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
+                    (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
+                    const gameOverResult = MoveService.handleGameOver(draughts, partita);
+                    return {
+                        message: gameOverResult.message,
+                        id_partita: partita.id_partita,
+                        tavola: gameOverResult.tavola,
+                        moveDescription: `La partita è terminata: ${gameOverResult.message}`,
+                    };
+                }
+
+                // Aggiorna la tavola dopo la mossa dell'IA
+                partita.tavola = JSON.stringify({ initialBoard: draughts.board });
+                partita.mosse_totali += 1;
+                await partita.save();
+
+                // Registra la mossa dell'IA
+                await MossaIA.create({
+                    numero_mossa: await MossaIA.count({ where: { id_partita } }) + 1,
+                    tavola: JSON.stringify({ initialBoard: draughts.board }),
+                    pezzo: draughts.board[aiMove.origin]?.piece?.king ? 'dama' : 'singolo',
+                    id_partita,
+                    data: new Date(),
+                });
+
+                const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
+                const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MoveService.convertPositionBack(aiMove.origin)} a ${MoveService.convertPositionBack(aiMove.destination)}.`;
+
+                return {
+                    message: "Mossa eseguita con successo",
+                    id_partita: partita.id_partita,
+                    tavola: draughts.board,
+                    moveDescription: `${moveDescription} ${aiMoveDescription}`
+                };
+            }
 
             return {
                 message: "Mossa eseguita con successo",
                 id_partita: partita.id_partita,
                 tavola: draughts.board,
-                moveDescription: `${moveDescription} ${aiMoveDescription}`
+                moveDescription
             };
+        } catch (error) {
+            if (error instanceof HttpException) {
+                console.error("Errore HTTP durante l'esecuzione della mossa:", error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error("Errore generico durante l'esecuzione della mossa:", error.message);
+                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore durante l\'esecuzione della mossa.');
+            } else {
+                console.error("Errore sconosciuto durante l'esecuzione della mossa");
+                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore sconosciuto durante l\'esecuzione della mossa.');
+            }
+        }
+    }
+
+    // Gestione della fine della partita
+    private static handleGameOver(draughts: any, partita: any) {
+        let risultato;
+        if (draughts.status === DraughtsStatus.LIGHT_WON) {
+            partita.id_vincitore = partita.id_giocatore1;
+            risultato = 'Il giocatore 1 ha vinto!';
+        } else if (draughts.status === DraughtsStatus.DARK_WON) {
+            partita.id_vincitore = partita.id_giocatore2;
+            risultato = 'Il giocatore 2 ha vinto!';
+        } else {
+            risultato = 'Partita terminata in pareggio!';
         }
 
+        partita.stato = 'completata';
+        partita.save();
+
         return {
-            message: "Mossa eseguita con successo",
-            id_partita: partita.id_partita,
+            message: risultato,
             tavola: draughts.board,
-            moveDescription
         };
     }
 
-    /**
-     * Esegue la mossa dell'IA in base al livello di difficoltà.
-     *
-     * @param {any} draughts - L'istanza della partita di dama.
-     * @param {string} livelloIA - Il livello di difficoltà dell'IA (es. "facile", "normale", "difficile", "estrema").
-     * @returns {Promise<any>} - La mossa selezionata dall'IA.
-     */
+    // Esegue la mossa dell'IA in base al livello di difficoltà
     private static async executeAiMove(draughts: any, livelloIA: string) {
         let ai;
         switch (livelloIA) {
@@ -238,12 +263,7 @@ class MoveService {
         return aiMove;
     }
 
-    /**
-     * Deduce il costo di una mossa dai token rimanenti del giocatore.
-     *
-     * @param {number} id_giocatore1 - L'ID del giocatore a cui dedurre il costo della mossa.
-     * @throws {HttpException} - Lancia un'eccezione se il giocatore non viene trovato.
-     */
+    // Deduzione del costo della mossa dai token rimanenti del giocatore
     private static async deductMoveCost(id_giocatore1: number): Promise<void> {
         const giocatore = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore) {
@@ -252,46 +272,6 @@ class MoveService {
 
         giocatore.token_residuo -= 0.0125;
         await giocatore.save();
-    }
-
-    /**
-     * Gestisce la fine della partita.
-     *
-     * @param {any} draughts - L'istanza della partita di dama.
-     * @param {any} partita - L'istanza della partita nel database.
-     * @returns {object} - Restituisce il risultato della partita e la tavola aggiornata.
-     */
-    private static handleGameOver(draughts: any, partita: any) {
-        let risultato;
-        if (draughts.status === DraughtsStatus.LIGHT_WON) {
-            partita.id_vincitore = partita.id_giocatore1;
-            risultato = 'Il giocatore 1 ha vinto!';
-        } else if (draughts.status === DraughtsStatus.DARK_WON) {
-            partita.id_vincitore = partita.id_giocatore2;
-            risultato = 'Il giocatore 2 ha vinto!';
-        } else {
-            risultato = 'Partita terminata in pareggio!';
-        }
-
-        partita.stato = 'completata';
-        partita.save();
-
-        return {
-            message: risultato,
-            tavola: draughts.board,
-        };
-    }
-
-    /**
-     * Converte un indice numerico in notazione scacchistica (es. da 12 a "A2").
-     *
-     * @param {number} index - L'indice numerico da convertire.
-     * @returns {string} - La notazione scacchistica corrispondente.
-     */
-    private static convertPositionBack(index: number): string {
-        const file = String.fromCharCode('A'.charCodeAt(0) + (index % 8));
-        const rank = 8 - Math.floor(index / 8);
-        return `${file}${rank}`;
     }
 }
 

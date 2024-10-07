@@ -55,6 +55,15 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
+      // Aggiunte le nuove colonne per la posizione della mossa
+      from_position: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      to_position: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
