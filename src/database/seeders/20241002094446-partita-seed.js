@@ -59,6 +59,22 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+      {
+        data_inizio: this.getRandomDate(startDate, endDate),
+        stato: 'in corso',
+        tipo: 'Amichevole',
+        mosse_totali: 8,
+        tempo_totale: 90,
+        id_giocatore1: 1,
+        id_giocatore2: 4,
+        id_ai: null,
+        id_vincitore: null,
+        vincitore_ai: null,
+        livello_IA: null,
+        tavola: this.generateRandomBoardConfig(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
     ]);
   },
 
