@@ -6,6 +6,7 @@ import checkerRoutes from './routes/checkerRoutes';
 import mossaRoutes from './routes/mossaRoutes';
 import partitaRoutes from "./routes/winnerRoutes";
 import gameStatusRoutes from "./routes/gameStatusRoutes";
+import winnerRoutes from "./routes/winnerRoutes";
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -28,7 +29,7 @@ app.use('/game', checkerRoutes);
 app.use('/do', mossaRoutes);
 
 // Rotta per la verifica delle partite
-app.use('/winner', partitaRoutes);
+app.use('/winner', winnerRoutes);
 
 // Rotta per lo stato della partita e abbandonare la partita
 app.use('/partita', gameStatusRoutes);

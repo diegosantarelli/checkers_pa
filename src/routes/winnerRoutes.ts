@@ -4,7 +4,7 @@ import { authenticateJWT } from '../middleware/auth'; // Middleware per l'autent
 
 const router = Router();
 
-// Rotta per verificare le partite con il filtro per data
-router.get('/verify', authenticateJWT, WinnerController.verificaPartite);
+// Rotta per verificare l'elenco delle partite giocate con filtro opzionale per data
+router.get('/partite', authenticateJWT, WinnerController.listaPartite);
 
 export default router;
