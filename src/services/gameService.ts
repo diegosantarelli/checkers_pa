@@ -98,7 +98,7 @@ export const creaPartita = async (
         });
 
         if (partitaInCorso) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, 'Hai già una partita in corso. Devi completarla prima di crearne una nuova.');
+            throw new HttpException(StatusCodes.BAD_REQUEST, 'Hai già una partita in corso. Devi completarla o abbandonarla prima di crearne una nuova.');
         }
 
         // Validazione del tipo e del livello IA
