@@ -1,3 +1,7 @@
+/**
+ * File che configura il compilatore TypeScript, definendo come il codice TypeScript
+ * deve essere compilato in JavaScript.
+ */
 {
   "compilerOptions": {
     "target": "es6",

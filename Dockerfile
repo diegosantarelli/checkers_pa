@@ -10,9 +10,6 @@ COPY package*.json ./
 # Installa le dipendenze del progetto
 RUN npm install
 
-# Installa TypeScript globalmente (opzionale)
-#RUN npm install -g typescript
-
 # Copia il resto del codice sorgente nel container
 COPY . .
 
