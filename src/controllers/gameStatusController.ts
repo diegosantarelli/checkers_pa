@@ -3,6 +3,13 @@ import GameStatusService from '../services/gameStatusService';
 import HttpException from '../helpers/errorHandler';
 
 class GameStatusController {
+    /**
+     * Valuta lo stato di una partita.
+     * @param {Request} req - La richiesta HTTP.
+     * @param {Response} res - La risposta HTTP.
+     * @param {NextFunction} next - Passa il controllo al middleware successivo.
+     * @returns {Promise<void>} - Restituisce il risultato della valutazione della partita.
+     */
     public static async valutaPartita(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id_partita } = req.params;
@@ -20,7 +27,13 @@ class GameStatusController {
         }
     }
 
-    // Metodo per abbandonare la partita
+    /**
+     * Permette a un giocatore di abbandonare una partita.
+     * @param {Request} req - La richiesta HTTP.
+     * @param {Response} res - La risposta HTTP.
+     * @param {NextFunction} next - Passa il controllo al middleware successivo.
+     * @returns {Promise<void>} - Restituisce il risultato dell'abbandono della partita.
+     */
     public static async abbandonaPartita(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id_partita } = req.params;

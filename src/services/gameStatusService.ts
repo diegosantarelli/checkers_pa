@@ -64,7 +64,10 @@ class GameStatusService {
                 throw new HttpException(404, 'Partita non trovata');
             }
 
-            if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore) {
+            // Verifica se la partita è contro l'IA (id_giocatore2 è null ma livello_IA è definito)
+            const isPartitaControIA = partita.id_giocatore2 === null && partita.livello_IA !== null;
+
+            if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore && !isPartitaControIA) {
                 throw new HttpException(403, 'Il giocatore non fa parte di questa partita');
             }
 
@@ -72,11 +75,8 @@ class GameStatusService {
                 throw new HttpException(400, 'La partita NON è in corso e non può essere abbandonata');
             }
 
-            const id_vincitore = partita.id_giocatore1 === id_giocatore ? partita.id_giocatore2 : partita.id_giocatore1;
-
-            if (!id_vincitore) {
-                throw new HttpException(400, 'Non è possibile abbandonare una partita senza un avversario');
-            }
+            // Se la partita è contro l'IA, non solleviamo l'errore "Non è possibile abbandonare una partita senza un avversario"
+            const id_vincitore = isPartitaControIA ? partita.id_giocatore1 : (partita.id_giocatore1 === id_giocatore ? partita.id_giocatore2 : partita.id_giocatore1);
 
             partita.stato = 'abbandonata';
             partita.id_vincitore = id_vincitore;
@@ -89,17 +89,25 @@ class GameStatusService {
                 await giocatore.save();
             }
 
-            // Aggiungi 1 punto al vincitore della partita abbandonata
-            const vincitore = await Giocatore.findByPk(id_vincitore);
-            if (vincitore) {
-                vincitore.punteggio_totale += 1;
-                await vincitore.save();
+            if (!isPartitaControIA && id_vincitore) {
+                // Aggiungi 1 punto al vincitore della partita abbandonata (solo per partite PvP)
+                const vincitore = await Giocatore.findByPk(id_vincitore);
+                if (vincitore) {
+                    vincitore.punteggio_totale += 1;
+                    await vincitore.save();
+                }
+
+                return {
+                    success: true,
+                    statusCode: 201,
+                    risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita. Il giocatore ${id_vincitore} ha vinto e ha ricevuto 1 punto.`
+                };
             }
 
             return {
                 success: true,
                 statusCode: 201,
-                risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita. Il giocatore ${id_vincitore} ha vinto e ha ricevuto 1 punto.`
+                risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti`
             };
         } catch (error: unknown) {
             if (error instanceof HttpException) {
