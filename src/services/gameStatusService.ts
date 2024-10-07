@@ -1,13 +1,25 @@
 import { Partita, Giocatore } from '../models';
-import HttpException from '../helpers/errorHandler';
+import HttpException, { handleError } from '../helpers/errorHandler';
+import { StatusCodes } from 'http-status-codes';
 
+/**
+ * Servizio per la gestione dello stato delle partite, inclusa la valutazione e l'abbandono delle partite.
+ */
 class GameStatusService {
+    /**
+     * Valuta lo stato di una partita e restituisce il risultato basato sullo stato attuale della partita.
+     *
+     * @param {number} id_partita - L'ID della partita da valutare.
+     * @param {number} id_giocatore - L'ID del giocatore che richiede la valutazione.
+     * @returns {Promise<{ success: boolean, statusCode: number, risultato: string }>} - Un oggetto contenente il successo dell'operazione, il codice di stato e il risultato.
+     * @throws {HttpException} - Lancia un'eccezione in caso di partita non trovata o di errori durante la valutazione.
+     */
     public static async valutaPartita(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
 
             if (!partita) {
-                throw new HttpException(404, 'Partita non trovata');
+                throw new HttpException(StatusCodes.NOT_FOUND, 'Partita non trovata');
             }
 
             let risultato = '';
@@ -17,7 +29,7 @@ class GameStatusService {
                 const vincitore = await Giocatore.findByPk(partita.id_vincitore);
 
                 if (!vincitore) {
-                    throw new HttpException(404, 'Vincitore non trovato');
+                    throw new HttpException(StatusCodes.NOT_FOUND, 'Vincitore non trovato');
                 }
 
                 risultato = `La partita è stata vinta da ${vincitore.nome}`;
@@ -27,7 +39,7 @@ class GameStatusService {
                 const giocatore = await Giocatore.findByPk(id_giocatore);
 
                 if (!giocatore) {
-                    throw new HttpException(404, 'Giocatore non trovato');
+                    throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato');
                 }
 
                 risultato = `${giocatore.nome} ha abbandonato la partita`;
@@ -40,39 +52,39 @@ class GameStatusService {
             // Restituisce semplicemente lo stato della partita senza alterare il punteggio
             return {
                 success: true,
-                statusCode: 200,
+                statusCode: StatusCodes.OK,
                 risultato
             };
         } catch (error: unknown) {
-            if (error instanceof HttpException) {
-                throw error;
-            }
-            if (error instanceof Error) {
-                throw new HttpException(500, `Errore durante la valutazione della partita: ${error.message}`);
-            } else {
-                throw new HttpException(500, 'Errore sconosciuto durante la valutazione della partita');
-            }
+            return GameStatusService.handleError(error, 'Errore durante la valutazione della partita');
         }
     }
 
-    // Metodo per abbandonare la partita
+    /**
+     * Permette a un giocatore di abbandonare la partita e assegna punti penalità o bonus in base all'esito.
+     *
+     * @param {number} id_partita - L'ID della partita che si desidera abbandonare.
+     * @param {number} id_giocatore - L'ID del giocatore che vuole abbandonare la partita.
+     * @returns {Promise<{ success: boolean, statusCode: number, risultato: string }>} - Un oggetto contenente il successo dell'operazione, il codice di stato e il risultato.
+     * @throws {HttpException} - Lancia un'eccezione in caso di partita non trovata o di errori durante l'abbandono della partita.
+     */
     public static async abbandonaPartita(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
 
             if (!partita) {
-                throw new HttpException(404, 'Partita non trovata');
+                throw new HttpException(StatusCodes.NOT_FOUND, 'Partita non trovata');
             }
 
             // Verifica se la partita è contro l'IA (id_giocatore2 è null ma livello_IA è definito)
             const isPartitaControIA = partita.id_giocatore2 === null && partita.livello_IA !== null;
 
             if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore && !isPartitaControIA) {
-                throw new HttpException(403, 'Il giocatore non fa parte di questa partita');
+                throw new HttpException(StatusCodes.FORBIDDEN, 'Il giocatore non fa parte di questa partita');
             }
 
             if (partita.stato !== 'in corso') {
-                throw new HttpException(400, 'La partita NON è in corso e non può essere abbandonata');
+                throw new HttpException(StatusCodes.BAD_REQUEST, 'La partita NON è in corso e non può essere abbandonata');
             }
 
             // Se la partita è contro l'IA, non solleviamo l'errore "Non è possibile abbandonare una partita senza un avversario"
@@ -99,25 +111,36 @@ class GameStatusService {
 
                 return {
                     success: true,
-                    statusCode: 201,
+                    statusCode: StatusCodes.CREATED,
                     risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita. Il giocatore ${id_vincitore} ha vinto e ha ricevuto 1 punto.`
                 };
             }
 
             return {
                 success: true,
-                statusCode: 201,
+                statusCode: StatusCodes.CREATED,
                 risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti`
             };
         } catch (error: unknown) {
-            if (error instanceof HttpException) {
-                throw error;
-            }
-            if (error instanceof Error) {
-                throw new HttpException(500, `Errore durante l'abbandono della partita: ${error.message}`);
-            } else {
-                throw new HttpException(500, 'Errore sconosciuto durante abbandono della partita');
-            }
+            return GameStatusService.handleError(error, 'Errore durante l\'abbandono della partita');
+        }
+    }
+
+    /**
+     * Gestisce gli errori catturati durante l'esecuzione delle operazioni e lancia l'eccezione appropriata.
+     *
+     * @param {unknown} error - L'errore catturato durante l'esecuzione del codice.
+     * @param {string} defaultMessage - Messaggio predefinito da utilizzare in caso di errore sconosciuto.
+     * @returns {never} - Lancia un'eccezione `HttpException` con il messaggio di errore.
+     */
+    private static handleError(error: unknown, defaultMessage: string): never {
+        if (error instanceof HttpException) {
+            throw error;
+        }
+        if (error instanceof Error) {
+            throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, `${defaultMessage}: ${error.message}`);
+        } else {
+            throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, defaultMessage);
         }
     }
 }
