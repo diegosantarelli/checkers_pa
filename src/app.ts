@@ -6,6 +6,7 @@ import checkerRoutes from './routes/checkerRoutes';
 import mossaRoutes from './routes/mossaRoutes';
 import partitaRoutes from "./routes/winnerRoutes";
 import gameStatusRoutes from "./routes/gameStatusRoutes";
+import winnerRoutes from "./routes/winnerRoutes";
 
 /* Carica le variabili d'ambiente da file .env */
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -60,7 +61,7 @@ app.use('/do', mossaRoutes);
  * @route /winner
  * @see partitaRoutes
  */
-app.use('/winner', partitaRoutes);
+app.use('/winner', winnerRoutes);
 
 /**
  * Rotta per ottenere lo stato attuale di una partita e gestione dell'abbandono.
