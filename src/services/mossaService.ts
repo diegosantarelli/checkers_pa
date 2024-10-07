@@ -94,6 +94,9 @@ class MoveService {
 
         // Aggiorna la tavola nella partita
         partita.tavola = JSON.stringify({ initialBoard: draughts.board });
+
+        // Incrementa il numero di mosse totali della partita
+        partita.mosse_totali = (partita.mosse_totali || 0) + 1;  // Incrementa e assicura che mosse_totali parta da 0
         await partita.save();
 
         // Registra la mossa
@@ -123,6 +126,9 @@ class MoveService {
 
             // Aggiorna la tavola dopo la mossa dell'IA
             partita.tavola = JSON.stringify({ initialBoard: draughts.board });
+
+            // Incrementa il numero di mosse totali della partita
+            partita.mosse_totali += 1;
             await partita.save();
 
             try {

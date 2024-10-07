@@ -1,10 +1,12 @@
 import { Op } from 'sequelize';
-import { Partita } from '../models'; // Non serve più importare Mossa
+import { Partita } from '../models';
 import HttpException from '../helpers/errorHandler';
-import { isValid, parseISO } from 'date-fns'; // Importa date-fns per la validazione della data
+import { isValid, parseISO } from 'date-fns';
+import { fn, col, where } from 'sequelize';
 
 class WinnerService {
-    public static async verificaPartite(id_giocatore: number, startDate?: string) {
+    // Funzione per ottenere l'elenco delle partite giocate
+    public static async listaPartiteGiocate(id_giocatore: number, startDate?: string) {
         try {
             // Log per controllare i parametri in ingresso
             console.log("ID Giocatore:", id_giocatore);
@@ -14,35 +16,36 @@ class WinnerService {
                 [Op.or]: [
                     { id_giocatore1: id_giocatore },
                     { id_giocatore2: id_giocatore }
-                ],
-                stato: 'completata',
+                ]
             };
 
-            // Validazione della data
+            // Aggiungi il filtro della data se è presente
             if (startDate) {
                 const parsedDate = parseISO(startDate);
+                console.log("Data Parsata:", parsedDate); // Log della data parsata
                 if (!isValid(parsedDate)) {
                     throw new HttpException(400, 'Formato della data non valido');
                 }
-                whereCondition.data_inizio = { [Op.gte]: parsedDate };
+
+                const dateOnly = parsedDate.toISOString().split('T')[0];
+                whereCondition[Op.and] = where(fn('DATE', col('data_inizio')), '=', dateOnly);
             }
 
-            // Log della condizione di query
-            console.log("Condizione di query (completa):", JSON.stringify(whereCondition));
+            console.log("Condizione di query finale:", JSON.stringify(whereCondition));
 
-            // Esegui la query per trovare le partite completate
             const partite = await Partita.findAll({
                 where: whereCondition,
-                attributes: ['id_partita', 'stato', 'mosse_totali', 'id_vincitore', 'data_inizio'] // Seleziona solo gli attributi necessari
+                attributes: ['id_partita', 'stato', 'mosse_totali', 'id_vincitore', 'data_inizio']
             });
 
-            // Log le partite trovate
             console.log("Partite trovate:", partite);
 
-            // Controllo se non ci sono partite
             if (!partite || partite.length === 0) {
-                console.warn("Nessuna partita trovata per i criteri specificati");
-                throw new HttpException(404, 'Nessuna partita trovata per i criteri specificati');
+                const message = startDate
+                    ? `Nessuna partita trovata per la data ${startDate}`
+                    : 'Nessuna partita trovata';
+                console.warn(message);
+                throw new HttpException(404, message);
             }
 
             // Mappatura dei risultati delle partite
@@ -51,15 +54,23 @@ class WinnerService {
                 return {
                     id_partita: partita.id_partita,
                     stato: partita.stato,
-                    numero_mosse: partita.mosse_totali, // Usa l'attributo 'mosse_totali'
+                    numero_mosse: partita.mosse_totali,
                     risultato,
                     data_inizio: partita.data_inizio,
                 };
             });
 
         } catch (error) {
-            console.error("Errore durante la verifica delle partite:");
-            throw new HttpException(500, 'Errore durante la verifica delle partite');
+            if (error instanceof HttpException) {
+                console.error("Errore HTTP durante la verifica delle partite:", error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error("Errore generico durante la verifica delle partite:", error.message);
+                throw new HttpException(500, 'Errore durante la verifica delle partite');
+            } else {
+                console.error("Errore sconosciuto durante la verifica delle partite");
+                throw new HttpException(500, 'Errore sconosciuto durante la verifica delle partite');
+            }
         }
     }
 }
