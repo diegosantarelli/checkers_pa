@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes';
-import checkerRoutes from './routes/checkerRoutes';
+import checkerRoutes from './routes/gameRoutes';
 import mossaRoutes from './routes/mossaRoutes';
 import gameStatusRoutes from "./routes/gameStatusRoutes";
 import winnerRoutes from "./routes/winnerRoutes";

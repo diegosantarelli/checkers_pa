@@ -13,23 +13,39 @@ const Partita = initPartita(sequelize);
 const Mossa = initMossa(sequelize);
 const MossaIA = initMossaIA(sequelize);
 
-class MoveService {
+class MossaService {
 
-    // Funzione per convertire la posizione in notazione scacchistica in un indice numerico
+    /**
+     * Converte una posizione in notazione scacchistica (es. "A2") in un indice numerico.
+     *
+     * @param {string} position - La posizione da convertire.
+     * @returns {number} - L'indice numerico corrispondente.
+     */
     private static convertPosition(position: string): number {
         const file = position.charCodeAt(0) - 'A'.charCodeAt(0);
         const rank = 8 - parseInt(position[1]);
         return rank * 8 + file;
     }
 
-    // Funzione per convertire un indice numerico in notazione scacchistica
+    /**
+     * Converte un indice numerico in notazione scacchistica (es. da 12 a "A2").
+     *
+     * @param {number} index - L'indice numerico da convertire.
+     * @returns {string} - La notazione scacchistica corrispondente.
+     */
     private static convertPositionBack(index: number): string {
         const file = String.fromCharCode('A'.charCodeAt(0) + (index % 8));
         const rank = 8 - Math.floor(index / 8);
         return `${file}${rank}`;
     }
 
-    // Funzione per verificare se il giocatore è parte della partita
+    /**
+     * Verifica se il giocatore fa parte della partita.
+     *
+     * @param {number} id_partita - L'ID della partita.
+     * @param {number} id_giocatore - L'ID del giocatore.
+     * @throws {HttpException} - Lancia un'eccezione se il giocatore non fa parte della partita.
+     */
     private static async verificaGiocatoreNellaPartita(id_partita: number, id_giocatore: number): Promise<void> {
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
@@ -41,7 +57,17 @@ class MoveService {
         }
     }
 
-    // Esegue la mossa di un giocatore
+    /**
+     * Esegue la mossa di un giocatore nella partita.
+     *
+     * @param {number} id_partita - L'ID della partita.
+     * @param {string} from - La posizione di origine in notazione scacchistica.
+     * @param {string} to - La posizione di destinazione in notazione scacchistica.
+     * @param {number} id_giocatore1 - L'ID del giocatore che effettua la mossa.
+     * @param {string} ruolo - Il ruolo dell'utente (es. "utente").
+     * @returns {Promise<object>} - Restituisce un oggetto contenente la descrizione della mossa e lo stato della partita.
+     * @throws {HttpException} - Lancia un'eccezione in caso di errore (giocatore non autorizzato, partita non trovata, mossa non valida, ecc.).
+     */
     public static async executeMove(id_partita: number, from: string, to: string, id_giocatore1: number, ruolo: string) {
         if (ruolo !== 'utente') {
             throw new HttpException(StatusCodes.FORBIDDEN, "Solo gli utenti possono fare mosse. Gli admin non sono autorizzati.");
@@ -58,7 +84,7 @@ class MoveService {
         }
 
         // Verifica se il giocatore è parte della partita
-        await MoveService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
+        await MossaService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
 
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
@@ -82,8 +108,17 @@ class MoveService {
             draughts.board[index] = square;
         });
 
-        const origin = MoveService.convertPosition(from);
-        const destination = MoveService.convertPosition(to);
+        // Stampa le mosse disponibili convertite in notazione scacchistica
+        console.log("Mosse disponibili per il giocatore attuale:");
+        const convertedMoves = draughts.moves.map(move => ({
+            origin: MossaService.convertPositionBack(move.origin),
+            destination: MossaService.convertPositionBack(move.destination),
+            captures: move.captures.map(capture => MossaService.convertPositionBack(capture))
+        }));
+        console.table(convertedMoves);
+
+        const origin = MossaService.convertPosition(from);
+        const destination = MossaService.convertPosition(to);
 
         const validMoves = draughts.moves;
         const moveToMake = validMoves.find(move => move.origin === origin && move.destination === destination);
@@ -116,7 +151,7 @@ class MoveService {
             if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
                 (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
                 (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
-                const gameOverResult = MoveService.handleGameOver(draughts, partita);
+                const gameOverResult = MossaService.handleGameOver(draughts, partita);
                 return {
                     message: gameOverResult.message,
                     id_partita: partita.id_partita,
@@ -146,7 +181,7 @@ class MoveService {
             });
 
             // Deduzione del costo della mossa
-            await MoveService.deductMoveCost(id_giocatore1);
+            await MossaService.deductMoveCost(id_giocatore1);
 
             // Descrizione della mossa
             const colorePezzo = savedBoard[origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
@@ -154,7 +189,7 @@ class MoveService {
 
             // Se c'è un'IA nella partita, esegui la sua mossa
             if (partita.livello_IA) {
-                const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
+                const aiMove = await MossaService.executeAiMove(draughts, partita.livello_IA);
 
                 draughts.move(aiMove);
 
@@ -162,7 +197,7 @@ class MoveService {
                 if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
                     (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
                     (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
-                    const gameOverResult = MoveService.handleGameOver(draughts, partita);
+                    const gameOverResult = MossaService.handleGameOver(draughts, partita);
                     return {
                         message: gameOverResult.message,
                         id_partita: partita.id_partita,
@@ -186,7 +221,7 @@ class MoveService {
                 });
 
                 const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
-                const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MoveService.convertPositionBack(aiMove.origin)} a ${MoveService.convertPositionBack(aiMove.destination)}.`;
+                const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MossaService.convertPositionBack(aiMove.origin)} a ${MossaService.convertPositionBack(aiMove.destination)}.`;
 
                 return {
                     message: "Mossa eseguita con successo",
@@ -216,7 +251,13 @@ class MoveService {
         }
     }
 
-    // Gestione della fine della partita
+    /**
+     * Gestisce la fine della partita, assegnando il vincitore o determinando un pareggio.
+     *
+     * @param {any} draughts - L'istanza della partita di dama.
+     * @param {any} partita - L'istanza della partita nel database.
+     * @returns {object} - Restituisce il risultato della partita e la tavola aggiornata.
+     */
     private static handleGameOver(draughts: any, partita: any) {
         let risultato;
         if (draughts.status === DraughtsStatus.LIGHT_WON) {
@@ -238,7 +279,13 @@ class MoveService {
         };
     }
 
-    // Esegue la mossa dell'IA in base al livello di difficoltà
+    /**
+     * Esegue la mossa dell'IA in base al livello di difficoltà selezionato.
+     *
+     * @param {any} draughts - L'istanza della partita di dama.
+     * @param {string} livelloIA - Il livello di difficoltà dell'IA (es. "facile", "normale", "difficile", "estrema").
+     * @returns {Promise<any>} - La mossa selezionata dall'IA.
+     */
     private static async executeAiMove(draughts: any, livelloIA: string) {
         let ai;
         switch (livelloIA) {
@@ -263,7 +310,12 @@ class MoveService {
         return aiMove;
     }
 
-    // Deduzione del costo della mossa dai token rimanenti del giocatore
+    /**
+     * Deduce il costo di una mossa dai token rimanenti del giocatore.
+     *
+     * @param {number} id_giocatore1 - L'ID del giocatore a cui dedurre il costo della mossa.
+     * @throws {HttpException} - Lancia un'eccezione se il giocatore non viene trovato.
+     */
     private static async deductMoveCost(id_giocatore1: number): Promise<void> {
         const giocatore = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore) {
@@ -275,4 +327,4 @@ class MoveService {
     }
 }
 
-export default MoveService;
+export default MossaService;

@@ -74,6 +74,22 @@ module.exports = {
         tavola: this.generateRandomBoardConfig(),
         createdAt: new Date(),
         updatedAt: new Date(),
+      },
+      {
+        data_inizio: this.getRandomDate(startDate, endDate),
+        stato: 'completata',
+        tipo: 'Amichevole',
+        mosse_totali: 5,
+        tempo_totale: 60,
+        id_giocatore1: 3,
+        id_giocatore2: 1,
+        id_ai: null,
+        id_vincitore: 3,
+        vincitore_ai: null,
+        livello_IA: null,
+        tavola: this.generateRandomBoardConfig(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
     ]);
   },
