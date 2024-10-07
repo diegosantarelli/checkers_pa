@@ -61,7 +61,7 @@ module.exports = {
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate),
-        stato: 'in corso',
+        stato: 'completata',
         tipo: 'Amichevole',
         mosse_totali: 8,
         tempo_totale: 90,
