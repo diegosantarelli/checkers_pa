@@ -2,6 +2,14 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 
 export default (sequelize: Sequelize) => {
     class Mossa extends Model {
+        id_mossa!: number;
+        numero_mossa!: number;
+        tavola!: object;  // Aggiungi la definizione di tavola
+        pezzo!: string | null;
+        id_partita!: number;
+        id_giocatore!: number;
+        data!: Date;
+
         static associate(models: any) {
             // Associazione con il modello Partita
             Mossa.belongsTo(models.Partita, {
@@ -13,8 +21,7 @@ export default (sequelize: Sequelize) => {
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
                 as: 'giocatore',
-                // Permettiamo a id_giocatore di essere -1 quando la mossa è fatta dall'IA
-                constraints: false,  // Disabilita i vincoli di chiave esterna per supportare il valore -1
+                constraints: false,
             });
         }
     }
