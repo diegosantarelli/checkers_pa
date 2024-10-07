@@ -1,11 +1,16 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import Giocatore from '../models/Giocatore';
 import { verifyPassword } from '../helpers/passwordHelper';
-import { generateToken } from '../helpers/jwtHelper'; // Usa la funzione del jwtHelper
+import { generateToken } from '../helpers/jwtHelper';
 import { sequelize } from "../models";
+import HttpException from '../helpers/errorHandler'; // Importa l'eccezione personalizzata
+import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();
 const giocatore = Giocatore(sequelize);
+
+// Espressione regolare per convalidare l'email nei formati tuo_username@example.com o tuo_username@example.it
+const emailRegex = /^[a-zA-Z0-9._%+-]+@example\.(com|it)$/;
 
 /**
  * Rotta di login per autenticare un giocatore.
@@ -14,35 +19,25 @@ const giocatore = Giocatore(sequelize);
  *
  * @param {Request} req - La richiesta HTTP contenente l'email e la password nel corpo della richiesta.
  * @param {Response} res - La risposta HTTP che conterrà un token JWT se l'autenticazione ha successo.
+ * @param {NextFunction} next - Funzione che passa il controllo al middleware successivo (per gestione degli errori).
  *
- * @returns {Promise<void>} - Restituisce un token JWT se le credenziali sono valide, altrimenti restituisce un errore 401.
- *
- * @example
- * // Corpo della richiesta:
- * {
- *   "email": "user@example.com",
- *   "password": "password123"
- * }
- *
- * // Risposta di successo:
- * {
- *   "token": "jwt_token_string"
- * }
- *
- * @throws {401} - Se l'email o la password non sono valide.
- * @throws {500} - Se si verifica un errore durante il processo di login.
+ * @returns {Promise<void>} - Restituisce un token JWT se le credenziali sono valide, altrimenti gestisce l'errore.
  */
-router.post('/', async (req: Request, res: Response): Promise<void> => {
+router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { email, password } = req.body;
 
     try {
+        // Controlla se l'email ha un formato valido
+        if (!emailRegex.test(email)) {
+            throw new HttpException(StatusCodes.BAD_REQUEST, 'Formato email non valido. Email deve essere nel formato tuo_username@example.com o tuo_username@example.it');
+        }
+
         // Trova il giocatore in base all'email
         const user = await giocatore.findOne({ where: { email } });
 
-        // Se il giocatore non esiste o la password è errata, restituisce un errore 401
+        // Se il giocatore non esiste o la password è errata, lancia un'eccezione (401)
         if (!user || !(await verifyPassword(password, user.hash))) {
-            res.status(401).json({ message: 'Credenziali non valide' });
-            return;
+            throw new HttpException(StatusCodes.UNAUTHORIZED, 'Credenziali non valide');
         }
 
         // Genera un token JWT usando i dettagli del giocatore
@@ -53,10 +48,10 @@ router.post('/', async (req: Request, res: Response): Promise<void> => {
         });
 
         // Restituisce il token JWT al client
-        res.status(200).json({ token });
+        res.status(StatusCodes.OK).json({ token });
     } catch (error) {
-        // Se si verifica un errore durante l'autenticazione, restituisce un errore 500
-        res.status(500).json({ message: 'Errore durante il login', error });
+        // Passa l'errore al gestore centrale degli errori
+        next(error);
     }
 });
 

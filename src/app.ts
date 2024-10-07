@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes';
 import checkerRoutes from './routes/checkerRoutes';
 import mossaRoutes from './routes/mossaRoutes';
-import partitaRoutes from "./routes/winnerRoutes";
 import gameStatusRoutes from "./routes/gameStatusRoutes";
 import winnerRoutes from "./routes/winnerRoutes";
 
