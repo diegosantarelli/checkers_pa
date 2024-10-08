@@ -48,4 +48,13 @@ router.put('/abbandona-partita/:id_partita', authenticateJWT, GameStatusControll
  */
 router.get('/ranking', GameStatusController.classificaGiocatori);
 
+/**
+ * Rotta per ottenere un certificato in formato PDF che attesti la vittoria in una data partita.
+ *
+ * @route GET /certificato-vittoria/:id_partita
+ * @param {number} id_partita - L'ID della partita per cui generare il certificato.
+ * @returns {application/pdf} - Restituisce un certificato in formato PDF.
+ */
+router.get('/win-certify/:id_partita', GameStatusController.getCertificatoVittoria);
+
 export default router;

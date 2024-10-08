@@ -93,6 +93,20 @@ class GameStatusController {
             next(error);
         }
     }
+
+    public static async getCertificatoVittoria(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const { id_partita } = req.params;
+
+            const pdfBuffer = await GameStatusService.generaCertificatoPDF(Number(id_partita));
+
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename=certificato_vittoria_${id_partita}.pdf`);
+            res.send(pdfBuffer);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default GameStatusController;

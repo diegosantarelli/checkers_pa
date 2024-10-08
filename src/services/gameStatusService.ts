@@ -1,6 +1,9 @@
 import { Partita, Giocatore } from '../models';
 import HttpException from '../helpers/errorHandler';
 import { StatusCodes } from 'http-status-codes';
+import PdfPrinter from 'pdfmake';
+
+
 
 /**
  * Servizio per la gestione dello stato delle partite, inclusa la valutazione e l'abbandono delle partite.
@@ -147,6 +150,100 @@ class GameStatusService {
         } else {
             throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, defaultMessage);
         }
+    }
+
+    public static async getDettagliPartita(id_partita: number): Promise<any> {
+        const partita = await Partita.findByPk(id_partita);
+
+        if (!partita) {
+            throw new HttpException(StatusCodes.NOT_FOUND, 'Partita non trovata');
+        }
+
+        // Se id_vincitore è null, controlliamo lo stato della partita
+        if (partita.id_vincitore === null) {
+            if (partita.stato === 'in corso') {
+                throw new HttpException(StatusCodes.BAD_REQUEST, 'La partita è ancora in corso. Il certificato di vittoria non è disponibile.');
+            } else if (partita.stato === 'completata' || partita.stato === 'abbandonata') {
+                throw new HttpException(StatusCodes.BAD_REQUEST, 'La partita è stata completata o abbandonata contro l\'IA, ma non è stata vinta. Nessun certificato disponibile.');
+            }
+        }
+
+        // Recupera i dettagli di giocatore1 e giocatore2
+        const giocatore1 = await Giocatore.findByPk(partita.id_giocatore1, { attributes: ['nome', 'cognome'] });
+        const giocatore2 = partita.id_giocatore2 ? await Giocatore.findByPk(partita.id_giocatore2, { attributes: ['nome', 'cognome'] }) : null;
+
+        if (!giocatore1 || (!giocatore2 && partita.id_giocatore2 !== null)) {
+            throw new HttpException(StatusCodes.BAD_REQUEST, 'Impossibile recuperare i dati dei giocatori');
+        }
+
+        // Recupera il vincitore, ma controlla che id_vincitore non sia null
+        const vincitore = partita.id_vincitore ? await Giocatore.findByPk(partita.id_vincitore, { attributes: ['nome', 'cognome'] }) : null;
+
+        if (!vincitore) {
+            throw new HttpException(StatusCodes.BAD_REQUEST, 'Non c\'è un vincitore per questa partita');
+        }
+
+        // Determina l'avversario o imposta l'IA come avversario
+        const avversario = vincitore.id_giocatore === giocatore1.id_giocatore ? giocatore2 : giocatore1;
+
+        const avversarioDettagli = avversario
+            ? { nome: avversario.nome, cognome: avversario.cognome }
+            : { nome: 'Intelligenza', cognome: 'Artificiale' };
+
+        return {
+            vincitore: `${vincitore.nome} ${vincitore.cognome}`,
+            avversario: `${avversarioDettagli.nome} ${avversarioDettagli.cognome}`,
+            tempo_totale: partita.tempo_totale,
+            mosse_totali: partita.mosse_totali
+        };
+    }
+
+    public static async generaCertificatoPDF(id_partita: number): Promise<Buffer> {
+        const partita = await this.getDettagliPartita(id_partita);
+
+        const fonts = {
+            Roboto: {
+                normal: 'Helvetica',
+                bold: 'Helvetica-Bold',
+                italics: 'Helvetica-Oblique',
+                bolditalics: 'Helvetica-BoldOblique'
+            }
+        };
+
+        const printer = new PdfPrinter(fonts);
+
+        // Usa i dati ottenuti da getDettagliPartita
+        const player1Name = partita.vincitore;
+        const player2Name = partita.avversario;
+        const totalMoves = partita.mosse_totali;
+        const gameDuration = `${partita.tempo_totale} secondi`;
+
+        const docDefinition = {
+            content: [
+                { text: 'CERTIFICATO DI VITTORIA', style: 'header'},
+                { text: `Giocatore 1: ${player1Name}`},
+                { text: `giocatore 2: ${player2Name}`},
+                { text: `Mosse totali: ${totalMoves}`},
+                { text: `Durata della partita: ${gameDuration}`},
+                { text: `Vincitore ${player1Name}`, style: 'boldText' },
+                { text: 'CONGRATULAZIONI!', style: 'congratulations'}
+            ],
+            styles: {
+                header: { fontSize: 18, bold: true},
+                congratulations: { fontSize: 15, italics: true },
+                boldText: { fontSize: 12, bold: true }
+            }
+        };
+
+        const pdfDoc = printer.createPdfKitDocument(docDefinition);
+        const chunks: Buffer[] = [];
+
+        return new Promise<Buffer>((resolve, reject) => {
+            pdfDoc.on('data', (chunk) => chunks.push(chunk));
+            pdfDoc.on('end', () => resolve(Buffer.concat(chunks)));
+            pdfDoc.on('error', (error) => reject(error));
+            pdfDoc.end();
+        });
     }
 }
 

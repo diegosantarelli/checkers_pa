@@ -1,5 +1,5 @@
 import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
-import Mossa from './Mossa';  // Usa il default import per Mossa
+
 
 /**
  * @interface PartitaAttributes
@@ -60,6 +60,9 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
      * @param {any} models - Gli altri modelli Sequelize.
      */
     static associate(models: any) {
+        // Associazione tra Partita e Giocatore
+        Partita.belongsTo(models.Giocatore, { as: 'giocatore1', foreignKey: 'id_giocatore1' });
+        Partita.belongsTo(models.Giocatore, { as: 'giocatore2', foreignKey: 'id_giocatore2' });
         // Associazione tra Partita e Mossa
         Partita.hasMany(models.Mossa, { foreignKey: 'id_partita', as: 'mosse' });
     }
