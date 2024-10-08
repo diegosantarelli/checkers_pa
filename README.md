@@ -16,6 +16,7 @@ L'idea alla base del progetto è che, gli utenti (autenticati tramite _token JWT
 
 # Indice
 - [Obiettivi di progetto](#obiettivi-di-progetto)
+- [Progettazione](#progettazione)
 
 ## Obiettivi di progetto
 Come scritto precedentemente, l'obiettivo principale è realizzare un sistema di back-end per la gestione delle partite di dama.
@@ -30,4 +31,12 @@ Per raggiungere tale scopo, questo va diviso in funzionalità da realizzare:
 - _Verifica delle partite svolte_ da un utente, filtrando opzionalmente per la data di inizio di una partita, per ognuna delle quali occorre riportare:
     - Se la partita è stata vinta o persa.
     - Il numero totale di mosse.
+- _Valutazione dello stato di una partita_, che si considera chiusa quando:
+    - Un utente/AI vince (se l'utente vince guadagna 1 punto).
+    - L'utente abbandona (esso perde 0.5 punti).
+- _Storico delle mosse_ di una data partita con la possibilità di esportare in formato JSON o PDF.
+- _Classifica dei giocatori_ dando la possibilità di scegliere l’ordinamento ascendente/discendente. Questa, rispetto alle altre, è una rotta non protetta accessibile anche dagli utenti non autenticati.
+- _Ottenimento di un certificato_ in formato PDF che che attesti la vittoria in una data partita; il certificato deve contenere il tempo impiegato per vincere la partita, il numero di mosse totali (dei due utenti) ed il nome dell’avversario.
+
+## Progettazione
   
