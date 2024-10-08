@@ -39,4 +39,10 @@ const router = express.Router();
  */
 router.post('/mossa', authenticateJWT, mossaController.move);
 
+/**
+ * Rotta per esportare lo storico delle mosse di una partita.
+ * Supporta i formati JSON e PDF.
+ */
+router.get('/mossa/:id_partita/export', authenticateJWT, mossaController.exportMoveHistory);
+
 export default router;
