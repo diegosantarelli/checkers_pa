@@ -14,6 +14,7 @@ import Mossa from './Mossa';  // Usa il default import per Mossa
  * @property {Date} data_inizio - Data di inizio della partita.
  * @property {number | null} id_vincitore - ID del giocatore che ha vinto la partita (null se non è stato deciso).
  * @property {number} mosse_totali - Numero totale di mosse eseguite nella partita.
+ * @property {number} tempo_totale - Tempo totale della partita in secondi.
  */
 interface PartitaAttributes {
     id_partita: number;
@@ -26,13 +27,14 @@ interface PartitaAttributes {
     data_inizio: Date;
     id_vincitore: number | null;
     mosse_totali: number;
+    tempo_totale: number;  // Nuovo campo per il tempo totale in secondi
 }
 
 /**
  * @interface PartitaCreationAttributes
  * @description Definisce gli attributi opzionali per la creazione di una nuova partita.
  */
-interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_partita' | 'data_inizio' | 'id_vincitore' | 'mosse_totali'> {}
+interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_partita' | 'data_inizio' | 'id_vincitore' | 'mosse_totali' | 'tempo_totale'> {}
 
 /**
  * @class Partita
@@ -50,6 +52,7 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public data_inizio!: Date;
     public id_vincitore!: number | null;
     public mosse_totali!: number;
+    public tempo_totale!: number;  // Nuovo campo
 
     /**
      * @method associate
@@ -122,6 +125,11 @@ export default (sequelize: Sequelize) => {
         },
         mosse_totali: {
             type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0,
+        },
+        tempo_totale: {
+            type: DataTypes.INTEGER,  // Nuovo campo per il tempo totale
             allowNull: false,
             defaultValue: 0,
         },

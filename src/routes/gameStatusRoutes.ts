@@ -35,4 +35,17 @@ router.put('/verifica-stato/:id_partita', authenticateJWT, GameStatusController.
  */
 router.put('/abbandona-partita/:id_partita', authenticateJWT, GameStatusController.abbandonaPartita);
 
+/**
+ * Rotta per ottenere la classifica dei giocatori.
+ *
+ * Questa rotta restituisce la classifica dei giocatori in base al punteggio totale. È possibile specificare un parametro `order` (asc o desc) per ordinare la classifica in ordine crescente o decrescente.
+ *
+ * @route GET /classifica
+ * @queryparam {string} [order=asc] - Parametro opzionale per specificare l'ordine della classifica. Può essere "asc" (crescente, di default) o "desc" (decrescente).
+ * @access Pubblica - Non richiede autenticazione.
+ * @returns {Object} - Ritorna la classifica dei giocatori ordinata per punteggio.
+ * @throws {HttpException} - Restituisce 500 per errori interni.
+ */
+router.get('/ranking', GameStatusController.classificaGiocatori);
+
 export default router;

@@ -57,6 +57,42 @@ class GameStatusController {
             next(error);
         }
     }
+
+    /**
+     * Restituisce la classifica dei giocatori con ordinamento ascendente o discendente.
+     * Questa rotta è pubblica e non richiede autenticazione.
+     *
+     * @param {Request} req - La richiesta HTTP. Contiene un parametro di query `order` che può essere "asc" o "desc" per determinare l'ordinamento.
+     * @param {Response} res - La risposta HTTP che conterrà la classifica dei giocatori.
+     * @param {NextFunction} next - Il middleware successivo in caso di errori.
+     *
+     * @example {200} - Esempio di risposta di successo:
+     *  {
+     *    "success": true,
+     *    "data": [
+     *      { "nome": "Simone", "cognome": "Recinelli", "punti_totali": 10 },
+     *      { "nome": "Marco", "cognome": "Rossi", "punti_totali": 8 }
+     *    ]
+     *  }
+     */
+    public static async classificaGiocatori(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            // Ottiene il parametro di ordinamento dalla query string (ascendente o discendente)
+            const { order } = req.query;
+            const sortingOrder = order === 'desc' ? 'DESC' : 'ASC'; // Default: ASC
+
+            // Chiama il servizio per ottenere la classifica dei giocatori
+            const classifica = await GameStatusService.getClassificaGiocatori(sortingOrder);
+
+            // Restituisce la classifica dei giocatori
+            res.status(StatusCodes.OK).json({
+                success: true,
+                data: classifica
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default GameStatusController;
