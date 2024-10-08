@@ -17,6 +17,7 @@ L'idea alla base del progetto è che, gli utenti (autenticati tramite _token JWT
 # Indice
 - [Obiettivi di progetto](#obiettivi-di-progetto)
 - [Progettazione](#progettazione)
+     - [Diagramma dei casi d'uso](#diagramma-dei-casi-duso)
 
 ## Obiettivi di progetto
 Come scritto precedentemente, l'obiettivo principale è realizzare un sistema di back-end per la gestione delle partite di dama.
@@ -39,4 +40,31 @@ Per raggiungere tale scopo, questo va diviso in funzionalità da realizzare:
 - _Ottenimento di un certificato_ in formato PDF che che attesti la vittoria in una data partita; il certificato deve contenere il tempo impiegato per vincere la partita, il numero di mosse totali (dei due utenti) ed il nome dell’avversario.
 
 ## Progettazione
-  
+L'organizzazione delle directory del nostro progetto è la seguente:
+```
+checkers_pa/
+├── images/
+├── src/
+│   ├── controllers/
+│   ├── database/
+│   ├── helpers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   └── services/
+│       └── app.ts
+│       └── boardConfiguration.json
+│       └── express.d.ts
+│       └── global.d.ts
+├── .dockerignore #?
+├── .env
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── LICENSE
+├── package.json
+├── package-lock.json
+├── README.md
+└── tsconfig.json
+```
+### Diagramma dei casi d'uso
