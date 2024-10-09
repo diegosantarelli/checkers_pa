@@ -221,17 +221,25 @@ class GameStatusService {
         const docDefinition = {
             content: [
                 { text: 'CERTIFICATO DI VITTORIA', style: 'header'},
-                { text: `Giocatore 1: ${player1Name}`},
-                { text: `giocatore 2: ${player2Name}`},
-                { text: `Mosse totali: ${totalMoves}`},
-                { text: `Durata della partita: ${gameDuration}`},
-                { text: `Vincitore ${player1Name}`, style: 'boldText' },
-                { text: 'CONGRATULAZIONI!', style: 'congratulations'}
+                {
+                    table: {
+                        widths: ['*', '*'],
+                        body: [
+                            [{ text: 'Giocatore 1:', style: 'boldText'}, { text: player1Name}],
+                            [{ text: 'Giocatore 2:', style: 'boldText'}, { text: player2Name}],
+                            [{ text: 'Mosse totali:', style: 'boldText'}, { text: totalMoves}],
+                            [{ text: 'Durata della partita:', style: 'boldText'}, { text: gameDuration}],
+                            [{ text: 'Vincitore:', style: 'boldText'}, { text: player1Name}]
+                        ]
+                    },
+                    layout: 'lightHorizontalLines', // Aggiunge bordi leggeri tra le righe
+                },
+                { text: 'Congratulazioni!', style: 'congratulations'}
             ],
             styles: {
-                header: { fontSize: 18, bold: true},
-                congratulations: { fontSize: 15, italics: true },
-                boldText: { fontSize: 12, bold: true }
+                header: { fontSize: 22, bold: true },
+                boldText: { fontSize: 12, bold: true },
+                congratulations: { fontSize: 15, italics: true }
             }
         };
 
