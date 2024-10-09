@@ -70,25 +70,10 @@ module.exports = {
         allowNull: true,
         onDelete: 'SET NULL', // Se il vincitore viene eliminato, imposta il campo a NULL
       },
-      vincitore_ai: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false,
-      },
       tavola: {
         type: Sequelize.JSON,
         allowNull: false,
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.fn('now'),
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.fn('now'),
-      },
+      }
     });
   },
   async down(queryInterface, Sequelize) {

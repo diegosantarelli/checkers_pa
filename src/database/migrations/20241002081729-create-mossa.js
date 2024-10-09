@@ -47,14 +47,6 @@ module.exports = {
           isIn: [['singolo', 'dama']],
         },
       },
-      cattura: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
-      promozione: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
       // Aggiunte le nuove colonne per la posizione della mossa
       from_position: {
         type: Sequelize.STRING,

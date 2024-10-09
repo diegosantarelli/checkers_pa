@@ -3,7 +3,7 @@ import Giocatore from '../models/Giocatore';
 import { verifyPassword } from '../helpers/passwordHelper';
 import { generateToken } from '../helpers/jwtHelper';
 import { sequelize } from "../models";
-import HttpException from '../helpers/errorHandler'; // Importa l'eccezione personalizzata
+import HttpException from '../helpers/errorHandler';
 import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();

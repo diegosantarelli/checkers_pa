@@ -36,11 +36,8 @@ module.exports = {
         id_giocatore1: 1,
         id_giocatore2: null,
         id_vincitore: 1,
-        vincitore_ai: false,
         livello_IA: 'facile',
         tavola: this.generateRandomBoardConfig(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate),
@@ -51,11 +48,8 @@ module.exports = {
         id_giocatore1: 4,
         id_giocatore2: null,
         id_vincitore: null,
-        vincitore_ai: null,
         livello_IA: 'facile',
         tavola: this.generateRandomBoardConfig(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate),
@@ -66,11 +60,8 @@ module.exports = {
         id_giocatore1: 2,
         id_giocatore2: 3,
         id_vincitore: 2,
-        vincitore_ai: null,
         livello_IA: null,
         tavola: this.generateRandomBoardConfig(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       },
       {
         data_inizio: this.getRandomDate(startDate, endDate),
@@ -81,11 +72,8 @@ module.exports = {
         id_giocatore1: 3,
         id_giocatore2: 1,
         id_vincitore: 3,
-        vincitore_ai: null,
         livello_IA: null,
         tavola: this.generateRandomBoardConfig(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       }
     ]);
   },

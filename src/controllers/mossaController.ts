@@ -27,7 +27,7 @@ class mossaController {
             const ruolo = req.user.ruolo; // Ottieni il ruolo dell'utente
 
             // Esegui la mossa e ottieni il risultato
-            const result = await MossaService.executeMove(id_partita, from, to, id_giocatore1, ruolo);
+            const result = await MossaService.executeMove(id_partita, from, to, id_giocatore1);
 
             // Risposta con la descrizione della mossa
             res.status(StatusCodes.CREATED).json({

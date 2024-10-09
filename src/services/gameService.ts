@@ -8,7 +8,8 @@ import {
     EnglishDraughtsComputerFactory as ComputerFactory,
 } from 'rapid-draughts/english';
 import { Op } from "sequelize";
-import { StatusCodes } from 'http-status-codes'; // Importa StatusCodes
+import { StatusCodes } from 'http-status-codes';
+import { format } from "date-fns"; // Importa date-fns per la formattazione della data
 
 const Giocatore = initGiocatore(sequelize);
 const Partita = initPartita(sequelize);
@@ -26,7 +27,7 @@ interface creaPartitaPvP {
         id_giocatore2: number | null;
         stato: string;
         tavola: string;
-        data_inizio: Date;
+        data_inizio: string; // Cambiato a string per la formattazione
     };
 }
 
@@ -41,9 +42,19 @@ interface creaPartitaPvAI {
         id_partita: number;
         stato: string;
         id_giocatore1: number;
-        data_inizio: Date;
+        data_inizio: string; // Cambiato a string per la formattazione
     };
 }
+
+/**
+ * Funzione per formattare una data nel formato YYYY-MM-DD.
+ *
+ * @param {Date} date - La data da formattare.
+ * @returns {string} - La data formattata nel formato YYYY-MM-DD.
+ */
+const formatDate = (date: Date): string => {
+    return format(date, 'yyyy-MM-dd');
+};
 
 /**
  * Trova l'ID del giocatore in base all'email.
@@ -77,8 +88,8 @@ export const creaPartita = async (
     try {
         // Verifica che il giocatore esista e abbia il ruolo corretto
         const giocatore1 = await Giocatore.findByPk(id_giocatore1);
-        if (!giocatore1 || giocatore1.ruolo !== 'utente') {
-            throw new HttpException(StatusCodes.FORBIDDEN, 'Solo gli utenti normali possono creare una partita.');
+        if (!giocatore1) {
+            throw new HttpException(StatusCodes.FORBIDDEN, 'Il giocatore non esiste!');
         }
 
         // Verifica che il giocatore abbia abbastanza crediti
@@ -177,7 +188,7 @@ export const creaPartita = async (
                     id_partita: partita.id_partita,
                     stato: partita.stato,
                     id_giocatore1: id_giocatore1,
-                    data_inizio: partita.data_inizio,
+                    data_inizio: formatDate(partita.data_inizio), // Formatta la data qui
                 }
             };
         }
@@ -192,7 +203,7 @@ export const creaPartita = async (
                 id_giocatore1: partita.id_giocatore1,
                 id_giocatore2: partita.id_giocatore2,
                 stato: partita.stato,
-                data_inizio: partita.data_inizio,
+                data_inizio: formatDate(partita.data_inizio), // Formatta la data qui
             }
         };
     } catch (error) {

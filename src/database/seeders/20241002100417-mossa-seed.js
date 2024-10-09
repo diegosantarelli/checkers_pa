@@ -43,8 +43,6 @@ module.exports = {
                 id_giocatore: 1, // Giocatore 1
                 data: new Date(),
                 pezzo: 'singolo', // Da verificare in base al pezzo mosso
-                cattura: selectedMove1.captures.length > 0,
-                promozione: false, // Se il pezzo è stato promosso a dama
                 from_position: convertPositionToNotation(selectedMove1.origin), // Converti l'origine
                 to_position: convertPositionToNotation(selectedMove1.destination), // Converti la destinazione
                 createdAt: new Date(),
@@ -67,8 +65,6 @@ module.exports = {
                 id_giocatore: 2, // Giocatore 2
                 data: new Date(),
                 pezzo: 'singolo', // Da verificare in base al pezzo mosso
-                cattura: selectedMove2.captures.length > 0,
-                promozione: false, // Se il pezzo è stato promosso a dama
                 from_position: convertPositionToNotation(selectedMove2.origin), // Converti l'origine
                 to_position: convertPositionToNotation(selectedMove2.destination), // Converti la destinazione
                 createdAt: new Date(),

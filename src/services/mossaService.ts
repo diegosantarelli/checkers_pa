@@ -40,10 +40,7 @@ class MossaService {
         }
     }
 
-    public static async executeMove(id_partita: number, from: string, to: string, id_giocatore1: number, ruolo: string) {
-        if (ruolo !== 'utente') {
-            throw new HttpException(StatusCodes.FORBIDDEN, "Solo gli utenti possono fare mosse. Gli admin non sono autorizzati.");
-        }
+    public static async executeMove(id_partita: number, from: string, to: string, id_giocatore1: number) {
 
         const giocatore = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore) {
@@ -59,6 +56,10 @@ class MossaService {
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
             throw new HttpException(StatusCodes.NOT_FOUND, "Partita non trovata.");
+        }
+
+        if(partita.stato != "in corso") {
+            throw new HttpException(StatusCodes.CONFLICT, "Non puoi effettuare una mossa in una partita che non è in corso.");
         }
 
         let savedData: { initialBoard: DraughtsSquare1D[] } | null;
@@ -149,6 +150,50 @@ class MossaService {
             const colorePezzo = savedBoard[origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
             const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
 
+            // Se c'è un'IA nella partita, esegui la sua mossa
+            if (partita.livello_IA) {
+                const aiMove = await MossaService.executeAiMove(draughts, partita.livello_IA);
+
+                draughts.move(aiMove);
+
+                // Controlla se la partita è terminata dopo la mossa dell'IA
+                if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
+                    (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
+                    (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
+                    const gameOverResult = MossaService.handleGameOver(draughts, partita);
+                    return {
+                        message: gameOverResult.message,
+                        id_partita: partita.id_partita,
+                        tavola: gameOverResult.tavola,
+                        moveDescription: `La partita è terminata: ${gameOverResult.message}`,
+                    };
+                }
+
+                // Aggiorna la tavola dopo la mossa dell'IA
+                partita.tavola = JSON.stringify({ initialBoard: draughts.board });
+                partita.mosse_totali += 1;
+                await partita.save();
+
+                // Registra la mossa dell'IA
+                await MossaIA.create({
+                    numero_mossa: await MossaIA.count({ where: { id_partita } }) + 1,
+                    tavola: JSON.stringify({ initialBoard: draughts.board }),
+                    pezzo: draughts.board[aiMove.origin]?.piece?.king ? 'dama' : 'singolo',
+                    id_partita,
+                    data: new Date(),
+                });
+
+                const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
+                const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MossaService.convertPositionBack(aiMove.origin)} a ${MossaService.convertPositionBack(aiMove.destination)}.`;
+
+                return {
+                    message: "Mossa eseguita con successo",
+                    id_partita: partita.id_partita,
+                    tavola: draughts.board,
+                    moveDescription: `${moveDescription} ${aiMoveDescription}`
+                };
+            }
+
             return {
                 message: "Mossa eseguita con successo",
                 id_partita: partita.id_partita,
@@ -156,8 +201,16 @@ class MossaService {
                 moveDescription
             };
         } catch (error) {
-            console.error("Errore durante l'esecuzione della mossa:", error);
-            throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, "Errore durante l'esecuzione della mossa.");
+            if (error instanceof HttpException) {
+                console.error("Errore HTTP durante la esecuzione della mossa:", error.message);
+                throw error;
+            } else if (error instanceof Error) {
+                console.error("Errore generico durante la esecuzione della mossa:", error.message);
+                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore durante la esecuzione della mossa.');
+            } else {
+                console.error("Errore sconosciuto durante l'esecuzione della mossa");
+                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore sconosciuto durante la esecuzione della mossa.');
+            }
         }
     }
 
@@ -182,6 +235,7 @@ class MossaService {
         };
     }
 
+    // Esegue la mossa dell'IA in base al livello di difficoltà
     private static async executeAiMove(draughts: any, livelloIA: string) {
         let ai;
         switch (livelloIA) {

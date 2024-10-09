@@ -28,9 +28,6 @@ interface TokenPayload extends JwtPayload {
  * @param {Response} res - La risposta HTTP.
  * @param {NextFunction} next - Funzione che passa il controllo al middleware o controller successivo.
  *
- * @description
- * Questo middleware verifica che l'header `Authorization` contenga un token JWT valido. Se il token è presente e valido, il payload viene aggiunto alla proprietà `req.user`. In caso di errore o assenza del token, viene lanciata un'eccezione `HttpException` con lo stato `401 Unauthorized`.
- *
  * @throws {HttpException} Se l'header `Authorization` è assente, se il token non è valido o se il payload del token è mancante o non corretto.
  */
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction): void => {
@@ -54,4 +51,27 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
     } catch (error) {
         next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido'));
     }
+};
+
+/**
+ * Middleware per verificare se l'utente autenticato è un admin.
+ *
+ * @function isAdmin
+ *
+ * @param {Request} req - La richiesta HTTP, con il token JWT decodificato e aggiunto a `req.user`.
+ * @param {Response} res - La risposta HTTP.
+ * @param {NextFunction} next - Funzione che passa il controllo al middleware o controller successivo.
+ *
+ * @throws {HttpException} Se l'utente non ha il ruolo di "admin".
+ */
+export const isAdmin = (req: Request, res: Response, next: NextFunction): void => {
+    const user = req.user;
+
+    if (user && user.ruolo === 'admin') {
+        // Se l'utente ha il ruolo di admin, continua al middleware successivo
+        return next();
+    }
+
+    // Se non è admin, lancia un'eccezione di accesso non autorizzato
+    next(new HttpException(StatusCodes.FORBIDDEN, 'Accesso non autorizzato, solo gli admin possono accedere'));
 };

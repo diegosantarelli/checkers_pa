@@ -6,6 +6,7 @@ import checkerRoutes from './routes/gameRoutes';
 import mossaRoutes from './routes/mossaRoutes';
 import gameStatusRoutes from "./routes/gameStatusRoutes";
 import winnerRoutes from "./routes/winnerRoutes";
+import adminRoutes from "./routes/AdminRoutes";
 
 /* Carica le variabili d'ambiente da file .env */
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -69,6 +70,15 @@ app.use('/winner', winnerRoutes);
  * @see gameStatusRoutes
  */
 app.use('/partita', gameStatusRoutes);
+
+/**
+ * Rotta per la gestione del credito dei giocatori.
+ *
+ * @route /admin
+ * @see adminRoutes
+ */
+
+app.use('/admin', adminRoutes);
 
 /**
  * Avvia il server Express su una porta specificata.
