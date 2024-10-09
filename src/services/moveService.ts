@@ -17,7 +17,7 @@ const Partita = initPartita(sequelize);
 const Mossa = initMossa(sequelize);
 const MossaIA = initMossaIA(sequelize);
 
-class MossaService {
+class MoveService {
     private static convertPosition(position: string): number {
         const file = position.charCodeAt(0) - 'A'.charCodeAt(0);
         const rank = 8 - parseInt(position[1]);
@@ -51,7 +51,7 @@ class MossaService {
             throw new HttpException(StatusCodes.UNAUTHORIZED, "Token terminati. Non puoi fare altre mosse.");
         }
 
-        await MossaService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
+        await MoveService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
 
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
@@ -81,14 +81,14 @@ class MossaService {
 
         console.log("Mosse disponibili per il giocatore attuale:");
         const convertedMoves = draughts.moves.map(move => ({
-            origin: MossaService.convertPositionBack(move.origin),
-            destination: MossaService.convertPositionBack(move.destination),
-            captures: move.captures.map(capture => MossaService.convertPositionBack(capture))
+            origin: MoveService.convertPositionBack(move.origin),
+            destination: MoveService.convertPositionBack(move.destination),
+            captures: move.captures.map(capture => MoveService.convertPositionBack(capture))
         }));
         console.table(convertedMoves);
 
-        const origin = MossaService.convertPosition(from);
-        const destination = MossaService.convertPosition(to);
+        const origin = MoveService.convertPosition(from);
+        const destination = MoveService.convertPosition(to);
 
         const validMoves = draughts.moves;
         const moveToMake = validMoves.find(move => move.origin === origin && move.destination === destination);
@@ -118,7 +118,7 @@ class MossaService {
             if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
                 (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
                 (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
-                const gameOverResult = MossaService.handleGameOver(draughts, partita);
+                const gameOverResult = MoveService.handleGameOver(draughts, partita);
                 return {
                     message: gameOverResult.message,
                     id_partita: partita.id_partita,
@@ -145,14 +145,14 @@ class MossaService {
                 data: new Date(),
             });
 
-            await MossaService.deductMoveCost(id_giocatore1);
+            await MoveService.deductMoveCost(id_giocatore1);
 
             const colorePezzo = savedBoard[origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
             const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
 
             // Se c'è un'IA nella partita, esegui la sua mossa
             if (partita.livello_IA) {
-                const aiMove = await MossaService.executeAiMove(draughts, partita.livello_IA);
+                const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
 
                 draughts.move(aiMove);
 
@@ -160,7 +160,7 @@ class MossaService {
                 if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
                     (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
                     (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
-                    const gameOverResult = MossaService.handleGameOver(draughts, partita);
+                    const gameOverResult = MoveService.handleGameOver(draughts, partita);
                     return {
                         message: gameOverResult.message,
                         id_partita: partita.id_partita,
@@ -184,7 +184,7 @@ class MossaService {
                 });
 
                 const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
-                const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MossaService.convertPositionBack(aiMove.origin)} a ${MossaService.convertPositionBack(aiMove.destination)}.`;
+                const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MoveService.convertPositionBack(aiMove.origin)} a ${MoveService.convertPositionBack(aiMove.destination)}.`;
 
                 return {
                     message: "Mossa eseguita con successo",
@@ -360,4 +360,4 @@ class MossaService {
     }
 }
 
-export default MossaService;
+export default MoveService;

@@ -6,13 +6,8 @@ services:
       - "3001:3000"
     depends_on:
       - db
-    environment:
-      POSTGRES_DB: checkers_game
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: avanzata
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      PORT: 3000
+    env_file:
+      - .env
     command: npm start
 
   db:
@@ -20,8 +15,8 @@ services:
     container_name: postgres-database
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: avanzata
-      POSTGRES_DB: checkers_game
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"

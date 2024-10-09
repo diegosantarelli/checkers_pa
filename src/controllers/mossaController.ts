@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import MossaService from '../services/mossaService'; // Importa il servizio delle mosse
+import MoveService from '../services/moveService'; // Importa il servizio delle mosse
 import HttpException from "../helpers/errorHandler";
 import { StatusCodes } from 'http-status-codes'; // Importa StatusCodes
 
@@ -27,7 +27,7 @@ class mossaController {
             const ruolo = req.user.ruolo; // Ottieni il ruolo dell'utente
 
             // Esegui la mossa e ottieni il risultato
-            const result = await MossaService.executeMove(id_partita, from, to, id_giocatore1);
+            const result = await MoveService.executeMove(id_partita, from, to, id_giocatore1);
 
             // Risposta con la descrizione della mossa
             res.status(StatusCodes.CREATED).json({
@@ -69,7 +69,7 @@ class mossaController {
                 throw new HttpException(StatusCodes.BAD_REQUEST, 'Formato non valido. I formati supportati sono "json" e "pdf".');
             }
 
-            const moveHistory = await MossaService.getMoveHistory(Number(id_partita));
+            const moveHistory = await MoveService.getMoveHistory(Number(id_partita));
 
             if (moveHistory.length === 0) {
                 console.log(`Nessuna mossa trovata per la partita con ID: ${id_partita}`);
@@ -81,7 +81,7 @@ class mossaController {
                 res.json(moveHistory);  // Esportazione in formato JSON
             } else if (format === 'pdf') {
                 // Correggi la chiamata alla funzione exportToPDF passando id_partita
-                const pdfBuffer = await MossaService.exportToPDF(Number(id_partita));
+                const pdfBuffer = await MoveService.exportToPDF(Number(id_partita));
                 res.setHeader('Content-Type', 'application/pdf');
                 res.setHeader('Content-Disposition', `attachment; filename="move_history_${id_partita}.pdf"`);
                 res.send(pdfBuffer);  // Esportazione in formato PDF

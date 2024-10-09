@@ -3,7 +3,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes';
 import checkerRoutes from './routes/gameRoutes';
-import mossaRoutes from './routes/mossaRoutes';
+import mossaRoutes from './routes/moveRoutes';
 import gameStatusRoutes from "./routes/gameStatusRoutes";
 import adminRoutes from "./routes/AdminRoutes";
 
