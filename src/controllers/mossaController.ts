@@ -80,7 +80,8 @@ class mossaController {
             if (format === 'json') {
                 res.json(moveHistory);  // Esportazione in formato JSON
             } else if (format === 'pdf') {
-                const pdfBuffer = await MossaService.exportToPDF(moveHistory);
+                // Correggi la chiamata alla funzione exportToPDF passando id_partita
+                const pdfBuffer = await MossaService.exportToPDF(Number(id_partita));
                 res.setHeader('Content-Type', 'application/pdf');
                 res.setHeader('Content-Disposition', `attachment; filename="move_history_${id_partita}.pdf"`);
                 res.send(pdfBuffer);  // Esportazione in formato PDF

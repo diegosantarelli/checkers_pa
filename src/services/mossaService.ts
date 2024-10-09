@@ -8,6 +8,9 @@ import { DraughtsPlayer, DraughtsSquare1D, DraughtsStatus } from 'rapid-draughts
 import { EnglishDraughts as Draughts, EnglishDraughtsComputerFactory as ComputerFactory } from 'rapid-draughts/english';
 import { StatusCodes } from 'http-status-codes';
 import PdfPrinter from 'pdfmake';
+import {format} from "date-fns";
+
+
 
 const Giocatore = initGiocatore(sequelize);
 const Partita = initPartita(sequelize);
@@ -213,46 +216,41 @@ class MossaService {
         await giocatore.save();
     }
 
+
     public static async getMoveHistory(id_partita: number): Promise<any[]> {
         console.log(`Recupero dello storico delle mosse per la partita con ID: ${id_partita}`);
 
-        // Trova tutte le mosse associate alla partita
         const mosse = await Mossa.findAll({
             where: { id_partita },
-            order: [['numero_mossa', 'ASC']] // Ordina le mosse in ordine di numero_mossa
+            order: [['numero_mossa', 'ASC']] // Usa l'alias corretto
         });
 
         if (mosse.length === 0) {
             console.log(`Nessuna mossa trovata per la partita con ID: ${id_partita}`);
-            throw new Error('Nessuna mossa trovata per questa partita');
+            throw new HttpException(StatusCodes.NOT_FOUND, 'Nessuna mossa trovata per questa partita');
         }
 
         console.log(`Trovate ${mosse.length} mosse per la partita con ID: ${id_partita}`);
 
-        // Ricrea la configurazione della partita usando Draughts, ma senza applicare le mosse
-        const draughts = Draughts.setup();
-
-        // Ottieni lo stato iniziale della tavola (senza applicare le mosse)
-        const boardStates = mosse.map((mossa, index) => {
+        // Mappa le mosse per includere i dati richiesti
+        const moveHistory = mosse.map(mossa => {
+            const dataMossa = format(new Date(mossa.data), 'yyyy-MM-dd HH:mm:ss'); // Formatta la data della mossa
             return {
                 numeroMossa: mossa.numero_mossa,
                 origin: mossa.from_position,
                 destination: mossa.to_position,
-                board: draughts.board // Stato della tavola attuale
+                dataMossa // Aggiungi la data della mossa formattata
             };
         });
 
-        return boardStates;
+        return moveHistory;
     }
 
-    private static convertPositionToIndex(position: string): number {
-        const file = position.charCodeAt(0) - 'A'.charCodeAt(0);
-        const rank = 8 - parseInt(position[1]);
-        return rank * 4 + Math.floor(file / 2);
-    }
-
-    public static async exportToPDF(moveHistory: any[]): Promise<Buffer> {
+    public static async exportToPDF(id_partita: number): Promise<Buffer> {
         console.log(`Esportazione dello storico delle mosse in formato PDF`);
+
+        // Ottieni lo storico delle mosse
+        const moveHistory = await this.getMoveHistory(id_partita);
 
         const fonts = {
             Roboto: {
@@ -264,20 +262,21 @@ class MossaService {
         };
         const printer = new PdfPrinter(fonts);
 
+        // Definizione del documento PDF
         const docDefinition = {
             content: [
-                { text: 'Storico delle Mosse', style: 'header' },
+                { text: 'STORICO DELLE MOSSE', style: 'header' },
                 {
                     table: {
                         headerRows: 1,
                         widths: ['*', '*', '*', '*'],
                         body: [
-                            ['Numero Mossa', 'Origine', 'Destinazione', 'Catture'],
+                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa'], // Colonna "Data Mossa"
                             ...moveHistory.map(mossa => [
                                 mossa.numeroMossa,
                                 mossa.origin,
                                 mossa.destination,
-                                Array.isArray(mossa.captures) ? mossa.captures.join(', ') : ''
+                                mossa.dataMossa // Data della mossa formattata
                             ])
                         ]
                     }
@@ -288,6 +287,7 @@ class MossaService {
             }
         };
 
+        // Generazione del PDF
         const pdfDoc = printer.createPdfKitDocument(docDefinition);
         const chunks: Buffer[] = [];
 

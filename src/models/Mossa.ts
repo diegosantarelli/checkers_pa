@@ -35,8 +35,7 @@ export default (sequelize: Sequelize) => {
 
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
-                as: 'giocatore',
-                constraints: false,
+                as: 'giocatore', // Assicurati che l'alias sia corretto
             });
         }
     }
