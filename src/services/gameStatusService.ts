@@ -80,16 +80,22 @@ class GameStatusService {
             await partita.save();
 
             // Recupera i dettagli del giocatore che abbandona la partita
-            const giocatore = await Giocatore.findByPk(id_giocatore, { attributes: ['nome', 'cognome', 'punteggio_totale'] });
+            const giocatore = await Giocatore.findByPk(id_giocatore, { attributes: ['id_giocatore', 'nome', 'cognome', 'punteggio_totale'] });
             if (giocatore) {
+                if (!giocatore.id_giocatore) {
+                    throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Giocatore senza ID. Impossibile salvare.');
+                }
                 giocatore.punteggio_totale -= 0.5;
                 await giocatore.save();
             }
 
             if (!isPartitaControIA && id_vincitore) {
                 // Recupera i dettagli del vincitore
-                const vincitore = await Giocatore.findByPk(id_vincitore, { attributes: ['nome', 'cognome', 'punteggio_totale'] });
+                const vincitore = await Giocatore.findByPk(id_vincitore, { attributes: ['id_giocatore', 'nome', 'cognome', 'punteggio_totale'] });
                 if (vincitore) {
+                    if (!vincitore.id_giocatore) {
+                        throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Vincitore senza ID. Impossibile salvare.');
+                    }
                     vincitore.punteggio_totale += 1;
                     await vincitore.save();
 
