@@ -2,7 +2,7 @@ import { Partita, Giocatore } from '../models';
 import HttpException from '../helpers/errorHandler';
 import { StatusCodes } from 'http-status-codes';
 import PdfPrinter from 'pdfmake';
-
+import { format, parseISO } from 'date-fns'; // Importa date-fns
 
 
 /**
@@ -153,7 +153,9 @@ class GameStatusService {
     }
 
     public static async getDettagliPartita(id_partita: number): Promise<any> {
-        const partita = await Partita.findByPk(id_partita);
+        const partita = await Partita.findByPk(id_partita, {
+            attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio'], // Assicura che data_inizio sia inclusa
+        });
 
         if (!partita) {
             throw new HttpException(StatusCodes.NOT_FOUND, 'Partita non trovata');
@@ -164,7 +166,7 @@ class GameStatusService {
             if (partita.stato === 'in corso') {
                 throw new HttpException(StatusCodes.BAD_REQUEST, 'La partita è ancora in corso. Il certificato di vittoria non è disponibile.');
             } else if (partita.stato === 'completata' || partita.stato === 'abbandonata') {
-                throw new HttpException(StatusCodes.BAD_REQUEST, 'La partita è stata completata o abbandonata contro l\'IA, ma non è stata vinta. Nessun certificato disponibile.');
+                throw new HttpException(StatusCodes.BAD_REQUEST, 'La partita è stata completata o abbandonata contro IA, ma non è stata vinta da un giocatore. Nessun certificato disponibile.');
             }
         }
 
@@ -176,30 +178,48 @@ class GameStatusService {
             throw new HttpException(StatusCodes.BAD_REQUEST, 'Impossibile recuperare i dati dei giocatori');
         }
 
-        // Recupera il vincitore, ma controlla che id_vincitore non sia null
+        // Recupera il vincitore
         const vincitore = partita.id_vincitore ? await Giocatore.findByPk(partita.id_vincitore, { attributes: ['nome', 'cognome'] }) : null;
 
         if (!vincitore) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, 'Non c\'è un vincitore per questa partita');
+            throw new HttpException(StatusCodes.BAD_REQUEST, 'Non vi è un vincitore per questa partita');
         }
 
         // Determina l'avversario o imposta l'IA come avversario
-        const avversario = vincitore.id_giocatore === giocatore1.id_giocatore ? giocatore2 : giocatore1;
+        let avversarioDettagli;
 
-        const avversarioDettagli = avversario
-            ? { nome: avversario.nome, cognome: avversario.cognome }
-            : { nome: 'Intelligenza', cognome: 'Artificiale' };
+        if (giocatore2) {
+            // Se c'è un giocatore2, determina se è l'avversario
+            avversarioDettagli = vincitore.id_giocatore === giocatore1.id_giocatore
+                ? { nome: giocatore2.nome, cognome: giocatore2.cognome }
+                : { nome: giocatore1.nome, cognome: giocatore1.cognome };
+        } else {
+            // Altrimenti, l'avversario è l'IA
+            avversarioDettagli = { nome: 'Intelligenza', cognome: 'Artificiale' };
+        }
+
 
         return {
             vincitore: `${vincitore.nome} ${vincitore.cognome}`,
             avversario: `${avversarioDettagli.nome} ${avversarioDettagli.cognome}`,
             tempo_totale: partita.tempo_totale,
-            mosse_totali: partita.mosse_totali
+            mosse_totali: partita.mosse_totali,
+            data_inizio: partita.data_inizio // Aggiungi la data formattata ai dettagli della partita
         };
     }
 
     public static async generaCertificatoPDF(id_partita: number): Promise<Buffer> {
         const partita = await this.getDettagliPartita(id_partita);
+
+        // Assicurati che data_inizio sia disponibile nei dettagli della partita
+        if (!partita.data_inizio) {
+            throw new HttpException(StatusCodes.BAD_REQUEST, 'Data inizio non trovata.');
+        }
+
+        // Verifica che la data_inizio sia valida prima di formattarla
+        const dataFormattata = partita.data_inizio
+            ? format(new Date(partita.data_inizio), 'yyyy-MM-dd')  // Formatta la data
+            : 'Data non disponibile';
 
         const fonts = {
             Roboto: {
@@ -216,25 +236,36 @@ class GameStatusService {
         const player1Name = partita.vincitore;
         const player2Name = partita.avversario;
         const totalMoves = partita.mosse_totali;
-        const gameDuration = `${partita.tempo_totale} secondi`;
+
+        // Converti il tempo totale da secondi a ore:minuti:secondi
+        const gameDuration = convertSecondsToHMS(partita.tempo_totale);
+
+        // Funzione per convertire secondi in ore:minuti:secondi
+        function convertSecondsToHMS(seconds: number): string {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${h}h ${m}m ${s}s`;
+        }
 
         const docDefinition = {
             content: [
-                { text: 'CERTIFICATO DI VITTORIA', style: 'header'},
+                { text: 'CERTIFICATO DI VITTORIA', style: 'header' },
                 {
                     table: {
                         widths: ['*', '*'],
                         body: [
-                            [{ text: 'Giocatore 1:', style: 'boldText'}, { text: player1Name}],
-                            [{ text: 'Giocatore 2:', style: 'boldText'}, { text: player2Name}],
-                            [{ text: 'Mosse totali:', style: 'boldText'}, { text: totalMoves}],
-                            [{ text: 'Durata della partita:', style: 'boldText'}, { text: gameDuration}],
-                            [{ text: 'Vincitore:', style: 'boldText'}, { text: player1Name}]
+                            [{ text: 'Data della partita:', style: 'boldText' }, dataFormattata], // Usa la data formattata
+                            [{ text: 'Giocatore 1:', style: 'boldText' }, { text: player1Name }],
+                            [{ text: 'Giocatore 2:', style: 'boldText' }, { text: player2Name }],
+                            [{ text: 'Mosse totali:', style: 'boldText' }, { text: totalMoves }],
+                            [{ text: 'Durata della partita:', style: 'boldText' }, { text: gameDuration }],
+                            [{ text: 'Vincitore:', style: 'boldText' }, { text: player1Name }]
                         ]
                     },
                     layout: 'lightHorizontalLines', // Aggiunge bordi leggeri tra le righe
                 },
-                { text: 'Congratulazioni!', style: 'congratulations'}
+                { text: 'Congratulazioni!', style: 'congratulations' }
             ],
             styles: {
                 header: { fontSize: 22, bold: true },
