@@ -5,7 +5,6 @@ import loginRoutes from './routes/loginRoutes';
 import checkerRoutes from './routes/gameRoutes';
 import mossaRoutes from './routes/mossaRoutes';
 import gameStatusRoutes from "./routes/gameStatusRoutes";
-import winnerRoutes from "./routes/winnerRoutes";
 import adminRoutes from "./routes/AdminRoutes";
 
 /* Carica le variabili d'ambiente da file .env */
@@ -54,14 +53,6 @@ app.use('/game', checkerRoutes);
  * @see mossaRoutes
  */
 app.use('/do', mossaRoutes);
-
-/**
- * Rotta per la verifica dello stato delle partite concluse e determinazione dei vincitori.
- *
- * @route /winner
- * @see partitaRoutes
- */
-app.use('/winner', winnerRoutes);
 
 /**
  * Rotta per ottenere lo stato attuale di una partita e gestione dell'abbandono.

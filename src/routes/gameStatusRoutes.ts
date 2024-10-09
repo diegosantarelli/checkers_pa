@@ -57,4 +57,8 @@ router.get('/ranking', GameStatusController.classificaGiocatori);
  */
 router.get('/win-certify/:id_partita', GameStatusController.getCertificatoVittoria);
 
+
+// Rotta per verificare l'elenco delle partite giocate con filtro opzionale per data
+router.get('/partite', authenticateJWT, GameStatusController.listaPartite);
+
 export default router;

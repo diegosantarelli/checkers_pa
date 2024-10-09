@@ -2,7 +2,6 @@ import { Sequelize } from 'sequelize';
 import createGiocatoreModel from './Giocatore';
 import createPartitaModel from './Partita';
 import createMossaModel from './Mossa';
-import createAIModel from './AI';
 import createMossaIAModel from './MossaIA';  // Importa il modello MossaIA
 import path from 'path';
 import dotenv from 'dotenv';
@@ -61,12 +60,6 @@ const Partita = createPartitaModel(sequelize);
 const Mossa = createMossaModel(sequelize);
 
 /**
- * @constant AI
- * @description Inizializza il modello AI utilizzando l'istanza di Sequelize.
- */
-const AI = createAIModel(sequelize);
-
-/**
  * @constant MossaIA
  * @description Inizializza il modello MossaIA utilizzando l'istanza di Sequelize.
  */
@@ -87,9 +80,6 @@ if (Partita.associate) {
 }
 if (Mossa.associate) {
     Mossa.associate({ Partita, Giocatore });
-}
-if (AI.associate) {
-    AI.associate({ Partita });
 }
 if (MossaIA.associate) {  // Associazioni per MossaIA
     MossaIA.associate({ Partita });
@@ -124,4 +114,4 @@ sequelize.sync({ alter: true })  // Usa `force: true` solo in sviluppo, poiché 
  * @exports
  * @description Esporta i modelli e l'istanza di Sequelize per essere utilizzati in altre parti dell'applicazione.
  */
-export { Giocatore, Partita, Mossa, MossaIA, AI, sequelize };
+export { Giocatore, Partita, Mossa, MossaIA, sequelize };

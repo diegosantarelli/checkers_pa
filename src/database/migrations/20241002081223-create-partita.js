@@ -52,15 +52,6 @@ module.exports = {
         allowNull: true,
         onDelete: 'SET NULL', // Se il secondo giocatore viene eliminato, imposta il campo a NULL
       },
-      id_ai: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'AI',
-          key: 'id_ai',
-        },
-        allowNull: true,
-        onDelete: 'SET NULL', // Se l'AI viene eliminato, imposta il campo a NULL
-      },
       id_vincitore: {
         type: Sequelize.INTEGER,
         references: {
