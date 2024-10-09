@@ -62,7 +62,7 @@ const formatDate = (date: Date): string => {
  * @param {string} email - L'email del giocatore da cercare.
  * @returns {Promise<number | null>} - L'ID del giocatore, o null se non trovato.
  */
-const trovaIdGiocatore = async (email: string): Promise<number | null> => {
+const getIdGiocatore = async (email: string): Promise<number | null> => {
     const giocatore = await Giocatore.findOne({ where: { email } });
     return giocatore ? giocatore.id_giocatore : null;
 };
@@ -77,7 +77,7 @@ const trovaIdGiocatore = async (email: string): Promise<number | null> => {
  * @returns {Promise<creaPartitaPvP | creaPartitaPvAI>} - Un oggetto contenente i dettagli della partita creata.
  * @throws {HttpException} - Lancia un'eccezione se ci sono errori di validazione o durante la creazione della partita.
  */
-export const creaPartita = async (
+export const createGame = async (
     id_giocatore1: number,
     email_giocatore2: string | null,
     tipo: "Amichevole" | "Normale" | "Competitiva",
@@ -130,7 +130,7 @@ export const creaPartita = async (
         }
 
         // Verifica credito
-        const creditoGiocatore1 = await verificaCredito(id_giocatore1);
+        const creditoGiocatore1 = await verifyCredit(id_giocatore1);
         if (creditoGiocatore1 < costoCreazione) {
             throw new HttpException(StatusCodes.UNAUTHORIZED, 'Token terminati. Non puoi effettuare questa operazione.');
         }
@@ -143,7 +143,7 @@ export const creaPartita = async (
                 throw new HttpException(StatusCodes.BAD_REQUEST, `Email ${email_giocatore2} non è valida. Usa un formato email valido.`);
             }
 
-            id_giocatore2 = await trovaIdGiocatore(email_giocatore2);
+            id_giocatore2 = await getIdGiocatore(email_giocatore2);
             if (!id_giocatore2) {
                 throw new HttpException(StatusCodes.NOT_FOUND, `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
             }
@@ -176,7 +176,7 @@ export const creaPartita = async (
         });
 
         // Addebita crediti al giocatore
-        await addebitaCrediti(id_giocatore1, costoCreazione);
+        await removeCredits(id_giocatore1, costoCreazione);
 
         // Risposta per partita contro IA
         if (livello_IA) {
@@ -219,7 +219,7 @@ export const creaPartita = async (
  * @returns {Promise<number>} - Il numero di crediti rimanenti del giocatore.
  * @throws {HttpException} - Lancia un'eccezione se il giocatore non viene trovato.
  */
-const verificaCredito = async (id_giocatore1: number): Promise<number> => {
+const verifyCredit = async (id_giocatore1: number): Promise<number> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
     if (!giocatore) {
         throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato.');
@@ -235,7 +235,7 @@ const verificaCredito = async (id_giocatore1: number): Promise<number> => {
  * @returns {Promise<void>} - Restituisce una promise vuota dopo aver aggiornato i crediti del giocatore.
  * @throws {HttpException} - Lancia un'eccezione se il giocatore non viene trovato.
  */
-const addebitaCrediti = async (id_giocatore1: number, importo: number): Promise<void> => {
+const removeCredits = async (id_giocatore1: number, importo: number): Promise<void> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
     if (!giocatore) {
         throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato.');
@@ -245,5 +245,5 @@ const addebitaCrediti = async (id_giocatore1: number, importo: number): Promise<
 };
 
 export default {
-    creaPartita,
+    createGame,
 };

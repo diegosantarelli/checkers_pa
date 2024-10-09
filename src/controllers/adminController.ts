@@ -7,7 +7,7 @@ import {sequelize} from "../models";
 const giocatore = Giocatore(sequelize);
 
 class AdminController {
-    static async ricaricaCredito(req: Request, res: Response, next: NextFunction): Promise<void> {
+    static async creditRecharge(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { email, nuovoCredito } = req.body;
 

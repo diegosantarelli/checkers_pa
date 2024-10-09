@@ -20,7 +20,7 @@ const router = Router();
  * @returns {Object} - Ritorna lo stato della partita.
  * @throws {HttpException} - Restituisce 404 se la partita non viene trovata, 500 per errori interni.
  */
-router.put('/verifica-stato/:id_partita', authenticateJWT, GameStatusController.valutaPartita);
+router.put('/check-status/:id_partita', authenticateJWT, GameStatusController.evaluateGame);
 
 /**
  * Rotta per abbandonare una partita.
@@ -33,7 +33,7 @@ router.put('/verifica-stato/:id_partita', authenticateJWT, GameStatusController.
  * @returns {Object} - Ritorna il risultato dell'abbandono della partita.
  * @throws {HttpException} - Restituisce 404 se la partita non viene trovata, 403 se il giocatore non è autorizzato, o 500 per errori interni.
  */
-router.put('/abbandona-partita/:id_partita', authenticateJWT, GameStatusController.abbandonaPartita);
+router.put('/abandon-game/:id_partita', authenticateJWT, GameStatusController.abandonGame);
 
 /**
  * Rotta per ottenere la classifica dei giocatori.
@@ -46,7 +46,7 @@ router.put('/abbandona-partita/:id_partita', authenticateJWT, GameStatusControll
  * @returns {Object} - Ritorna la classifica dei giocatori ordinata per punteggio.
  * @throws {HttpException} - Restituisce 500 per errori interni.
  */
-router.get('/ranking', GameStatusController.classificaGiocatori);
+router.get('/ranking', GameStatusController.playersRanking);
 
 /**
  * Rotta per ottenere un certificato in formato PDF che attesti la vittoria in una data partita.
@@ -55,10 +55,10 @@ router.get('/ranking', GameStatusController.classificaGiocatori);
  * @param {number} id_partita - L'ID della partita per cui generare il certificato.
  * @returns {application/pdf} - Restituisce un certificato in formato PDF.
  */
-router.get('/win-certify/:id_partita', GameStatusController.getCertificatoVittoria);
+router.get('/win-certify/:id_partita', GameStatusController.getVictoryCertify);
 
 
 // Rotta per verificare l'elenco delle partite giocate con filtro opzionale per data
-router.get('/partite', authenticateJWT, GameStatusController.listaPartite);
+router.get('/match-list', authenticateJWT, GameStatusController.getMatchList);
 
 export default router;

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { creaPartita } from '../services/gameService';
+import { createGame } from '../services/gameService';
 import HttpException from "../helpers/errorHandler";
 import { StatusCodes } from 'http-status-codes';
 
@@ -65,7 +65,7 @@ class GameController {
             }
 
             // Creazione della partita
-            const result = await creaPartita(id_giocatore, email_giocatore2, tipo, livello_IA);
+            const result = await createGame(id_giocatore, email_giocatore2, tipo, livello_IA);
 
             if ('id_giocatore2' in result.data && result.data.id_giocatore2 !== null) {
                 // Partita PvP creata con successo

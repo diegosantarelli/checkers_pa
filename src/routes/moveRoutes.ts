@@ -1,5 +1,5 @@
 import express from 'express';
-import mossaController from '../controllers/mossaController';
+import moveController from '../controllers/moveController';
 import { authenticateJWT } from '../middleware/auth';
 
 const router = express.Router();
@@ -9,13 +9,13 @@ const router = express.Router();
  *
  * @route POST /mossa
  * @middleware authenticateJWT - Middleware che autentica l'utente tramite JWT.
- * @controller mossaController.move - Gestisce la logica di una mossa nel gioco.
+ * @controller moveController.move - Gestisce la logica di una mossa nel gioco.
  *
  * @description
  * Questa rotta permette a un giocatore autenticato di effettuare una mossa.
  * L'autenticazione tramite JWT è necessaria per assicurarsi che solo i giocatori autenticati
  * possano fare una mossa.
- * La logica della mossa viene gestita dal controller `mossaController.move`.
+ * La logica della mossa viene gestita dal controller `moveController.move`.
  *
  * @returns {Promise<void>} - Restituisce lo stato della partita dopo aver effettuato la mossa.
  *
@@ -37,12 +37,12 @@ const router = express.Router();
  *     }
  * }
  */
-router.post('/mossa', authenticateJWT, mossaController.move);
+router.post('/move', authenticateJWT, moveController.move);
 
 /**
  * Rotta per esportare lo storico delle mosse di una partita.
  * Supporta i formati JSON e PDF.
  */
-router.get('/mossa/:id_partita/export', authenticateJWT, mossaController.exportMoveHistory);
+router.get('/move/:id_partita/export', authenticateJWT, moveController.exportMoveHistory);
 
 export default router;

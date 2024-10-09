@@ -57,10 +57,10 @@ app.use('/do', mossaRoutes);
 /**
  * Rotta per ottenere lo stato attuale di una partita e gestione dell'abbandono.
  *
- * @route /partita
+ * @route /game-status
  * @see gameStatusRoutes
  */
-app.use('/partita', gameStatusRoutes);
+app.use('/game-status', gameStatusRoutes);
 
 /**
  * Rotta per la gestione del credito dei giocatori.

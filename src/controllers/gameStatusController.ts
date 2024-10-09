@@ -15,7 +15,7 @@ class GameStatusController {
      *
      * @throws {HttpException} - Se l'autenticazione non è presente o la partita non esiste.
      */
-    public static async valutaPartita(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async evaluateGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id_partita } = req.params;
             const id_giocatore = req.user?.id_giocatore;
@@ -24,7 +24,7 @@ class GameStatusController {
                 throw new HttpException(StatusCodes.UNAUTHORIZED, 'Autenticazione richiesta');
             }
 
-            const risultato = await GameStatusService.valutaPartita(Number(id_partita), id_giocatore);
+            const risultato = await GameStatusService.evaluateGame(Number(id_partita), id_giocatore);
 
             res.status(StatusCodes.OK).json({ risultato });
         } catch (error) {
@@ -42,7 +42,7 @@ class GameStatusController {
      *
      * @throws {HttpException} - Se l'autenticazione non è presente o la partita non esiste.
      */
-    public static async abbandonaPartita(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async abandonGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id_partita } = req.params;
             const id_giocatore = req.user?.id_giocatore;
@@ -51,7 +51,7 @@ class GameStatusController {
                 throw new HttpException(StatusCodes.UNAUTHORIZED, 'Autenticazione richiesta');
             }
 
-            const risultato = await GameStatusService.abbandonaPartita(Number(id_partita), id_giocatore);
+            const risultato = await GameStatusService.abandonGame(Number(id_partita), id_giocatore);
 
             res.status(StatusCodes.OK).json({ risultato });
         } catch (error) {
@@ -76,14 +76,14 @@ class GameStatusController {
      *    ]
      *  }
      */
-    public static async classificaGiocatori(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async playersRanking(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // Ottiene il parametro di ordinamento dalla query string (ascendente o discendente)
             const { order } = req.query;
             const sortingOrder = order === 'desc' ? 'DESC' : 'ASC'; // Default: ASC
 
             // Chiama il servizio per ottenere la classifica dei giocatori
-            const classifica = await GameStatusService.getClassificaGiocatori(sortingOrder);
+            const classifica = await GameStatusService.playersRanking(sortingOrder);
 
             // Restituisce la classifica dei giocatori
             res.status(StatusCodes.OK).json({
@@ -95,11 +95,11 @@ class GameStatusController {
         }
     }
 
-    public static async getCertificatoVittoria(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async getVictoryCertify(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id_partita } = req.params;
 
-            const pdfBuffer = await GameStatusService.generaCertificatoPDF(Number(id_partita));
+            const pdfBuffer = await GameStatusService.getVictoryCertify(Number(id_partita));
 
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename=certificato_vittoria_${id_partita}.pdf`);
@@ -173,7 +173,7 @@ class GameStatusController {
      *  }
      */
 
-    public static async listaPartite(req: Request, res: Response, next: NextFunction): Promise<void> {
+    public static async getMatchList(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { startDate } = req.query;
             const id_giocatore = req.user?.id_giocatore; // Recupera l'ID dal token JWT
@@ -184,7 +184,7 @@ class GameStatusController {
             }
 
             // Chiama il servizio per recuperare le partite
-            const partite = await WinnerService.listaPartiteGiocate(id_giocatore, startDate as string);
+            const partite = await WinnerService.getMatchList(id_giocatore, startDate as string);
 
             // Risposta con l'elenco delle partite
             res.status(StatusCodes.OK).json({ partite });

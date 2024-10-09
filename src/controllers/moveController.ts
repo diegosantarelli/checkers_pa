@@ -3,7 +3,7 @@ import MoveService from '../services/moveService'; // Importa il servizio delle 
 import HttpException from "../helpers/errorHandler";
 import { StatusCodes } from 'http-status-codes'; // Importa StatusCodes
 
-class mossaController {
+class moveController {
     /**
      * Effettua una mossa nel gioco.
      *
@@ -93,4 +93,4 @@ class mossaController {
     }
 }
 
-export default mossaController;
+export default moveController;

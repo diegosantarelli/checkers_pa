@@ -10,7 +10,7 @@ import { format, parseISO } from 'date-fns'; // Importa date-fns
  */
 class GameStatusService {
     // Metodo esistente: valutaPartita
-    public static async valutaPartita(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
+    public static async evaluateGame(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
 
@@ -55,7 +55,7 @@ class GameStatusService {
         }
     }
 
-    public static async abbandonaPartita(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
+    public static async abandonGame(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
 
@@ -125,7 +125,7 @@ class GameStatusService {
      * @returns {Promise<object[]>} - Un array di giocatori con i loro nomi, cognomi e punteggi totali.
      * @throws {HttpException} - Lancia un'eccezione in caso di errore durante il recupero dei dati.
      */
-    public static async getClassificaGiocatori(order: string = 'ASC'): Promise<object[]> {
+    public static async playersRanking(order: string = 'ASC'): Promise<object[]> {
         try {
             const giocatori = await Giocatore.findAll({
                 attributes: ['nome', 'cognome', 'punteggio_totale'],
@@ -160,7 +160,7 @@ class GameStatusService {
         }
     }
 
-    public static async getDettagliPartita(id_partita: number): Promise<any> {
+    public static async getGameDetails(id_partita: number): Promise<any> {
         const partita = await Partita.findByPk(id_partita, {
             attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio'],
         });
@@ -215,8 +215,8 @@ class GameStatusService {
         };
     }
 
-    public static async generaCertificatoPDF(id_partita: number): Promise<Buffer> {
-        const partita = await this.getDettagliPartita(id_partita);
+    public static async getVictoryCertify(id_partita: number): Promise<Buffer> {
+        const partita = await this.getGameDetails(id_partita);
 
         // Assicurati che data_inizio sia disponibile nei dettagli della partita
         if (!partita.data_inizio) {

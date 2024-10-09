@@ -19,7 +19,7 @@ class WinnerService {
      *
      * @returns {Promise<object>} - Restituisce un oggetto contenente lo status della richiesta, un messaggio e una lista di oggetti rappresentanti le partite completate giocate, con informazioni su stato, numero di mosse, risultato e data di inizio.
      */
-    public static async listaPartiteGiocate(id_giocatore: number, startDate?: string) {
+    public static async getMatchList(id_giocatore: number, startDate?: string) {
         try {
             console.log("ID Giocatore:", id_giocatore);
             console.log("Start Date:", startDate);
