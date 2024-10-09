@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes';
@@ -6,6 +6,7 @@ import checkerRoutes from './routes/gameRoutes';
 import mossaRoutes from './routes/moveRoutes';
 import gameStatusRoutes from "./routes/gameStatusRoutes";
 import adminRoutes from "./routes/AdminRoutes";
+import ErrorFactory from "./factories/errorFactory";
 
 /* Carica le variabili d'ambiente da file .env */
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -70,6 +71,12 @@ app.use('/game-status', gameStatusRoutes);
  */
 
 app.use('/admin', adminRoutes);
+
+// Aggiungi il middleware per gestire le rotte non trovate
+app.use((req: Request, res: Response, next: NextFunction) => {
+    const error = ErrorFactory.createError('NOT_FOUND', `La rotta ${req.originalUrl} non esiste.`);
+    next(error); // Passa l'errore al middleware di gestione degli errori
+});
 
 /**
  * Avvia il server Express su una porta specificata.

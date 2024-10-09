@@ -1,11 +1,9 @@
 import sequelize from '../database/database';
 import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
-import HttpException from "../helpers/errorHandler";
-import { DraughtsPlayer, DraughtsStatus } from 'rapid-draughts';
+import ErrorFactory from "../factories/errorFactory";
 import {
-    EnglishDraughts as Draughts,
-    EnglishDraughtsComputerFactory as ComputerFactory,
+    EnglishDraughts as Draughts
 } from 'rapid-draughts/english';
 import { Op } from "sequelize";
 import { StatusCodes } from 'http-status-codes';
@@ -27,7 +25,7 @@ interface creaPartitaPvP {
         id_giocatore2: number | null;
         stato: string;
         tavola: string;
-        data_inizio: string; // Cambiato a string per la formattazione
+        data_inizio: string;
     };
 }
 
@@ -42,15 +40,12 @@ interface creaPartitaPvAI {
         id_partita: number;
         stato: string;
         id_giocatore1: number;
-        data_inizio: string; // Cambiato a string per la formattazione
+        data_inizio: string;
     };
 }
 
 /**
  * Funzione per formattare una data nel formato YYYY-MM-DD.
- *
- * @param {Date} date - La data da formattare.
- * @returns {string} - La data formattata nel formato YYYY-MM-DD.
  */
 const formatDate = (date: Date): string => {
     return format(date, 'yyyy-MM-dd');
@@ -58,9 +53,6 @@ const formatDate = (date: Date): string => {
 
 /**
  * Trova l'ID del giocatore in base all'email.
- *
- * @param {string} email - L'email del giocatore da cercare.
- * @returns {Promise<number | null>} - L'ID del giocatore, o null se non trovato.
  */
 const getIdGiocatore = async (email: string): Promise<number | null> => {
     const giocatore = await Giocatore.findOne({ where: { email } });
@@ -69,13 +61,6 @@ const getIdGiocatore = async (email: string): Promise<number | null> => {
 
 /**
  * Crea una partita PvP o contro IA.
- *
- * @param {number} id_giocatore1 - L'ID del giocatore che crea la partita.
- * @param {string | null} email_giocatore2 - L'email del secondo giocatore (opzionale per PvP).
- * @param {"Amichevole" | "Normale" | "Competitiva"} tipo - Il tipo della partita.
- * @param {"facile" | "normale" | "difficile" | "estrema" | null} livello_IA - Il livello dell'intelligenza artificiale (opzionale per PvAI).
- * @returns {Promise<creaPartitaPvP | creaPartitaPvAI>} - Un oggetto contenente i dettagli della partita creata.
- * @throws {HttpException} - Lancia un'eccezione se ci sono errori di validazione o durante la creazione della partita.
  */
 export const createGame = async (
     id_giocatore1: number,
@@ -89,12 +74,12 @@ export const createGame = async (
         // Verifica che il giocatore esista e abbia il ruolo corretto
         const giocatore1 = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore1) {
-            throw new HttpException(StatusCodes.FORBIDDEN, 'Il giocatore non esiste!');
+            throw ErrorFactory.createError('FORBIDDEN', 'Il giocatore non esiste!');
         }
 
         // Verifica che il giocatore abbia abbastanza crediti
         if (giocatore1.token_residuo <= 0) {
-            throw new HttpException(StatusCodes.UNAUTHORIZED, 'Token terminati. Non puoi effettuare questa operazione.');
+            throw ErrorFactory.createError('UNAUTHORIZED', 'Token terminati. Non puoi effettuare questa operazione.');
         }
 
         // Verifica se il giocatore ha già una partita in corso
@@ -109,7 +94,7 @@ export const createGame = async (
         });
 
         if (partitaInCorso) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, 'Hai già una partita in corso. Devi completarla o abbandonarla prima di crearne una nuova.');
+            throw ErrorFactory.createError('BAD_REQUEST', 'Hai già una partita in corso. Devi completarla o abbandonarla prima di crearne una nuova.');
         }
 
         // Validazione del tipo e del livello IA
@@ -117,22 +102,22 @@ export const createGame = async (
         const livelliValidi = ["facile", "normale", "difficile", "estrema"];
 
         if (!tipiValidi.includes(tipo)) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, `Il tipo ${tipo} non è valido. I tipi validi sono: ${tipiValidi.join(", ")}`);
+            throw ErrorFactory.createError('BAD_REQUEST', `Il tipo ${tipo} non è valido. I tipi validi sono: ${tipiValidi.join(", ")}`);
         }
 
         if (livello_IA && !livelliValidi.includes(livello_IA)) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, `Il livello IA ${livello_IA} non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
+            throw ErrorFactory.createError('BAD_REQUEST', `Il livello IA ${livello_IA} non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
         }
 
         // Verifica che l'utente non possa sfidare sé stesso
         if (email_giocatore2 && email_giocatore2 === giocatore1.email) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, "Non puoi sfidare te stesso.");
+            throw ErrorFactory.createError('BAD_REQUEST', "Non puoi sfidare te stesso.");
         }
 
         // Verifica credito
         const creditoGiocatore1 = await verifyCredit(id_giocatore1);
         if (creditoGiocatore1 < costoCreazione) {
-            throw new HttpException(StatusCodes.UNAUTHORIZED, 'Token terminati. Non puoi effettuare questa operazione.');
+            throw ErrorFactory.createError('UNAUTHORIZED', 'Token terminati. Non puoi effettuare questa operazione.');
         }
 
         // Trova l'ID del secondo giocatore, se specificato
@@ -140,12 +125,12 @@ export const createGame = async (
         if (email_giocatore2) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email_giocatore2)) {
-                throw new HttpException(StatusCodes.BAD_REQUEST, `Email ${email_giocatore2} non è valida. Usa un formato email valido.`);
+                throw ErrorFactory.createError('BAD_REQUEST', `Email ${email_giocatore2} non è valida. Usa un formato email valido.`);
             }
 
             id_giocatore2 = await getIdGiocatore(email_giocatore2);
             if (!id_giocatore2) {
-                throw new HttpException(StatusCodes.NOT_FOUND, `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
+                throw ErrorFactory.createError('NOT_FOUND', `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
             }
         }
 
@@ -160,7 +145,7 @@ export const createGame = async (
                 };
             }
             return null;
-        }).filter(Boolean);  // Filtra i valori nulli
+        }).filter(Boolean);
 
         const tavola = JSON.stringify({ initialBoard });
 
@@ -188,7 +173,7 @@ export const createGame = async (
                     id_partita: partita.id_partita,
                     stato: partita.stato,
                     id_giocatore1: id_giocatore1,
-                    data_inizio: formatDate(partita.data_inizio), // Formatta la data qui
+                    data_inizio: formatDate(partita.data_inizio),
                 }
             };
         }
@@ -203,7 +188,7 @@ export const createGame = async (
                 id_giocatore1: partita.id_giocatore1,
                 id_giocatore2: partita.id_giocatore2,
                 stato: partita.stato,
-                data_inizio: formatDate(partita.data_inizio), // Formatta la data qui
+                data_inizio: formatDate(partita.data_inizio),
             }
         };
     } catch (error) {
@@ -214,31 +199,22 @@ export const createGame = async (
 
 /**
  * Verifica i crediti rimanenti del giocatore.
- *
- * @param {number} id_giocatore1 - L'ID del giocatore di cui verificare i crediti.
- * @returns {Promise<number>} - Il numero di crediti rimanenti del giocatore.
- * @throws {HttpException} - Lancia un'eccezione se il giocatore non viene trovato.
  */
 const verifyCredit = async (id_giocatore1: number): Promise<number> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
     if (!giocatore) {
-        throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato.');
+        throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato.');
     }
     return giocatore.token_residuo;
 };
 
 /**
  * Addebita i crediti al giocatore.
- *
- * @param {number} id_giocatore1 - L'ID del giocatore a cui addebitare i crediti.
- * @param {number} importo - L'importo da addebitare.
- * @returns {Promise<void>} - Restituisce una promise vuota dopo aver aggiornato i crediti del giocatore.
- * @throws {HttpException} - Lancia un'eccezione se il giocatore non viene trovato.
  */
 const removeCredits = async (id_giocatore1: number, importo: number): Promise<void> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
     if (!giocatore) {
-        throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato.');
+        throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato.');
     }
     giocatore.token_residuo -= importo;
     await giocatore.save();

@@ -3,7 +3,7 @@ import Giocatore from '../models/Giocatore';
 import { verifyPassword } from '../helpers/passwordHelper';
 import { generateToken } from '../helpers/jwtHelper';
 import { sequelize } from "../models";
-import HttpException from '../helpers/errorHandler';
+import ErrorFactory from '../factories/errorFactory';
 import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();
@@ -29,7 +29,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
     try {
         // Controlla se l'email ha un formato valido
         if (!emailRegex.test(email)) {
-            throw new HttpException(StatusCodes.BAD_REQUEST, 'Formato email non valido. Email deve essere nel formato tuo_username@example.com o tuo_username@example.it');
+            throw ErrorFactory.createError('BAD_REQUEST', 'Formato email non valido, deve essere nel formato tuo_username@example.com o tuo_username@example.it');
         }
 
         // Trova il giocatore in base all'email
@@ -37,7 +37,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
 
         // Se il giocatore non esiste o la password è errata, lancia un'eccezione (401)
         if (!user || !(await verifyPassword(password, user.hash))) {
-            throw new HttpException(StatusCodes.UNAUTHORIZED, 'Credenziali non valide');
+            throw ErrorFactory.createError('UNAUTHORIZED', 'Credenziali non valide');
         }
 
         // Genera un token JWT usando i dettagli del giocatore

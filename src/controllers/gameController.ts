@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { createGame } from '../services/gameService';
-import HttpException from "../helpers/errorHandler";
+import ErrorFactory from "../factories/errorFactory";
 import { StatusCodes } from 'http-status-codes';
 
 class GameController {
@@ -19,41 +19,12 @@ class GameController {
      * @throws {HttpException} - Se l'utente non è autenticato, l'id del giocatore è mancante o i parametri forniti non sono corretti.
      *
      * @returns {Promise<void>} - Restituisce una risposta JSON con i dettagli della partita creata, a seconda che sia PvP o PvAI.
-     *
-     * @example
-     * // Richiesta per creare una partita contro un altro giocatore
-     * {
-     *   "email_giocatore2": "altro@example.com",
-     *   "tipo": "Competitiva"
-     * }
-     *
-     * // Richiesta per creare una partita contro l'IA
-     * {
-     *   "livello_IA": "difficile",
-     *   "tipo": "Amichevole"
-     * }
-     *
-     * // Risposta di successo per PvP
-     * {
-     *   "success": true,
-     *   "statusCode": 201,
-     *   "message": "Partita PvP creata con successo",
-     *   "data": { ...dettagli_partita }
-     * }
-     *
-     * // Risposta di successo per PvAI
-     * {
-     *   "success": true,
-     *   "statusCode": 200,
-     *   "message": "Partita contro IA creata con successo",
-     *   "data": { ...dettagli_partita }
-     * }
      */
     public static async createGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             // Verifica che l'utente sia autenticato
             if (!req.user || !req.user.id_giocatore) {
-                throw new HttpException(StatusCodes.UNAUTHORIZED, 'Utente non autenticato o id_giocatore mancante');
+                throw ErrorFactory.createError('UNAUTHORIZED', 'Utente non autenticato o id_giocatore mancante');
             }
 
             const { id_giocatore } = req.user!;
@@ -61,7 +32,7 @@ class GameController {
 
             // Verifica che solo uno dei due parametri sia fornito
             if ((email_giocatore2 && livello_IA) || (!email_giocatore2 && !livello_IA)) {
-                throw new HttpException(StatusCodes.BAD_REQUEST, 'Devi specificare o email del giocatore 2 oppure il livello IA.');
+                throw ErrorFactory.createError('BAD_REQUEST', 'Devi specificare o email del giocatore 2 oppure il livello IA.');
             }
 
             // Creazione della partita

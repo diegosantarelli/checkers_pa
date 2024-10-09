@@ -3,14 +3,12 @@ import initPartita from '../models/Partita';
 import initGiocatore from '../models/Giocatore';
 import initMossa from '../models/Mossa';
 import initMossaIA from '../models/MossaIA';
-import HttpException from "../helpers/errorHandler";
+import ErrorFactory from '../factories/errorFactory';
 import { DraughtsPlayer, DraughtsSquare1D, DraughtsStatus } from 'rapid-draughts';
 import { EnglishDraughts as Draughts, EnglishDraughtsComputerFactory as ComputerFactory } from 'rapid-draughts/english';
-import { StatusCodes } from 'http-status-codes';
 import PdfPrinter from 'pdfmake';
-import {format} from "date-fns";
-
-
+import { format } from 'date-fns';
+import HttpException from "../helpers/errorHandler";
 
 const Giocatore = initGiocatore(sequelize);
 const Partita = initPartita(sequelize);
@@ -33,45 +31,44 @@ class MoveService {
     private static async verificaGiocatoreNellaPartita(id_partita: number, id_giocatore: number): Promise<void> {
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
-            throw new HttpException(StatusCodes.NOT_FOUND, "Partita non trovata.");
+            throw ErrorFactory.createError('NOT_FOUND', "Partita non trovata.");
         }
         if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore) {
-            throw new HttpException(StatusCodes.FORBIDDEN, "Il giocatore non fa parte di questa partita.");
+            throw ErrorFactory.createError('FORBIDDEN', "Il giocatore non fa parte di questa partita.");
         }
     }
 
     public static async executeMove(id_partita: number, from: string, to: string, id_giocatore1: number) {
-
         const giocatore = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore) {
-            throw new HttpException(StatusCodes.NOT_FOUND, "Giocatore non trovato.");
+            throw ErrorFactory.createError('NOT_FOUND', "Giocatore non trovato.");
         }
 
         if (giocatore.token_residuo <= 0) {
-            throw new HttpException(StatusCodes.UNAUTHORIZED, "Token terminati. Non puoi fare altre mosse.");
+            throw ErrorFactory.createError('UNAUTHORIZED', "Token terminati. Non puoi fare altre mosse.");
         }
 
         await MoveService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
 
         const partita = await Partita.findByPk(id_partita);
         if (!partita) {
-            throw new HttpException(StatusCodes.NOT_FOUND, "Partita non trovata.");
+            throw ErrorFactory.createError('NOT_FOUND', "Partita non trovata.");
         }
 
-        if(partita.stato != "in corso") {
-            throw new HttpException(StatusCodes.CONFLICT, "Non puoi effettuare una mossa in una partita che non è in corso.");
+        if (partita.stato !== "in corso") {
+            throw ErrorFactory.createError('CONFLICT', "Non puoi effettuare una mossa in una partita che non è in corso.");
         }
 
         let savedData: { initialBoard: DraughtsSquare1D[] } | null;
         try {
             savedData = typeof partita.tavola === 'string' ? JSON.parse(partita.tavola) : partita.tavola;
         } catch (error) {
-            throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, "Errore nel parsing della tavola.");
+            throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', "Errore nel parsing della tavola.");
         }
 
         const savedBoard = savedData?.initialBoard;
         if (!savedBoard || !Array.isArray(savedBoard)) {
-            throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, "La tavola salvata non è un array valido.");
+            throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', "La tavola salvata non è un array valido.");
         }
 
         const draughts = Draughts.setup();
@@ -95,7 +92,7 @@ class MoveService {
 
         if (!moveToMake) {
             console.error(`Tentativo di effettuare una mossa non valida da ${from} a ${to}`);
-            throw new HttpException(StatusCodes.BAD_REQUEST, "Mossa non valida.");
+            throw ErrorFactory.createError('BAD_REQUEST', "Mossa non valida.");
         }
 
         try {
@@ -109,7 +106,7 @@ class MoveService {
 
             if (lastMove && lastMove.from_position === from && lastMove.to_position === to) {
                 console.log("Tentativo di ripetere la stessa mossa:", lastMove);
-                throw new HttpException(StatusCodes.BAD_REQUEST, "Non puoi ripetere la stessa mossa consecutivamente.");
+                throw ErrorFactory.createError('BAD_REQUEST', "Non puoi ripetere la stessa mossa consecutivamente.");
             }
 
             console.log("Esecuzione della mossa:", moveToMake);
@@ -150,13 +147,11 @@ class MoveService {
             const colorePezzo = savedBoard[origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
             const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
 
-            // Se c'è un'IA nella partita, esegui la sua mossa
             if (partita.livello_IA) {
                 const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
 
                 draughts.move(aiMove);
 
-                // Controlla se la partita è terminata dopo la mossa dell'IA
                 if ((draughts.status as DraughtsStatus) === DraughtsStatus.LIGHT_WON ||
                     (draughts.status as DraughtsStatus) === DraughtsStatus.DARK_WON ||
                     (draughts.status as DraughtsStatus) === DraughtsStatus.DRAW) {
@@ -169,12 +164,10 @@ class MoveService {
                     };
                 }
 
-                // Aggiorna la tavola dopo la mossa dell'IA
                 partita.tavola = JSON.stringify({ initialBoard: draughts.board });
                 partita.mosse_totali += 1;
                 await partita.save();
 
-                // Registra la mossa dell'IA
                 await MossaIA.create({
                     numero_mossa: await MossaIA.count({ where: { id_partita } }) + 1,
                     tavola: JSON.stringify({ initialBoard: draughts.board }),
@@ -206,10 +199,10 @@ class MoveService {
                 throw error;
             } else if (error instanceof Error) {
                 console.error("Errore generico durante la esecuzione della mossa:", error.message);
-                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore durante la esecuzione della mossa.');
+                throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore durante la esecuzione della mossa.');
             } else {
                 console.error("Errore sconosciuto durante l'esecuzione della mossa");
-                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore sconosciuto durante la esecuzione della mossa.');
+                throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore sconosciuto durante la esecuzione della mossa.');
             }
         }
     }
@@ -235,7 +228,6 @@ class MoveService {
         };
     }
 
-    // Esegue la mossa dell'IA in base al livello di difficoltà
     private static async executeAiMove(draughts: any, livelloIA: string) {
         let ai;
         switch (livelloIA) {
@@ -263,37 +255,35 @@ class MoveService {
     private static async deductMoveCost(id_giocatore1: number): Promise<void> {
         const giocatore = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore) {
-            throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato.');
+            throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato.');
         }
 
         giocatore.token_residuo -= 0.0125;
         await giocatore.save();
     }
 
-
     public static async getMoveHistory(id_partita: number): Promise<any[]> {
         console.log(`Recupero dello storico delle mosse per la partita con ID: ${id_partita}`);
 
         const mosse = await Mossa.findAll({
             where: { id_partita },
-            order: [['numero_mossa', 'ASC']] // Usa l'alias corretto
+            order: [['numero_mossa', 'ASC']]
         });
 
         if (mosse.length === 0) {
             console.log(`Nessuna mossa trovata per la partita con ID: ${id_partita}`);
-            throw new HttpException(StatusCodes.NOT_FOUND, 'Nessuna mossa trovata per questa partita');
+            throw ErrorFactory.createError('NOT_FOUND', 'Nessuna mossa trovata per questa partita');
         }
 
         console.log(`Trovate ${mosse.length} mosse per la partita con ID: ${id_partita}`);
 
-        // Mappa le mosse per includere i dati richiesti
         const moveHistory = mosse.map(mossa => {
-            const dataMossa = format(new Date(mossa.data), 'yyyy-MM-dd HH:mm:ss'); // Formatta la data della mossa
+            const dataMossa = format(new Date(mossa.data), 'yyyy-MM-dd HH:mm:ss');
             return {
                 numeroMossa: mossa.numero_mossa,
                 origin: mossa.from_position,
                 destination: mossa.to_position,
-                dataMossa // Aggiungi la data della mossa formattata
+                dataMossa
             };
         });
 
@@ -303,7 +293,6 @@ class MoveService {
     public static async exportToPDF(id_partita: number): Promise<Buffer> {
         console.log(`Esportazione dello storico delle mosse in formato PDF`);
 
-        // Ottieni lo storico delle mosse
         const moveHistory = await this.getMoveHistory(id_partita);
 
         const fonts = {
@@ -316,7 +305,6 @@ class MoveService {
         };
         const printer = new PdfPrinter(fonts);
 
-        // Definizione del documento PDF
         const docDefinition = {
             content: [
                 { text: 'STORICO DELLE MOSSE', style: 'header' },
@@ -325,12 +313,12 @@ class MoveService {
                         headerRows: 1,
                         widths: ['*', '*', '*', '*'],
                         body: [
-                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa'], // Colonna "Data Mossa"
+                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa'],
                             ...moveHistory.map(mossa => [
                                 mossa.numeroMossa,
                                 mossa.origin,
                                 mossa.destination,
-                                mossa.dataMossa // Data della mossa formattata
+                                mossa.dataMossa
                             ])
                         ]
                     }
@@ -341,7 +329,6 @@ class MoveService {
             }
         };
 
-        // Generazione del PDF
         const pdfDoc = printer.createPdfKitDocument(docDefinition);
         const chunks: Buffer[] = [];
 

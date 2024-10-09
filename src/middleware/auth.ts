@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../helpers/jwtHelper';
-import HttpException from '../helpers/errorHandler';
-import { StatusCodes } from 'http-status-codes';
+import ErrorFactory from '../factories/errorFactory';
 import { JwtPayload } from 'jsonwebtoken';
 
 /**
@@ -34,7 +33,7 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Autenticazione richiesta'));
+        return next(ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta'));
     }
 
     const token = authHeader.split(' ')[1];
@@ -46,10 +45,10 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
             req.user = decoded as TokenPayload;
             next(); // Continua verso il controller
         } else {
-            return next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido o payload mancante'));
+            return next(ErrorFactory.createError('UNAUTHORIZED', 'Token non valido o payload mancante'));
         }
     } catch (error) {
-        next(new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido'));
+        next(ErrorFactory.createError('UNAUTHORIZED', 'Token non valido'));
     }
 };
 
@@ -73,5 +72,5 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction): void =
     }
 
     // Se non è admin, lancia un'eccezione di accesso non autorizzato
-    next(new HttpException(StatusCodes.FORBIDDEN, 'Accesso non autorizzato, solo gli admin possono accedere'));
+    next(ErrorFactory.createError('FORBIDDEN', 'Accesso non autorizzato, solo gli admin possono accedere'));
 };

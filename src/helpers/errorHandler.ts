@@ -27,6 +27,12 @@ class HttpException extends Error {
     }
 }
 
+/**
+ * Funzione per gestire l'errore e inviare una risposta.
+ *
+ * @param {HttpException} err - L'errore che si è verificato.
+ * @param {any} res - L'oggetto di risposta Express.
+ */
 export const handleError = (err: HttpException, res: any) => {
     const { statusCode, message } = err;
 

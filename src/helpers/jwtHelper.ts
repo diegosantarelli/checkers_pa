@@ -1,7 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import HttpException from './errorHandler';
-import { StatusCodes } from 'http-status-codes';
+import ErrorFactory from '../factories/errorFactory';
 
 dotenv.config();
 
@@ -41,7 +40,7 @@ export const generateToken = (payload: TokenPayload): string => {
     } catch (e) {
         // Logga l'errore per tracciabilità
         console.error('Errore durante la generazione del token:', e);
-        throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore nella generazione del token');
+        throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore nella generazione del token');
     }
 };
 
@@ -72,11 +71,11 @@ export const verifyToken = (token: string): JwtPayload | null => {
         console.error('Errore durante la verifica del token:', e);
 
         if (e instanceof jwt.TokenExpiredError) {
-            throw new HttpException(StatusCodes.UNAUTHORIZED, 'Token scaduto');
+            throw ErrorFactory.createError('UNAUTHORIZED', 'Token scaduto');
         } else if (e instanceof jwt.JsonWebTokenError) {
-            throw new HttpException(StatusCodes.UNAUTHORIZED, 'Token non valido');
+            throw ErrorFactory.createError('UNAUTHORIZED', 'Token non valido');
         } else {
-            throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore nella verifica del token');
+            throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore nella verifica del token');
         }
     }
 };

@@ -1,9 +1,9 @@
-import { Op } from 'sequelize';
+import {Op, where, fn, col} from 'sequelize';
 import { Partita, Giocatore } from '../models';
-import HttpException from '../helpers/errorHandler';
+import ErrorFactory from '../factories/errorFactory';
 import { isValid, parseISO, format } from 'date-fns';
-import { fn, col, where } from 'sequelize';
 import { StatusCodes } from 'http-status-codes';
+import HttpException from "../helpers/errorHandler";
 
 class WinnerService {
 
@@ -30,7 +30,7 @@ class WinnerService {
             });
 
             if (!giocatore) {
-                throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato');
+                throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato');
             }
 
             const whereCondition: any = {
@@ -45,7 +45,7 @@ class WinnerService {
                 const parsedDate = parseISO(startDate);
                 console.log("Data Parsata:", parsedDate);
                 if (!isValid(parsedDate)) {
-                    throw new HttpException(StatusCodes.BAD_REQUEST, 'Formato della data non valido');
+                    throw ErrorFactory.createError('BAD_REQUEST', 'Formato della data non valido');
                 }
 
                 // Filtro per la data specifica
@@ -67,7 +67,7 @@ class WinnerService {
                     ? `Nessuna partita trovata per la data ${startDate}`
                     : 'Nessuna partita trovata';
                 console.warn(message);
-                throw new HttpException(StatusCodes.NOT_FOUND, message);
+                throw ErrorFactory.createError('NOT_FOUND', message);
             }
 
             // Mappatura dei risultati delle partite completate con formattazione della data
@@ -97,10 +97,10 @@ class WinnerService {
                 throw error;
             } else if (error instanceof Error) {
                 console.error("Errore generico durante la verifica delle partite:", error.message);
-                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore durante la verifica delle partite');
+                throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore durante la verifica delle partite');
             } else {
                 console.error("Errore sconosciuto durante la verifica delle partite");
-                throw new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore sconosciuto durante la verifica delle partite');
+                throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore sconosciuto durante la verifica delle partite');
             }
         }
     }

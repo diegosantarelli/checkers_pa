@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import Giocatore from '../models/Giocatore';
-import HttpException from '../helpers/errorHandler';
+import ErrorFactory from '../factories/errorFactory';
 import { StatusCodes } from "http-status-codes";
-import {sequelize} from "../models";
+import { sequelize } from "../models";
 
 const giocatore = Giocatore(sequelize);
 
@@ -12,24 +12,24 @@ class AdminController {
             const { email, nuovoCredito } = req.body;
 
             // Verifica che i parametri siano forniti
-            if (!email || !nuovoCredito) {
-                throw new HttpException(StatusCodes.BAD_REQUEST, "Email e nuovo credito sono obbligatori");
+            if (!email || nuovoCredito === undefined) {
+                throw ErrorFactory.createError('BAD_REQUEST', "Email e nuovo credito sono obbligatori");
             }
 
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
-                throw new HttpException(StatusCodes.BAD_REQUEST, `Email ${email} non è valida. Usa un formato email valido.`);
+                throw ErrorFactory.createError('BAD_REQUEST', `Email ${email} non è valida. Usa un formato email valido.`);
             }
 
             // Verifica che il nuovo credito sia >= 0
             if (nuovoCredito < 0) {
-                throw new HttpException(StatusCodes.BAD_REQUEST, "Il credito non può essere negativo");
+                throw ErrorFactory.createError('BAD_REQUEST', "Il credito non può essere negativo");
             }
 
             // Trova l'utente con l'email specificata
             const user = await giocatore.findOne({ where: { email } });
             if (!user) {
-                throw new HttpException(StatusCodes.NOT_FOUND, `Utente con mail ${email} non trovato`);
+                throw ErrorFactory.createError('NOT_FOUND', `Utente con mail ${email} non trovato`);
             }
 
             // Aggiorna il credito dell'utente

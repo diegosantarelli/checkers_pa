@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import MoveService from '../services/moveService'; // Importa il servizio delle mosse
+import MoveService from '../services/moveService';
+import ErrorFactory from '../factories/errorFactory';
+import { StatusCodes } from 'http-status-codes';
 import HttpException from "../helpers/errorHandler";
-import { StatusCodes } from 'http-status-codes'; // Importa StatusCodes
 
 class moveController {
     /**
@@ -19,7 +20,7 @@ class moveController {
         try {
             // Verifica se req.user è definito
             if (!req.user) {
-                throw new HttpException(StatusCodes.UNAUTHORIZED, 'Utente non autenticato.');
+                throw ErrorFactory.createError('UNAUTHORIZED', 'Utente non autenticato.');
             }
 
             const { id_partita, from, to } = req.body;
@@ -42,7 +43,7 @@ class moveController {
             if (error instanceof HttpException) {
                 next(error); // Passa l'errore al middleware per la gestione degli errori
             } else {
-                next(new HttpException(StatusCodes.INTERNAL_SERVER_ERROR, 'Errore sconosciuto durante la esecuzione della mossa'));
+                next(ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore sconosciuto durante l\'esecuzione della mossa'));
             }
         }
     }
@@ -66,7 +67,7 @@ class moveController {
 
             // Verifica se il format è valido
             if (!['json', 'pdf'].includes(format)) {
-                throw new HttpException(StatusCodes.BAD_REQUEST, 'Formato non valido. I formati supportati sono "json" e "pdf".');
+                throw ErrorFactory.createError('BAD_REQUEST', 'Formato non valido. I formati supportati sono "json" e "pdf".');
             }
 
             const moveHistory = await MoveService.getMoveHistory(Number(id_partita));
@@ -88,7 +89,7 @@ class moveController {
             }
         } catch (error) {
             console.error(`Errore durante l'esportazione dello storico delle mosse:`, error);
-            next(error);
+            next(ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore durante l\'esportazione dello storico delle mosse'));
         }
     }
 }

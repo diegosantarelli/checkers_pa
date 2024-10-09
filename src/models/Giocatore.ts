@@ -1,5 +1,4 @@
 import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
-import {Partita} from "./index";
 
 /**
  * @interface GiocatoreAttributes
