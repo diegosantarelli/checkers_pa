@@ -38,7 +38,7 @@ class GameStatusService {
                     throw new HttpException(StatusCodes.NOT_FOUND, 'Giocatore non trovato');
                 }
 
-                risultato = `${giocatore.nome} ha abbandonato la partita`;
+                risultato = `${giocatore.nome} ${giocatore.cognome} ha abbandonato la partita`;
             }
             // Se la partita è ancora in corso
             else if (partita.stato === 'in corso') {
@@ -55,7 +55,6 @@ class GameStatusService {
         }
     }
 
-    // Metodo esistente: abbandonaPartita
     public static async abbandonaPartita(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
@@ -80,30 +79,33 @@ class GameStatusService {
             partita.id_vincitore = id_vincitore;
             await partita.save();
 
-            const giocatore = await Giocatore.findByPk(id_giocatore);
+            // Recupera i dettagli del giocatore che abbandona la partita
+            const giocatore = await Giocatore.findByPk(id_giocatore, { attributes: ['nome', 'cognome', 'punteggio_totale'] });
             if (giocatore) {
                 giocatore.punteggio_totale -= 0.5;
                 await giocatore.save();
             }
 
             if (!isPartitaControIA && id_vincitore) {
-                const vincitore = await Giocatore.findByPk(id_vincitore);
+                // Recupera i dettagli del vincitore
+                const vincitore = await Giocatore.findByPk(id_vincitore, { attributes: ['nome', 'cognome', 'punteggio_totale'] });
                 if (vincitore) {
                     vincitore.punteggio_totale += 1;
                     await vincitore.save();
-                }
 
-                return {
-                    success: true,
-                    statusCode: StatusCodes.CREATED,
-                    risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita. Il giocatore ${id_vincitore} ha vinto e ha ricevuto 1 punto.`
-                };
+                    return {
+                        success: true,
+                        statusCode: StatusCodes.CREATED,
+                        risultato: `Il giocatore ${giocatore?.nome} ${giocatore?.cognome} ha abbandonato la partita. Il giocatore ${vincitore.nome} ${vincitore.cognome} ha vinto e ha ricevuto 1 punto.`
+                    };
+                }
             }
 
+            // Caso contro l'IA
             return {
                 success: true,
                 statusCode: StatusCodes.CREATED,
-                risultato: `Il giocatore ${id_giocatore} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti`
+                risultato: `Il giocatore ${giocatore?.nome} ${giocatore?.cognome} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti.`
             };
         } catch (error: unknown) {
             return GameStatusService.handleError(error, 'Errore durante l\'abbandono della partita');
@@ -154,7 +156,7 @@ class GameStatusService {
 
     public static async getDettagliPartita(id_partita: number): Promise<any> {
         const partita = await Partita.findByPk(id_partita, {
-            attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio'], // Assicura che data_inizio sia inclusa
+            attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio'],
         });
 
         if (!partita) {
@@ -185,19 +187,18 @@ class GameStatusService {
             throw new HttpException(StatusCodes.BAD_REQUEST, 'Non vi è un vincitore per questa partita');
         }
 
-        // Determina l'avversario o imposta l'IA come avversario
-        let avversarioDettagli;
-
-        if (giocatore2) {
-            // Se c'è un giocatore2, determina se è l'avversario
-            avversarioDettagli = vincitore.id_giocatore === giocatore1.id_giocatore
-                ? { nome: giocatore2.nome, cognome: giocatore2.cognome }
-                : { nome: giocatore1.nome, cognome: giocatore1.cognome };
+        // Determina l'avversario correttamente confrontando l'ID del vincitore
+        let avversario: any;
+        if (vincitore.id_giocatore === partita.id_giocatore1) {
+            avversario = giocatore2; // Vincitore è giocatore1, quindi avversario è giocatore2
         } else {
-            // Altrimenti, l'avversario è l'IA
-            avversarioDettagli = { nome: 'Intelligenza', cognome: 'Artificiale' };
+            avversario = giocatore1; // Vincitore è giocatore2, quindi avversario è giocatore1
         }
 
+        // Prepara i dati del certificato
+        const avversarioDettagli = avversario
+            ? { nome: avversario.nome, cognome: avversario.cognome }
+            : { nome: 'Intelligenza', cognome: 'Artificiale' };
 
         return {
             vincitore: `${vincitore.nome} ${vincitore.cognome}`,
@@ -256,8 +257,8 @@ class GameStatusService {
                         widths: ['*', '*'],
                         body: [
                             [{ text: 'Data della partita:', style: 'boldText' }, dataFormattata], // Usa la data formattata
-                            [{ text: 'Giocatore 1:', style: 'boldText' }, { text: player1Name }],
-                            [{ text: 'Giocatore 2:', style: 'boldText' }, { text: player2Name }],
+                            [{ text: 'Giocatore:', style: 'boldText' }, { text: player1Name }],
+                            [{ text: 'Giocatore:', style: 'boldText' }, { text: player2Name }],
                             [{ text: 'Mosse totali:', style: 'boldText' }, { text: totalMoves }],
                             [{ text: 'Durata della partita:', style: 'boldText' }, { text: gameDuration }],
                             [{ text: 'Vincitore:', style: 'boldText' }, { text: player1Name }]
