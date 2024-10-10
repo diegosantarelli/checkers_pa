@@ -1,0 +1,34 @@
+@startuml
+actor Client as C
+participant "Router /game-status/ranking" as R
+participant "GameStatusController" as GSC
+participant "GameStatusService" as GSS
+participant "Giocatore Model" as GM
+participant "ErrorFactory" as EF
+
+C -> R: GET /game-status/ranking (order=asc/desc)
+R -> GSC: playersRanking(req, res, next)
+
+GSC -> GSS: playersRanking(order)
+
+alt Parametro order non valido
+    GSS -> EF: createError('BAD_REQUEST', 'Ordine non valido')
+    EF --> GSS: Error
+    GSS -> GSC: throw error
+    GSC -> R: next(error)
+else Parametro order valido
+    GSS -> GM: findAll({ order: [['punteggio_totale', order]] })
+
+    alt Nessun giocatore trovato
+        GM --> GSS: []
+        GSS -> EF: createError('NOT_FOUND', 'Nessun giocatore trovato')
+        EF --> GSS: Error
+        GSS -> GSC: throw error
+        GSC -> R: next(error)
+    else Giocatori trovati
+        GM --> GSS: classifica giocatori
+        GSS -> GSC: return classifica giocatori
+        GSC -> R: res.status(200).json({ success: true, data: classifica })
+    end
+end
+@enduml

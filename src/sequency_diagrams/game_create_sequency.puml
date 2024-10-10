@@ -1,0 +1,92 @@
+@startuml
+actor Client as C
+participant "Router /game/create" as R
+participant "GameController" as GC
+participant "GameService" as GS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: POST /game/create (token, email_giocatore2, tipo, livello_IA)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> GC: createGame(req, res, next)
+
+    GC -> G: findByPk(req.user.id_giocatore)
+    alt Giocatore non trovato
+        G --> GC: null
+        GC -> EF: createError('FORBIDDEN', 'Il giocatore non esiste')
+        EF --> GC: Error
+        GC -> R: next(error)
+        R -> C: 403 Forbidden
+    else Giocatore trovato
+        G --> GC: giocatore
+
+        GC -> P: findOne({ where: { id_giocatore1: req.user.id_giocatore, stato: 'in corso' } })
+        alt Partita in corso esistente per Giocatore1
+            P --> GC: partita in corso
+            GC -> EF: createError('BAD_REQUEST', 'Hai già una partita in corso')
+            EF --> GC: Error
+            GC -> R: next(error)
+            R -> C: 400 Bad Request
+        else Nessuna partita in corso per Giocatore1
+            P --> GC: null
+
+            alt email_giocatore2 fornita
+                GC -> G: getIdGiocatore(email_giocatore2)
+                alt Giocatore2 non trovato
+                    G --> GC: null
+                    GC -> EF: createError('NOT_FOUND', 'Giocatore2 non trovato')
+                    EF --> GC: Error
+                    GC -> R: next(error)
+                    R -> C: 404 Not Found
+                else Giocatore2 trovato
+                    G --> GC: id_giocatore2
+
+                    GC -> P: findOne({ where: { id_giocatore1: id_giocatore2, stato: 'in corso' } })
+                    alt Partita in corso esistente per Giocatore2
+                        P --> GC: partita in corso
+                        GC -> EF: createError('BAD_REQUEST', 'Giocatore2 ha già una partita in corso')
+                        EF --> GC: Error
+                        GC -> R: next(error)
+                        R -> C: 400 Bad Request
+                    else Nessuna partita in corso per Giocatore2
+                        P --> GC: null
+                    end
+                end
+            else email_giocatore2 non fornita (partita contro IA)
+                GC -> GS: createGame(id_giocatore1, null, tipo, livello_IA)
+            end
+
+            alt Parametri non validi
+                GC -> EF: createError('BAD_REQUEST', 'Parametri non validi')
+                EF --> GC: Error
+                GC -> R: next(error)
+                R -> C: 400 Bad Request
+            else Parametri validi
+                GC -> GS: createGame(id_giocatore1, email_giocatore2, tipo, livello_IA)
+
+                alt Partita PvP
+                    GS -> P: create({ id_giocatore1, id_giocatore2, stato, tipo, tavola })
+                    P --> GS: partita creata
+                    GS -> GC: return partita creata
+                    GC -> R: res.status(201).json({ success, partita })
+                    R -> C: 201 Created (Partita PvP creata)
+                else Partita contro IA
+                    GS -> P: create({ id_giocatore1, stato, tipo, livello_IA, tavola })
+                    P --> GS: partita creata
+                    GS -> GC: return partita creata
+                    GC -> R: res.status(200).json({ success, partita })
+                    R -> C: 200 OK (Partita contro IA creata)
+                end
+            end
+        end
+    end
+end
+@enduml

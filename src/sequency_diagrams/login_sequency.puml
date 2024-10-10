@@ -1,0 +1,36 @@
+@startuml
+actor Client as C
+participant "Router /login" as R
+participant "GameController" as GC
+participant "Giocatore Model" as G
+participant "PasswordHelper" as P
+participant "JwtHelper" as J
+participant "ErrorFactory" as E
+participant "Response" as Res
+
+C -> R: POST /login (email, password)
+R -> GC: login(req, res, next)
+
+GC -> G: findOne({ where: { email } })
+G --> GC: user
+
+alt User not found or invalid password
+    GC -> E: createError('UNAUTHORIZED', 'Credenziali non valide')
+    E --> GC: Error
+    GC -> R: next(error)
+else User found
+    GC -> P: verifyPassword(password, user.hash)
+    P --> GC: true
+
+    alt Password is valid
+        GC -> J: generateToken({ id_giocatore, email, ruolo })
+        J --> GC: JWT token
+
+        GC -> Res: res.status(200).json({ token })
+    else Password is invalid
+        GC -> E: createError('UNAUTHORIZED', 'Credenziali non valide')
+        E --> GC: Error
+        GC -> R: next(error)
+    end
+end
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+actor Client as C
+participant "Router /game-status/check-status/:id_partita" as R
+participant "GameStatusController" as GC
+participant "GameStatusService" as GS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: PUT /game-status/check-status/:id_partita (token)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> GC: evaluateGame(req, res, next)
+
+    GC -> P: findByPk(id_partita)
+    alt Partita non trovata
+        P --> GC: null
+        GC -> EF: createError('NOT_FOUND', 'Partita non trovata')
+        EF --> GC: Error
+        GC -> R: next(error)
+        R -> C: 404 Not Found
+    else Partita trovata
+        P --> GC: partita
+
+        alt Partita completata o abbandonata
+            alt Partita completata e vincitore identificato
+                GC -> G: findByPk(partita.id_vincitore)
+                alt Vincitore non trovato
+                    G --> GC: null
+                    GC -> EF: createError('NOT_FOUND', 'Vincitore non trovato')
+                    EF --> GC: Error
+                    GC -> R: next(error)
+                    R -> C: 404 Not Found
+                else Vincitore trovato
+                    G --> GC: vincitore
+                    GC -> R: res.status(200).json({ stato: "completata", vincitore: vincitore.nome })
+                    R -> C: 200 OK (Partita completata, vincitore)
+                end
+            else Partita abbandonata
+                GC -> R: res.status(200).json({ stato: "abbandonata" })
+                R -> C: 200 OK (Partita abbandonata)
+            end
+        else Partita in corso
+            GC -> R: res.status(200).json({ stato: "in corso" })
+            R -> C: 200 OK (Partita in corso)
+        end
+    end
+end
+@enduml

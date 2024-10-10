@@ -1,0 +1,71 @@
+@startuml
+actor Client as C
+participant "Router /do/move" as R
+participant "moveController" as MC
+participant "MoveService" as MS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "Mossa Model" as M
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: POST /do/move (token, id_partita, from, to)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> MC: move(req, res, next)
+
+    MC -> G: findByPk(req.user.id_giocatore)
+    alt Giocatore non trovato
+        G --> MC: null
+        MC -> EF: createError('NOT_FOUND', 'Giocatore non trovato')
+        EF --> MC: Error
+        MC -> R: next(error)
+        R -> C: 404 Not Found
+    else Giocatore trovato
+        G --> MC: giocatore
+
+        MC -> MS: executeMove(id_partita, from, to, id_giocatore)
+
+        MS -> P: findByPk(id_partita)
+        alt Partita non trovata
+            P --> MS: null
+            MS -> EF: createError('NOT_FOUND', 'Partita non trovata')
+            EF --> MS: Error
+            MS -> MC: throw error
+            MC -> R: next(error)
+            R -> C: 404 Not Found
+        else Partita trovata
+            P --> MS: partita
+
+            alt Mossa non valida
+                MS -> EF: createError('BAD_REQUEST', 'Mossa non valida')
+                EF --> MS: Error
+                MS -> MC: throw error
+                MC -> R: next(error)
+                R -> C: 400 Bad Request
+            else Mossa valida
+                MS -> M: create({ id_partita, from, to, id_giocatore })
+                M --> MS: mossa salvata
+
+                alt Partita contro IA
+                    MS -> MS: executeAiMove(draughts)
+                    MS -> M: create IA move
+                    M --> MS: IA mossa salvata
+                    MS -> MC: return mossa + IA mossa
+                    MC -> R: res.status(201).json({ success, moveDescription, aiMoveDescription })
+                    R -> C: 201 Created
+                else Solo partita PvP
+                    MS -> MC: return moveDescription
+                    MC -> R: res.status(201).json({ success, moveDescription })
+                    R -> C: 201 Created
+                end
+            end
+        end
+    end
+end
+@enduml

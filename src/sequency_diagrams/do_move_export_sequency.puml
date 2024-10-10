@@ -1,0 +1,55 @@
+@startuml
+actor Client as C
+participant "Router /do/move/:id_partita/export" as R
+participant "moveController" as MC
+participant "MoveService" as MS
+participant "ErrorFactory" as EF
+participant "Mossa Model" as MM
+participant "PDF Generator" as PDF
+participant "JWT Middleware" as JWT
+
+C -> R: GET /do/move/:id_partita/export (token, format=json/pdf)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> MC: exportMoveHistory(req, res, next)
+
+    alt Formato non valido
+        MC -> EF: createError('BAD_REQUEST', 'Formato non valido')
+        EF --> MC: Error
+        MC -> R: next(error)
+        R -> C: 400 Bad Request
+    else Formato valido
+        MC -> MS: getMoveHistory(id_partita)
+        MS -> MM: findAll({ where: { id_partita } })
+
+        alt Nessuna mossa trovata
+            MM --> MS: []
+            MS -> EF: createError('NOT_FOUND', 'Nessuna mossa trovata per questa partita')
+            EF --> MS: Error
+            MS -> MC: throw error
+            MC -> R: next(error)
+            R -> C: 404 Not Found
+        else Mosse trovate
+            MM --> MS: moveHistory
+
+            alt Formato JSON
+                MC -> R: res.json(moveHistory)
+                R -> C: 200 OK (JSON)
+            else Formato PDF
+                MC -> MS: exportToPDF(id_partita)
+                MS -> PDF: generate PDF
+                PDF --> MS: pdfBuffer
+                MS -> MC: return pdfBuffer
+                MC -> R: res.setHeader('Content-Type', 'application/pdf')
+                MC -> R: res.send(pdfBuffer)
+                R -> C: 200 OK (PDF)
+            end
+        end
+    end
+end
+@enduml

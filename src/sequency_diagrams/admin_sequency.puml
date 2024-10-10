@@ -1,0 +1,59 @@
+@startuml
+actor Admin as A
+participant "Router /admin/recharge" as R
+participant "AdminController" as AC
+participant "Giocatore Model" as GM
+participant "ErrorFactory" as EF
+participant "JWT Middleware" as JWT
+participant "isAdmin Middleware" as isAdmin
+
+A -> R: PUT /admin/recharge (token, email, nuovoCredito)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> A: 401 Unauthorized
+else Token valido
+    JWT -> isAdmin: isAdmin(req.user)
+
+    alt Utente non è admin
+        isAdmin -> EF: createError('FORBIDDEN', 'Accesso non autorizzato')
+        EF --> isAdmin: Error
+        isAdmin -> R: next(error)
+        R -> A: 403 Forbidden
+    else Utente è admin
+        isAdmin -> AC: creditRecharge(req, res, next)
+
+        alt Parametri email o nuovoCredito mancanti
+            AC -> EF: createError('BAD_REQUEST', 'Email e nuovo credito obbligatori')
+            EF --> AC: Error
+            AC -> R: next(error)
+            R -> A: 400 Bad Request
+        else Parametri validi
+            AC -> GM: findOne({ where: { email } })
+
+            alt Utente non trovato
+                GM --> AC: null
+                AC -> EF: createError('NOT_FOUND', 'Utente non trovato')
+                EF --> AC: Error
+                AC -> R: next(error)
+                R -> A: 404 Not Found
+            else Utente trovato
+                GM --> AC: user
+                alt Credito non valido (nuovoCredito < 0)
+                    AC -> EF: createError('BAD_REQUEST', 'Credito non può essere negativo')
+                    EF --> AC: Error
+                    AC -> R: next(error)
+                    R -> A: 400 Bad Request
+                else Credito valido
+                    AC -> GM: update user.token_residuo = nuovoCredito
+                    GM --> AC: success
+                    AC -> R: res.status(201).json({ success, message })
+                    R -> A: 201 Created (Credito aggiornato)
+                end
+            end
+        end
+    end
+end
+@enduml
