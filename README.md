@@ -59,11 +59,11 @@ checkers_pa/
 │   ├── models/
 │   ├── routes/
 │   ├── sequency_diagrams/
-│   └── services/
-│       ├── app.ts
-│       ├── boardConfiguration.json
-│       ├── express.d.ts
-│       └── global.d.ts
+│   ├── services/
+│   ├── app.ts
+│   ├── boardConfiguration.json
+│   ├── express.d.ts
+│   └── global.d.ts
 ├── .dockerignore
 ├── .env
 ├── .gitignore
@@ -118,18 +118,6 @@ Il sistema è basato su un’architettura a livelli, che semplifica l’interazi
 3.  **Esecuzione delle mosse**: il sistema valida ogni mossa, assicurandosi che sia conforme alle regole di gioco, e aggiorna lo stato della scacchiera e delle partite.
 4.	**IA**: se l’utente gioca contro l’IA, il sistema chiama la strategia selezionata (casuale o AlphaBeta) per eseguire le mosse dell’IA.
 
-### 📊 Diagramma dei casi d'uso
-
-Il diagramma dei casi d’uso è uno strumento fondamentale per la rappresentazione delle interazioni tra gli utenti (attori) e il sistema. Nel contesto di questo progetto, i casi d’uso rappresentano le funzionalità principali che il sistema offre agli utenti, evidenziando le azioni che possono essere compiute all’interno del sistema di gestione delle partite di dama.
-
-Il diagramma dei casi d’uso permette di avere una visione ad alto livello delle operazioni che gli utenti possono effettuare, come ad esempio:
-
-### 📁 Diagramma E-R
-
-Il diagramma E-R (Entity-Relationship) rappresenta una visione concettuale del database, mostrando le entità coinvolte e le relazioni tra di esse. In questo progetto, il diagramma E-R è stato utilizzato per modellare le entità principali coinvolte nella gestione delle partite di dama, come i giocatori, le partite, le mosse e l’intelligenza artificiale. Ogni entità è stata progettata con specifiche proprietà e regole, garantendo un’adeguata gestione dei dati e una chiara rappresentazione delle interazioni tra i vari componenti del sistema.
-
-L’obiettivo del diagramma è illustrare in maniera chiara e sintetica come le informazioni vengono organizzate e come le entità interagiscono tra loro. Ad esempio:
-
 ### 🧱 Pattern utilizzati
 
 Nel progetto sono stati applicati diversi pattern architetturali e design pattern per garantire una struttura flessibile, manutenibile e facilmente estendibile. I pattern utilizzati verranno elencati di seguito.
@@ -172,9 +160,64 @@ L’uso della Factory consente di:
 Il pattern Singleton è stato implementato per gestire la connessione al database. L’istanza di Sequelize, che gestisce tutte le interazioni con il database, viene creata una sola volta durante l’inizializzazione dell’applicazione. Questo assicura che ci sia una singola fonte di connessione al database condivisa tra tutte le componenti, evitando problemi di concorrenza o conflitti di connessione. L’utilizzo di un Singleton per la connessione al database migliora l’efficienza e la coerenza delle operazioni di lettura e scrittura sui dati.
 
 
-### 🔁 Diagrammi delle sequenze
+### 📊Diagrammi UML
 
-### POST '/login'
+#### 🕹️ Diagramma dei casi d'uso
+
+Il diagramma dei casi d’uso è uno strumento fondamentale per la rappresentazione delle interazioni tra gli utenti (attori) e il sistema. Nel contesto di questo progetto, i casi d’uso rappresentano le funzionalità principali che il sistema offre agli utenti, evidenziando le azioni che possono essere compiute all’interno del sistema di gestione delle partite di dama.
+
+Il diagramma dei casi d’uso permette di avere una visione ad alto livello delle operazioni che gli utenti possono effettuare. Sono evidenziati quattro attori: **Public User**, **Player**, **Admin** e **AI**, ognuno dei quali interagisce con il sistema tramite funzioni dedicate. Lo Use Case Diagram verrà inserito di seguito:
+
+
+```mermaid
+%% Use Case Diagram in Mermaid.js
+
+graph TD
+  PublicUser["Public User"] --> playersRanking["playersRanking"]
+  PublicUser --> login["login"]
+
+  Player["Player"] --> createGame["createGame"]
+  Player --> makeMove["makeMove"]
+  Player --> exportMoveHistory["exportMoveHistory"]
+  Player --> AbandonGame["Abandon Game"]
+  Player --> CheckGameStatus["Check Game Status"]
+  Player --> ViewGameMoves["View Game Moves"]
+  Player --> ExportGameHistory["Export Game History"]
+  Player --> GetVictoryCertificate["Get Victory Certificate"]
+  Player --> getMatchList["getMatchList"]
+
+  Admin["Admin"] --> RechargeUserTokens["Recharge User Tokens"]
+
+  AI["AI"] --> MakeMoveAI["Make Move"]
+
+  System["System"] --> GenerateJSONFile["Generate JSON File"]
+  System --> GeneratePDF["Generate PDF"]
+  System --> CheckForGameEnd["Check For Game End"]
+  System --> VerifyMoveValidity["Verify Move Validity"]
+  System --> UpdateGameStatus["Update Game Status"]
+  System --> UpdatePlayerPoints["Update Player Points"]
+  System --> EditTokenCount["Edit Token Count"]
+
+  createGame --> authenticateJWT["authenticateJWT"]
+  makeMove --> authenticateJWT
+  exportMoveHistory --> authenticateJWT
+  getMatchList --> authenticateJWT
+
+  playersRanking --> SortPlayerRankings["Sort Player Rankings"]
+  ExportGameHistory --> FilterGamesByDate["Filter Games By Date"]
+  AbandonGame --> UpdatePlayerPoints
+```
+
+
+#### 🗂️ Diagramma E-R
+
+Il diagramma E-R (Entity-Relationship) rappresenta una visione concettuale del database, mostrando le entità coinvolte e le relazioni tra di esse. In questo progetto, il diagramma E-R è stato utilizzato per modellare le entità principali coinvolte nella gestione delle partite di dama, come i giocatori, le partite, le mosse e l’intelligenza artificiale. Ogni entità è stata progettata con specifiche proprietà e regole, garantendo un’adeguata gestione dei dati e una chiara rappresentazione delle interazioni tra i vari componenti del sistema.
+
+L’obiettivo del diagramma è illustrare in maniera chiara e sintetica come le informazioni vengono organizzate e come le entità interagiscono tra loro. Ad esempio:
+
+#### 🔁 Diagrammi delle sequenze
+
+##### POST '/login'
 
 ```mermaid
 sequenceDiagram
@@ -214,7 +257,7 @@ sequenceDiagram
   end
 ```
 
-### POST '/game/create'
+##### POST '/game/create'
 
 ```mermaid
 sequenceDiagram
@@ -304,7 +347,7 @@ sequenceDiagram
   end
 ```
 
-### POST '/do/move'
+##### POST '/do/move'
 
 ```mermaid
 sequenceDiagram
@@ -374,7 +417,7 @@ sequenceDiagram
     end
 ```
 
-### GET '/game-status/match-list?startDate=YYYY-MM-DD'
+##### GET '/game-status/match-list?startDate=YYYY-MM-DD'
 
 ```mermaid
 sequenceDiagram
@@ -421,7 +464,7 @@ sequenceDiagram
     end
 ```
 
-### PUT '/game-status/check-status/:id_partita'
+##### PUT '/game-status/check-status/:id_partita'
 
 ```mermaid
 sequenceDiagram
@@ -478,7 +521,7 @@ sequenceDiagram
     end
 ```
 
-### GET '/do/move/:id_partita/export?format={pdf, json}'
+##### GET '/do/move/:id_partita/export?format={pdf, json}'
 
 ```mermaid
 sequenceDiagram
@@ -534,7 +577,7 @@ sequenceDiagram
     end
 ```
 
-### PUT '/game-status/abandon-game/:id_partita'
+##### PUT '/game-status/abandon-game/:id_partita'
 
 ```mermaid
 sequenceDiagram
@@ -593,7 +636,7 @@ sequenceDiagram
     end
 ```
 
-### GET '/game-status/ranking?order={asc, desc}'
+##### GET '/game-status/ranking?order={asc, desc}'
 
 ```mermaid
 sequenceDiagram
@@ -631,7 +674,7 @@ sequenceDiagram
   end
 ```
 
-### GET '/game-status/win-certify/:id_partita'
+##### GET '/game-status/win-certify/:id_partita'
 
 ```mermaid
 sequenceDiagram
@@ -688,7 +731,7 @@ sequenceDiagram
   end
 ```
 
-### PUT '/admin/recharge'
+##### PUT '/admin/recharge'
 
 ```mermaid
 sequenceDiagram
