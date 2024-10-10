@@ -173,3 +173,517 @@ Il pattern Singleton è stato implementato per gestire la connessione al databas
 
 
 ### 🔁 Diagrammi delle sequenze
+
+### POST '/login'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /login" as R
+participant "GameController" as GC
+participant "Giocatore Model" as G
+participant "PasswordHelper" as P
+participant "JwtHelper" as J
+participant "ErrorFactory" as E
+participant "Response" as Res
+
+C -> R: POST /login (email, password)
+R -> GC: login(req, res, next)
+
+GC -> G: findOne({ where: { email } })
+G --> GC: user
+
+alt User not found or invalid password
+    GC -> E: createError('UNAUTHORIZED', 'Credenziali non valide')
+    E --> GC: Error
+    GC -> R: next(error)
+else User found
+    GC -> P: verifyPassword(password, user.hash)
+    P --> GC: true
+
+    alt Password is valid
+        GC -> J: generateToken({ id_giocatore, email, ruolo })
+        J --> GC: JWT token
+
+        GC -> Res: res.status(200).json({ token })
+    else Password is invalid
+        GC -> E: createError('UNAUTHORIZED', 'Credenziali non valide')
+        E --> GC: Error
+        GC -> R: next(error)
+    end
+end
+@enduml
+```
+
+### POST '/game/create'
+
+![Rotta /game/create](./src/sequency_diagrams/game_create_sequency_png.png)
+
+### POST '/do/move'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /do/move" as R
+participant "moveController" as MC
+participant "MoveService" as MS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "Mossa Model" as M
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: POST /do/move (token, id_partita, from, to)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> MC: move(req, res, next)
+
+    MC -> G: findByPk(req.user.id_giocatore)
+    alt Giocatore non trovato
+        G --> MC: null
+        MC -> EF: createError('NOT_FOUND', 'Giocatore non trovato')
+        EF --> MC: Error
+        MC -> R: next(error)
+        R -> C: 404 Not Found
+    else Giocatore trovato
+        G --> MC: giocatore
+
+        MC -> MS: executeMove(id_partita, from, to, id_giocatore)
+
+        MS -> P: findByPk(id_partita)
+        alt Partita non trovata
+            P --> MS: null
+            MS -> EF: createError('NOT_FOUND', 'Partita non trovata')
+            EF --> MS: Error
+            MS -> MC: throw error
+            MC -> R: next(error)
+            R -> C: 404 Not Found
+        else Partita trovata
+            P --> MS: partita
+
+            alt Mossa non valida
+                MS -> EF: createError('BAD_REQUEST', 'Mossa non valida')
+                EF --> MS: Error
+                MS -> MC: throw error
+                MC -> R: next(error)
+                R -> C: 400 Bad Request
+            else Mossa valida
+                MS -> M: create({ id_partita, from, to, id_giocatore })
+                M --> MS: mossa salvata
+
+                alt Partita contro IA
+                    MS -> MS: executeAiMove(draughts)
+                    MS -> M: create IA move
+                    M --> MS: IA mossa salvata
+                    MS -> MC: return mossa + IA mossa
+                    MC -> R: res.status(201).json({ success, moveDescription, aiMoveDescription })
+                    R -> C: 201 Created
+                else Solo partita PvP
+                    MS -> MC: return moveDescription
+                    MC -> R: res.status(201).json({ success, moveDescription })
+                    R -> C: 201 Created
+                end
+            end
+        end
+    end
+end
+@enduml
+```
+
+### GET '/game-status/match-list?startDate=YYYY-MM-DD'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /game-status/match-list" as R
+participant "GameStatusController" as GC
+participant "GameStatusService" as GS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: GET /game-status/match-list?startDate=yyyy-MM-dd (token)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> GC: getMatchList(req, res, next)
+
+    GC -> G: findByPk(req.user.id_giocatore)
+    alt Giocatore non trovato
+        G --> GC: null
+        GC -> EF: createError('FORBIDDEN', 'Giocatore non trovato')
+        EF --> GC: Error
+        GC -> R: next(error)
+        R -> C: 403 Forbidden
+    else Giocatore trovato
+        G --> GC: giocatore
+
+        GC -> GS: getMatchList(id_giocatore, startDate)
+
+        alt Partite trovate
+            GS -> P: findAll({ id_giocatore, startDate })
+            P --> GS: partite
+            GS -> GC: return partite
+            GC -> R: res.status(200).json(partite)
+            R -> C: 200 OK (Lista partite)
+        else Nessuna partita trovata
+            GS -> GC: []
+            GC -> R: res.status(200).json([])
+            R -> C: 200 OK (Nessuna partita trovata)
+        end
+    end
+end
+@enduml
+```
+
+### PUT '/game-status/check-status/:id_partita'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /game-status/check-status/:id_partita" as R
+participant "GameStatusController" as GC
+participant "GameStatusService" as GS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: PUT /game-status/check-status/:id_partita (token)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> GC: evaluateGame(req, res, next)
+
+    GC -> P: findByPk(id_partita)
+    alt Partita non trovata
+        P --> GC: null
+        GC -> EF: createError('NOT_FOUND', 'Partita non trovata')
+        EF --> GC: Error
+        GC -> R: next(error)
+        R -> C: 404 Not Found
+    else Partita trovata
+        P --> GC: partita
+
+        alt Partita completata o abbandonata
+            alt Partita completata e vincitore identificato
+                GC -> G: findByPk(partita.id_vincitore)
+                alt Vincitore non trovato
+                    G --> GC: null
+                    GC -> EF: createError('NOT_FOUND', 'Vincitore non trovato')
+                    EF --> GC: Error
+                    GC -> R: next(error)
+                    R -> C: 404 Not Found
+                else Vincitore trovato
+                    G --> GC: vincitore
+                    GC -> R: res.status(200).json({ stato: "completata", vincitore: vincitore.nome })
+                    R -> C: 200 OK (Partita completata, vincitore)
+                end
+            else Partita abbandonata
+                GC -> R: res.status(200).json({ stato: "abbandonata" })
+                R -> C: 200 OK (Partita abbandonata)
+            end
+        else Partita in corso
+            GC -> R: res.status(200).json({ stato: "in corso" })
+            R -> C: 200 OK (Partita in corso)
+        end
+    end
+end
+@enduml
+```
+
+### GET '/do/move/:id_partita/export?format={pdf, json}'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /do/move/:id_partita/export" as R
+participant "moveController" as MC
+participant "MoveService" as MS
+participant "ErrorFactory" as EF
+participant "Mossa Model" as MM
+participant "PDF Generator" as PDF
+participant "JWT Middleware" as JWT
+
+C -> R: GET /do/move/:id_partita/export (token, format=json/pdf)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> MC: exportMoveHistory(req, res, next)
+
+    alt Formato non valido
+        MC -> EF: createError('BAD_REQUEST', 'Formato non valido')
+        EF --> MC: Error
+        MC -> R: next(error)
+        R -> C: 400 Bad Request
+    else Formato valido
+        MC -> MS: getMoveHistory(id_partita)
+        MS -> MM: findAll({ where: { id_partita } })
+
+        alt Nessuna mossa trovata
+            MM --> MS: []
+            MS -> EF: createError('NOT_FOUND', 'Nessuna mossa trovata per questa partita')
+            EF --> MS: Error
+            MS -> MC: throw error
+            MC -> R: next(error)
+            R -> C: 404 Not Found
+        else Mosse trovate
+            MM --> MS: moveHistory
+
+            alt Formato JSON
+                MC -> R: res.json(moveHistory)
+                R -> C: 200 OK (JSON)
+            else Formato PDF
+                MC -> MS: exportToPDF(id_partita)
+                MS -> PDF: generate PDF
+                PDF --> MS: pdfBuffer
+                MS -> MC: return pdfBuffer
+                MC -> R: res.setHeader('Content-Type', 'application/pdf')
+                MC -> R: res.send(pdfBuffer)
+                R -> C: 200 OK (PDF)
+            end
+        end
+    end
+end
+@enduml
+```
+
+### PUT '/game-status/abandon-game/:id_partita'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /game-status/abandon-game/:id_partita" as R
+participant "GameStatusController" as GC
+participant "GameStatusService" as GS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: PUT /game-status/abandon-game/:id_partita (token)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> GC: abandonGame(req, res, next)
+
+    GC -> P: findByPk(id_partita)
+    alt Partita non trovata
+        P --> GC: null
+        GC -> EF: createError('NOT_FOUND', 'Partita non trovata')
+        EF --> GC: Error
+        GC -> R: next(error)
+        R -> C: 404 Not Found
+    else Partita trovata
+        P --> GC: partita
+
+        alt Giocatore non autorizzato (non fa parte della partita)
+            GC -> EF: createError('FORBIDDEN', 'Giocatore non autorizzato')
+            EF --> GC: Error
+            GC -> R: next(error)
+            R -> C: 403 Forbidden
+        else Giocatore autorizzato
+            alt Partita non in corso
+                GC -> EF: createError('BAD_REQUEST', 'La partita NON è in corso e non può essere abbandonata')
+                EF --> GC: Error
+                GC -> R: next(error)
+                R -> C: 400 Bad Request
+            else Partita in corso
+                GC -> P: update({ stato: "abbandonata", id_vincitore: avversario }, { where: { id_partita } })
+                P --> GC: Partita aggiornata
+                GC -> G: update(punteggio_totale - 0.5, { where: { id_giocatore } })  // Penalizza chi abbandona
+                GC -> G: update(punteggio_totale + 1, { where: { id_giocatore: avversario } })  // Assegna punto all'avversario
+                G --> GC: Aggiornamento completato
+
+                GC -> R: res.status(200).json({ stato: "abbandonata", vincitore: avversario })
+                R -> C: 200 OK (Partita abbandonata, vincitore)
+            end
+        end
+    end
+end
+@enduml
+```
+
+### GET '/game-status/ranking?order={asc, desc}'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /game-status/ranking" as R
+participant "GameStatusController" as GSC
+participant "GameStatusService" as GSS
+participant "Giocatore Model" as GM
+participant "ErrorFactory" as EF
+
+C -> R: GET /game-status/ranking (order=asc/desc)
+R -> GSC: playersRanking(req, res, next)
+
+GSC -> GSS: playersRanking(order)
+
+alt Parametro order non valido
+    GSS -> EF: createError('BAD_REQUEST', 'Ordine non valido')
+    EF --> GSS: Error
+    GSS -> GSC: throw error
+    GSC -> R: next(error)
+else Parametro order valido
+    GSS -> GM: findAll({ order: [['punteggio_totale', order]] })
+
+    alt Nessun giocatore trovato
+        GM --> GSS: []
+        GSS -> EF: createError('NOT_FOUND', 'Nessun giocatore trovato')
+        EF --> GSS: Error
+        GSS -> GSC: throw error
+        GSC -> R: next(error)
+    else Giocatori trovati
+        GM --> GSS: classifica giocatori
+        GSS -> GSC: return classifica giocatori
+        GSC -> R: res.status(200).json({ success: true, data: classifica })
+    end
+end
+@enduml
+```
+
+### GET '/game-status/win-certify/:id_partita'
+
+```plantuml
+@startuml
+actor Client as C
+participant "Router /game-status/win-certify/:id_partita" as R
+participant "GameStatusController" as GC
+participant "GameStatusService" as GS
+participant "Giocatore Model" as G
+participant "Partita Model" as P
+participant "PDF Generator" as PDF
+participant "JWT Middleware" as JWT
+participant "ErrorFactory" as EF
+
+C -> R: GET /game-status/win-certify/:id_partita (token)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> C: 401 Unauthorized
+else Token valido
+    JWT -> GC: getVictoryCertify(req, res, next)
+
+    GC -> GS: getVictoryCertify(id_partita)
+
+    GS -> P: findByPk(id_partita)
+    alt Partita non trovata
+        P --> GS: null
+        GS -> EF: createError('NOT_FOUND', 'Partita non trovata')
+        EF --> GS: Error
+        GS -> GC: throw error
+        GC -> R: next(error)
+        R -> C: 404 Not Found
+    else Partita trovata
+        P --> GS: partita
+        GS -> G: findByPk(id_vincitore)
+
+        alt Vincitore non trovato
+            G --> GS: null
+            GS -> EF: createError('NOT_FOUND', 'Vincitore non trovato')
+            EF --> GS: Error
+            GS -> GC: throw error
+            GC -> R: next(error)
+            R -> C: 404 Not Found
+        else Vincitore trovato
+            G --> GS: vincitore
+
+            GS -> PDF: generateVictoryCertifyPDF(partita, vincitore)
+            PDF --> GS: pdfBuffer
+            GS -> GC: return pdfBuffer
+            GC -> R: res.send(pdfBuffer)
+            R -> C: 200 OK (PDF inviato)
+        end
+    end
+end
+@enduml
+```
+
+### PUT '/admin/recharge'
+
+```plantuml
+@startuml
+actor Admin as A
+participant "Router /admin/recharge" as R
+participant "AdminController" as AC
+participant "Giocatore Model" as GM
+participant "ErrorFactory" as EF
+participant "JWT Middleware" as JWT
+participant "isAdmin Middleware" as isAdmin
+
+A -> R: PUT /admin/recharge (token, email, nuovoCredito)
+R -> JWT: authenticateJWT(token)
+alt Token non valido o assente
+    JWT -> EF: createError('UNAUTHORIZED', 'Autenticazione richiesta')
+    EF --> JWT: Error
+    JWT -> R: next(error)
+    R -> A: 401 Unauthorized
+else Token valido
+    JWT -> isAdmin: isAdmin(req.user)
+
+    alt Utente non è admin
+        isAdmin -> EF: createError('FORBIDDEN', 'Accesso non autorizzato')
+        EF --> isAdmin: Error
+        isAdmin -> R: next(error)
+        R -> A: 403 Forbidden
+    else Utente è admin
+        isAdmin -> AC: creditRecharge(req, res, next)
+
+        alt Parametri email o nuovoCredito mancanti
+            AC -> EF: createError('BAD_REQUEST', 'Email e nuovo credito obbligatori')
+            EF --> AC: Error
+            AC -> R: next(error)
+            R -> A: 400 Bad Request
+        else Parametri validi
+            AC -> GM: findOne({ where: { email } })
+
+            alt Utente non trovato
+                GM --> AC: null
+                AC -> EF: createError('NOT_FOUND', 'Utente non trovato')
+                EF --> AC: Error
+                AC -> R: next(error)
+                R -> A: 404 Not Found
+            else Utente trovato
+                GM --> AC: user
+                alt Credito non valido (nuovoCredito < 0)
+                    AC -> EF: createError('BAD_REQUEST', 'Credito non può essere negativo')
+                    EF --> AC: Error
+                    AC -> R: next(error)
+                    R -> A: 400 Bad Request
+                else Credito valido
+                    AC -> GM: update user.token_residuo = nuovoCredito
+                    GM --> AC: success
+                    AC -> R: res.status(201).json({ success, message })
+                    R -> A: 201 Created (Credito aggiornato)
+                end
+            end
+        end
+    end
+end
+@enduml
+```
