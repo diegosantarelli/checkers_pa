@@ -119,47 +119,6 @@ Il sistema è basato su un’architettura a livelli, che semplifica l’interazi
 3.  **Esecuzione delle mosse**: il sistema valida ogni mossa, assicurandosi che sia conforme alle regole di gioco, e aggiorna lo stato della scacchiera e delle partite.
 4.	**IA**: se l’utente gioca contro l’IA, il sistema chiama la strategia selezionata (casuale o AlphaBeta) per eseguire le mosse dell’IA.
 
-### 🧱 Pattern utilizzati
-
-Nel progetto sono stati applicati diversi pattern architetturali e design pattern per garantire una struttura flessibile, manutenibile e facilmente estendibile. I pattern utilizzati verranno elencati di seguito.
-
-#### Model-View-Controller (MVC)
-
-Il pattern Model-View-Controller (MVC) è un’architettura ampiamente utilizzata per separare le responsabilità all’interno dell’applicazione. In questo progetto, è stato implementato con una particolare attenzione alla gestione dei dati e delle interazioni tra utenti e sistema, ma senza una vera componente View, in quanto il progetto è un backend. Nel contesto di questo sistema, la struttura MVC è la seguente:
-
-* **Model**: Implementato attraverso Sequelize, un ORM che mappa gli oggetti del database in modelli JavaScript/TypeScript. I modelli definiscono le entità come Giocatore, Partita, Mossa, che rappresentano i dati e contengono la logica di gestione del database. I modelli sono il cuore del livello dati, gestiscono lo stato e riflettono la struttura del database.
-* **Controller**: I controller si occupano di gestire le richieste HTTP e coordinare la logica del servizio. Essi fungono da intermediari tra i modelli e i servizi. In questo progetto, ogni controller invoca le operazioni sui servizi per eseguire la logica aziendale, ricevere i dati e restituire le risposte appropriate. Ad esempio, il moveController gestisce l’esecuzione delle mosse e l’interazione con il servizio delle mosse.
-* **Service**: Anche se non c’è una componente View, la logica è spostata sui Service che incapsulano le operazioni business-critical. I servizi lavorano a stretto contatto con i modelli per eseguire operazioni come la creazione di partite, l’esecuzione di mosse, la gestione del punteggio, ecc.
-
-#### Data Access Object (DAO)
-
-Il pattern Data Access Object (DAO) è stato implementato utilizzando Sequelize, che fornisce un’interfaccia per l’accesso ai dati. Questo pattern permette di astrarre e isolare la logica di accesso al database dal resto dell’applicazione. Sequelize agisce come il DAO, poiché gestisce tutte le operazioni CRUD (Create, Read, Update, Delete) per i modelli. Il vantaggio dell’utilizzo del DAO è la modularità e la facilità di sostituzione o aggiornamento della logica di accesso ai dati senza influenzare la logica di business. Ogni modello di dati ha le sue operazioni CRUD ben definite tramite i metodi di Sequelize.
-
-#### Chain of Responsibility (COR)
-
-Il pattern Chain of Responsibility (COR) è utilizzato attraverso i middleware di Express.js. Ogni middleware gestisce una fase specifica della pipeline delle richieste HTTP, permettendo un flusso organizzato e modulare. Le richieste passano attraverso una catena di middleware che validano, autenticano e infine gestiscono l’errore o restituiscono la risposta.
-
-Alcuni esempi concreti di middleware implementati includono:
-
-* **Middleware di autenticazione**: Verifica che un utente sia autenticato tramite un token JWT. Se l’utente non è autenticato, la catena viene interrotta e viene restituito un errore.
-* **Middleware di validazione**: Verifica che i parametri della richiesta siano validi prima di procedere. Se la richiesta è invalida, il middleware restituisce una risposta di errore.
-* **Middleware di gestione degli errori**: Cattura gli errori lungo la catena e restituisce una risposta d’errore formattata.
-
-Questo pattern assicura che ogni richiesta sia gestita in modo efficiente e modulare, permettendo l’aggiunta o la rimozione di funzionalità senza modificare il core dell’applicazione.
-
-#### Factory
-
-Il pattern Factory viene utilizzato per gestire la creazione di errori personalizzati all’interno del progetto. La classe errorFactory, all’interno del file errorHandler.ts, genera istanze di errori personalizzati in base al contesto, permettendo una gestione centralizzata degli errori. Questo approccio rende il codice più pulito e facilita l’estensione del sistema di gestione degli errori, evitando ripetizioni e centralizzando la logica di creazione degli errori.
-
-L’uso della Factory consente di:
-
-* Creare errori con messaggi personalizzati basati sul tipo di eccezione.
-* Integrare facilmente i codici di stato HTTP tramite la libreria http-status-codes, fornendo una gestione uniforme degli errori.
-
-#### Singleton
-
-Il pattern Singleton è stato implementato per gestire la connessione al database. L’istanza di Sequelize, che gestisce tutte le interazioni con il database, viene creata una sola volta durante l’inizializzazione dell’applicazione. Questo assicura che ci sia una singola fonte di connessione al database condivisa tra tutte le componenti, evitando problemi di concorrenza o conflitti di connessione. L’utilizzo di un Singleton per la connessione al database migliora l’efficienza e la coerenza delle operazioni di lettura e scrittura sui dati.
-
 
 ### 📊Diagrammi UML
 
@@ -271,6 +230,51 @@ erDiagram
   PARTITA ||--o{ MOSSA : "ha"
   PARTITA ||--o{ MOSSAIA : "ha"
   ```
+### 🧱 Pattern utilizzati
+
+Nel progetto sono stati applicati diversi pattern architetturali e design pattern per garantire una struttura flessibile, manutenibile e facilmente estendibile. I pattern utilizzati verranno elencati di seguito.
+
+#### Model-View-Controller (MVC)
+
+Il pattern Model-View-Controller (MVC) è un’architettura ampiamente utilizzata per separare le responsabilità all’interno dell’applicazione. In questo progetto, è stato implementato con una particolare attenzione alla gestione dei dati e delle interazioni tra utenti e sistema, ma senza una vera componente View, in quanto il progetto è un backend. Nel contesto di questo sistema, la struttura MVC è la seguente:
+
+* **Model**: Implementato attraverso Sequelize, un ORM che mappa gli oggetti del database in modelli JavaScript/TypeScript. I modelli definiscono le entità come Giocatore, Partita, Mossa, che rappresentano i dati e contengono la logica di gestione del database. I modelli sono il cuore del livello dati, gestiscono lo stato e riflettono la struttura del database.
+* **Controller**: I controller si occupano di gestire le richieste HTTP e coordinare la logica del servizio. Essi fungono da intermediari tra i modelli e i servizi. In questo progetto, ogni controller invoca le operazioni sui servizi per eseguire la logica aziendale, ricevere i dati e restituire le risposte appropriate. Ad esempio, il moveController gestisce l’esecuzione delle mosse e l’interazione con il servizio delle mosse.
+* **Service**: Anche se non c’è una componente View, la logica è spostata sui Service che incapsulano le operazioni business-critical. I servizi lavorano a stretto contatto con i modelli per eseguire operazioni come la creazione di partite, l’esecuzione di mosse, la gestione del punteggio, ecc.
+
+#### Data Access Object (DAO)
+
+Il pattern Data Access Object (DAO) è stato implementato utilizzando Sequelize, che fornisce un’interfaccia per l’accesso ai dati. Questo pattern permette di astrarre e isolare la logica di accesso al database dal resto dell’applicazione. Sequelize agisce come il DAO, poiché gestisce tutte le operazioni CRUD (Create, Read, Update, Delete) per i modelli. Il vantaggio dell’utilizzo del DAO è la modularità e la facilità di sostituzione o aggiornamento della logica di accesso ai dati senza influenzare la logica di business. Ogni modello di dati ha le sue operazioni CRUD ben definite tramite i metodi di Sequelize.
+
+#### Chain of Responsibility (COR)
+
+Il pattern Chain of Responsibility (COR) è utilizzato attraverso i middleware di Express.js. Ogni middleware gestisce una fase specifica della pipeline delle richieste HTTP, permettendo un flusso organizzato e modulare. Le richieste passano attraverso una catena di middleware che validano, autenticano e infine gestiscono l’errore o restituiscono la risposta.
+
+Alcuni esempi concreti di middleware implementati includono:
+
+* **Middleware di autenticazione**: Verifica che un utente sia autenticato tramite un token JWT. Se l’utente non è autenticato, la catena viene interrotta e viene restituito un errore. È chiaramente implementato con la funzione authenticateJWT, che verifica la validità del token JWT nella richiesta. Se il token non è valido o mancante, viene interrotta la catena e viene restituito un errore UNAUTHORIZED.
+* **Middleware di gestione degli errori**: Cattura gli errori lungo la catena e restituisce una risposta d’errore formattata. È stato implementato come middleware globale per catturare e gestire gli errori lungo la catena, formattando le risposte di errore con l’uso della ErrorFactory.
+
+Questo pattern assicura che ogni richiesta sia gestita in modo efficiente e modulare, permettendo l’aggiunta o la rimozione di funzionalità senza modificare il core dell’applicazione.
+
+#### Factory
+
+Il pattern Factory è stato impiegato per gestire in maniera centralizzata la creazione di errori personalizzati nel progetto, tramite il file ErrorFactory.ts. Questa classe fornisce un’interfaccia unificata per generare diverse tipologie di errori HTTP in base al contesto specifico. Il vantaggio principale di questo approccio è la riduzione della ripetizione del codice, centralizzando la logica di creazione degli errori e migliorando la manutenibilità del progetto.
+
+La classe ErrorFactory nel file ErrorFactory.ts utilizza la libreria http-status-codes per associare facilmente i codici di stato HTTP ai relativi errori, permettendo la generazione di errori come NOT_FOUND, UNAUTHORIZED, FORBIDDEN, e altri, in modo flessibile.
+
+L’adozione del pattern Factory consente di:
+
+* Centralizzare la gestione degli errori, semplificando la creazione di messaggi di errore personalizzati.
+* Integrare in modo coerente i codici di stato HTTP, utilizzando la libreria http-status-codes, garantendo una gestione uniforme e standardizzata delle eccezioni.
+* Estendere il sistema di gestione degli errori in modo semplice e pulito, senza dover modificare singolarmente ogni parte del codice dove gli errori vengono gestiti.
+
+Grazie a questa implementazione, il progetto è più modulare, leggibile e facilmente manutenibile.
+#### Singleton
+
+Il pattern Singleton è stato implementato per gestire la connessione al database. L’istanza di Sequelize, che gestisce tutte le interazioni con il database, viene creata una sola volta durante l’inizializzazione dell’applicazione. Questo assicura che ci sia una singola fonte di connessione al database condivisa tra tutte le componenti, evitando problemi di concorrenza o conflitti di connessione. L’utilizzo di un Singleton per la connessione al database migliora l’efficienza e la coerenza delle operazioni di lettura e scrittura sui dati.
+
+Al fine di integrare il pattern Singleton nel progetto, è stata implementata una classe DatabaseConnection che sfrutta una proprietà statica per memorizzare un’istanza di Sequelize. Il metodo getInstance() si occupa di verificare se l’istanza esiste già: se sì, la restituisce, altrimenti la crea utilizzando le variabili d’ambiente configurate. In questo modo, assicuriamo che solo una singola connessione al database venga utilizzata da tutte le richieste che transitano nell’applicazione.
 
 #### 🔁 Diagrammi delle sequenze
 
@@ -872,3 +876,294 @@ sequenceDiagram
     end
   end
 ```
+
+
+## 🔗API Routes
+
+| **Verbo HTTP** | **Endpoint**                                      | **Descrizione**                                                                                 | **Autenticazione JWT** |
+|----------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|------------------------|
+| **POST**       | `/login`                                          | Autenticazione dell'utente tramite email e password.                                             | ❌                     |
+| **PUT**        | `/admin/recharge`                                 | Ricarica del saldo dei token per un utente (solo admin).                                         | ✅                     |
+| **GET**        | `/game-status/ranking?order={asc,desc}`           | Recupero della classifica dei giocatori per punteggio.                                           | ❌                     |
+| **POST**       | `/game/create`                                    | Creazione di una nuova partita tra giocatori o contro l'IA.                                      | ✅                     |
+| **POST**       | `/do/move`                                        | Esecuzione di una mossa nella partita corrente.                                                  | ✅                     |
+| **PUT**        | `/game-status/check-status/{:id_partita}`         | Recupero dello stato attuale di una specifica partita.                                           | ✅                     |
+| **GET**        | `/game-status/win-certify/{:id_partita}`          | Generazione del certificato di vittoria per una partita.                                         | ✅                     |
+| **GET**        | `/do/move/{:id_partita}/export?format={pdf,json}` | Esportazione della cronologia delle mosse di una partita (formato PDF o JSON).                   | ✅                     |
+| **PUT**        | `/game-status/abandon-game/{:id_partita}`         | Abbandono di una partita in corso, con aggiornamento del punteggio.                              | ✅                     |
+| **GET**        | `/game-status/match-list?startDate=YYYY-MM-DD`    | Recupero della cronologia delle partite giocate dal giocatore con filtro data opzionale.          | ✅                     |
+
+### POST `/login`
+
+La rotta POST /login serve per effettuare l’autenticazione di un utente. L’utente deve inserire l’email e la password all’interno del corpo della richiesta. L’email viene utilizzata per individuare il giocatore nel database, mentre la password viene verificata per confermare l’identità del giocatore. Se l’autenticazione ha esito positivo, viene generato un token JWT che verrà restituito all’utente e potrà essere usato per autenticare le successive richieste.
+#### Parametri
+
+| **Posizione**      | **Nome**   | **Tipo**  | **Descrizione**              | **Obbligatorio** |
+|--------------------|------------|-----------|------------------------------|------------------|
+| Richiesta nel body | `email`    | `string`  | Indirizzo email dell'utente   | ✅               |
+| Richiesta nel body     | `password` | `string`  | Password dell'utente          | ✅               |
+
+#### Esempio di richiesta
+
+```
+{
+    "email": "simone@example.com",
+    "password": "progavanzata"
+}
+```
+#### Risposta
+```
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9naW9jYXRvcmUiOjEsInJ1b2xvIjoidXRlbnRlIiwiZW1haWwiOiJzaW1vbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3Mjg1NTA1OTIsImV4cCI6MTcyODU1NDE5Mn0.iraDD3h4vAG4VjJQVM04xCEehdrxBkXxkSXcV95xhx4"
+}
+```
+
+### POST `/game/create`
+
+La rotta POST `/game/create` permette a un giocatore di creare una nuova partita. Il giocatore deve essere autenticato tramite un token JWT, che viene utilizzato per identificare l'utente. Se l'autenticazione è valida, il sistema verifica se il giocatore ha già una partita in corso. Se il giocatore ha una partita attiva, viene restituito un errore. In caso contrario, il giocatore può scegliere di sfidare un altro giocatore inserendo la sua email, oppure può decidere di giocare contro l'IA selezionando un livello di difficoltà. Il sistema esegue la validazione dei parametri inseriti, come il tipo di partita e il livello IA. Se viene indicato un secondo giocatore, il sistema controlla che anche lui non abbia già una partita in corso. Alla fine, la partita viene creata con una configurazione iniziale della scacchiera e restituita al giocatore. Se si sceglie di giocare contro l'IA, non è necessario specificare il secondo giocatore.
+
+#### Parametri
+
+| **Posizione**      | **Nome**           | **Tipo** | **Descrizione**                              | **Obbligatorio** |
+|--------------------|--------------------|----------|----------------------------------------------|------------------|
+| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP)            | ❌               |
+| Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA)            | ✅               |
+| Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA) | ❌               |
+
+#### Esempio di richiesta per la creazione di una partita contro un giocatore
+```
+{
+  "email_giocatore2": "piero@example.com",
+  "tipo": "Competitiva"
+}
+```
+
+#### Risposta
+```
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Partita PvP creata con successo",
+  "data": {
+    "id_partita": 5,
+    "id_giocatore1": 1,
+    "id_giocatore2": 3,
+    "stato": "in corso",
+    "data_inizio": "2024-10-10"
+  }
+}
+```
+
+#### Esempio di richiesta per la creazione di una partita contro un l'IA
+```
+{
+  "livello_IA": "difficile",
+  "tipo": "Competitiva"
+}
+```
+
+#### Risposta
+```
+{
+    "success": true,
+    "statusCode": 200,
+    "message": "Partita contro IA creata con successo",
+    "data": {
+        "id_partita": 6,
+        "stato": "in corso",
+        "id_giocatore1": 1,
+        "data_inizio": "2024-10-10"
+    }
+}
+```
+
+### POST `/do/move`
+
+La rotta POST `/do/move` permette a un giocatore di eseguire una mossa in una partita in corso. Il giocatore deve essere autenticato tramite un token JWT, che viene utilizzato per identificare l'utente e assicurarsi che faccia parte della partita. Il sistema verifica l'autenticazione e controlla se la partita esiste e se è ancora in corso. Una volta verificata la validità della mossa (ad esempio, evitando di ripetere la stessa mossa), la mossa viene applicata alla scacchiera. Se si gioca contro l'IA, il sistema effettua la mossa dell'IA e la registra.
+
+#### Parametri
+
+| **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**                | **Obbligatorio** |
+|--------------------|---------------|-----------|--------------------------------|------------------|
+| Richiesta nel body | `id_partita`  | `number`  | ID della partita               | ✅               |
+| Richiesta nel body | `from`        | `string`  | Coordinata di origine della mossa | ✅               |
+| Richiesta nel body | `to`          | `string`  | Coordinata di destinazione della mossa | ✅               |
+
+#### Esempio di richiesta in una partita con un giocatore
+```
+{
+    "id_partita": 7,
+    "from": "D7",
+    "to": "H7"
+}
+```
+
+#### Risposta
+```
+{
+  "success": true,
+  "statusCode": 201,
+  "message": "Mossa eseguita correttamente",
+  "data": {
+    "move": "Hai mosso un pezzo singolo di colore nero da D7 a H7."
+  }
+}
+```
+
+#### Esempio di richiesta in una partita con l'IA
+```
+{
+    "id_partita": 8,
+    "from": "D7",
+    "to": "H7"
+}
+```
+
+#### Risposta
+```
+{
+    "success": true,
+    "statusCode": 201,
+    "message": "Mossa eseguita correttamente",
+    "data": {
+        "move": "Hai mosso un pezzo singolo di colore nero da D7 a H7. IA ha mosso un pezzo singolo di colore nero da E6 a A6."
+    }
+}
+```
+
+### GET `/game-status/match-list?startDate=YYYY-MM-DD`
+
+La rotta GET `/game-status/match-list` permette a un giocatore autenticato di recuperare un elenco delle partite giocate. Il client può opzionalmente fornire una data di inizio (`startDate`) per filtrare solo le partite giocate a partire da quella data. Il sistema autentica il giocatore tramite il token JWT e cerca tutte le partite completate o abbandonate che lo coinvolgono. Se una data è specificata, vengono incluse solo le partite giocate da quel giorno in poi. Ogni partita restituita include informazioni come lo stato (vinta, persa, abbandonata), il numero di mosse e la data di inizio.
+
+#### Parametri
+
+| **Posizione**    | **Nome**      | **Tipo**  | **Descrizione**                        | **Obbligatorio** |
+|------------------|---------------|-----------|----------------------------------------|---------------|
+| Query param      | `startDate`   | `string`  | Data di inizio in formato `YYYY-MM-DD` | ❌            |
+
+#### Esempio di risposta senza filtro per la data
+```
+{
+    "partite": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Elenco delle partite giocate da Simone Recinelli",
+        "data": [
+            {
+                "id_partita": 1,
+                "stato": "completata",
+                "numero_mosse": 5,
+                "risultato": "Vinta",
+                "data_inizio": "2024-04-09"
+            },
+            {
+                "id_partita": 4,
+                "stato": "completata",
+                "numero_mosse": 5,
+                "risultato": "Persa",
+                "data_inizio": "2024-02-24"
+            }
+        ]
+    }
+}
+```
+#### Esempio di risposta con filtro per la data "2024-04-09"
+```
+{
+    "partite": {
+        "success": true,
+        "statusCode": 200,
+        "message": "Elenco delle partite giocate da Simone Recinelli",
+        "data": [
+            {
+                "id_partita": 1,
+                "stato": "completata",
+                "numero_mosse": 5,
+                "risultato": "Vinta",
+                "data_inizio": "2024-04-09"
+            }
+        ]
+    }
+}
+```
+
+#### Esempio di risposta in caso di mancata partita trovata in quella specifica data
+```
+{
+    "error": "Nessuna partita trovata per la data 2023-12-26"
+}
+```
+
+### PUT `/game-status/check-status/:id_partita`
+
+La rotta `PUT /game-status/check-status/:id_partita` permette a un giocatore di verificare lo stato di una partita specifica. Il giocatore deve essere autenticato tramite il token JWT e deve fornire l'ID della partita che desidera controllare. Il sistema autentica l'utente e verifica che la partita esista. Se la partita è terminata, restituisce lo stato e, se disponibile, il nome del vincitore. Se la partita è ancora in corso, viene restituito lo stato "in corso". Se la partita è stata abbandonata, il sistema lo segnala.
+
+#### Parametri
+
+| **Posizione**    | **Nome**         | **Tipo**  | **Descrizione**              | **Obbligatorio** |
+|------------------|------------------|-----------|------------------------------|------------------|
+| Path Param       | `id_partita`      | `integer` | ID della partita da verificare | ✅               |
+
+#### Esempio di risposta (`http://localhost:3001/game-status/check-status/1`)
+```
+{
+    "risultato": {
+        "success": true,
+        "statusCode": 200,
+        "risultato": "La partita è stata vinta da Simone"
+    }
+}
+```
+
+### GET `/do/move/:id_partita/export?format={pdf, json}`
+
+La rotta `GET /do/move/:id_partita/export?format={pdf, json}` permette a un giocatore autenticato di esportare lo storico delle mosse di una partita. Il formato di esportazione può essere JSON o PDF. Il sistema verifica l'autenticazione del giocatore e l'esistenza della partita, oltre a controllare se ci sono mosse registrate. In formato JSON, viene restituito un array con i dettagli delle mosse, mentre in formato PDF viene generato e restituito un file PDF che può essere scaricato.
+
+#### Parametri
+
+| **Posizione**    | **Nome**         | **Tipo**  | **Descrizione**                   | **Obbligatorio** |
+|------------------|------------------|-----------|-----------------------------------|------------------|
+| Path Param       | `id_partita`      | `integer` | ID della partita da esportare     | ✅               |
+| Query Param      | `format`          | `string`  | Formato di esportazione (json/pdf) | ✅               |
+
+#### Esempio di risposta (`http://localhost:3001/do/move/1/export?format=json`)
+```
+[
+    {
+        "numeroMossa": 1,
+        "origin": "A6",
+        "destination": "B5",
+        "dataMossa": "2024-10-10 13:55:25"
+    },
+    {
+        "numeroMossa": 2,
+        "origin": "H3",
+        "destination": "E4",
+        "dataMossa": "2024-10-10 13:57:25"
+    }
+]
+```
+
+#### Esempio di risposta (`http://localhost:3001/do/move/1/export?format=pdf`)
+
+AGGIUNGERE PDF
+
+### Abandon
+
+{
+"risultato": {
+"success": true,
+"statusCode": 201,
+"risultato": "Il giocatore Simone Recinelli ha abbandonato la partita. Il giocatore Piero Matteotti ha vinto e ha ricevuto 1 punto."
+}
+}
+
+
+
+
+
+
+
+
+
+
