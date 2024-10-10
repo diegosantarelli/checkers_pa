@@ -59,11 +59,11 @@ checkers_pa/
 │   ├── models/
 │   ├── routes/
 │   ├── sequency_diagrams/
-│   └── services/
-│       ├── app.ts
-│       ├── boardConfiguration.json
-│       ├── express.d.ts
-│       └── global.d.ts
+│   ├── services/
+│   ├── app.ts
+│   ├── boardConfiguration.json
+│   ├── express.d.ts
+│   └── global.d.ts
 ├── .dockerignore
 ├── .env
 ├── .gitignore
@@ -74,6 +74,7 @@ checkers_pa/
 ├── package-lock.json
 ├── README.md
 └── tsconfig.json
+
 ```
 
 ### 🏛️Architettura dei servizi
