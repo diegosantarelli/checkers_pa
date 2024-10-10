@@ -276,6 +276,8 @@ erDiagram
 
 ##### POST '/login'
 
+La seguente rotta autentica un giocatore nel sistema. Il client invia l’email e la password del giocatore. Il sistema cerca un giocatore con quell’email nel database. Se l’email è corretta, il sistema verifica che la password fornita corrisponda a quella memorizzata. Se entrambi i controlli passano, il sistema genera un token JWT che include l’ID del giocatore, l’email e il ruolo (utente o admin). Questo token sarà usato per autenticare le richieste successive. Se le credenziali non sono valide, viene restituito un errore con codice 401 Unauthorized.
+
 ```mermaid
 sequenceDiagram
   actor C as Client
@@ -315,6 +317,8 @@ sequenceDiagram
 ```
 
 ##### POST '/game/create'
+
+La seguente rotta permette a un giocatore di creare una partita. Il giocatore deve essere autenticato tramite il token JWT. Se l’autenticazione è valida, il sistema controlla se il giocatore ha già una partita in corso. Se sì, viene restituito un errore. Se no, il giocatore può scegliere di sfidare un altro giocatore specificando la sua email, o di giocare contro l’IA selezionando un livello di difficoltà. Il sistema valida i parametri (es. tipo di partita e livello IA). Se l’altro giocatore è stato indicato, viene verificato che non abbia già una partita in corso. Infine, viene creata la partita con la configurazione iniziale della scacchiera e viene restituita al giocatore. Se la partita è contro l’IA, non è necessario specificare un secondo giocatore.
 
 ```mermaid
 sequenceDiagram
@@ -406,6 +410,8 @@ sequenceDiagram
 
 ##### POST '/do/move'
 
+La seguente rotta consente a un giocatore di eseguire una mossa in una partita in corso. Il client deve inviare il token di autenticazione, l’ID della partita, e le coordinate della mossa (from e to). Il sistema verifica l’autenticazione del giocatore, quindi controlla che il giocatore faccia parte della partita e che questa sia ancora in corso. Successivamente, verifica che la mossa sia valida rispetto alle regole del gioco (es. non ripetere la stessa mossa consecutivamente). Se la mossa è valida, viene applicata alla scacchiera e la partita viene aggiornata. Se si gioca contro l’IA, l’IA effettua la sua mossa in risposta, che viene anch’essa registrata. Se la partita finisce con una vittoria o un pareggio, viene notificato l’esito.
+
 ```mermaid
 sequenceDiagram
     actor C as Client
@@ -476,6 +482,8 @@ sequenceDiagram
 
 ##### GET '/game-status/match-list?startDate=YYYY-MM-DD'
 
+La seguente rotta restituisce un elenco delle partite giocate da un giocatore autenticato. Il client può fornire una data di inizio opzionale per filtrare solo le partite giocate da quella data in poi. Il sistema autentica l’utente tramite il token JWT, recupera l’ID del giocatore e cerca tutte le partite completate o abbandonate che lo coinvolgono. Se è specificata una data, il sistema restituisce solo le partite giocate a partire da quella data. Ogni partita include informazioni sullo stato (vinta, persa, abbandonata), il numero di mosse e la data di inizio.
+
 ```mermaid
 sequenceDiagram
     actor C as Client
@@ -522,6 +530,8 @@ sequenceDiagram
 ```
 
 ##### PUT '/game-status/check-status/:id_partita'
+
+La seguente rotta verifica lo stato di una partita specifica. Il client invia un token JWT per autenticarsi e l’ID della partita che vuole controllare. Il sistema autentica l’utente e controlla che la partita esista. Se la partita è terminata, il sistema restituisce lo stato (vittoria, sconfitta o pareggio) e, se esiste, il nome del vincitore. Se la partita è ancora in corso, viene restituito lo stato “in corso”. Se la partita è stata abbandonata, il sistema lo segnala.
 
 ```mermaid
 sequenceDiagram
@@ -580,6 +590,8 @@ sequenceDiagram
 
 ##### GET '/do/move/:id_partita/export?format={pdf, json}'
 
+La seguente rotta permette di esportare lo storico delle mosse di una partita in formato JSON o PDF. Il client deve essere autenticato e specificare il formato desiderato. Il sistema verifica che la partita esista e che ci siano mosse registrate per quella partita. Se viene scelto il formato JSON, viene restituito un array di mosse con dettagli come origine, destinazione e data. Se viene scelto il formato PDF, il sistema genera un file PDF con lo storico delle mosse che può essere scaricato dal client.
+
 ```mermaid
 sequenceDiagram
     actor C as Client
@@ -635,6 +647,8 @@ sequenceDiagram
 ```
 
 ##### PUT '/game-status/abandon-game/:id_partita'
+
+La seguente rotta permette a un giocatore di abbandonare una partita in corso. Il client deve autenticarsi con un token JWT e inviare l’ID della partita. Il sistema verifica che il giocatore faccia parte della partita e che questa sia ancora in corso. Se il giocatore abbandona, la partita viene segnata come abbandonata e il suo avversario viene dichiarato vincitore. Il giocatore che abbandona perde 0.5 punti, mentre l’avversario guadagna 1 punto.
 
 ```mermaid
 sequenceDiagram
@@ -695,6 +709,8 @@ sequenceDiagram
 
 ##### GET '/game-status/ranking?order={asc, desc}'
 
+La seguente rotta restituisce la classifica dei giocatori, ordinata in base al punteggio totale. Il client può specificare se vuole ordinare la classifica in modo crescente o decrescente. Il sistema autentica l’utente e recupera tutti i giocatori ordinati per punteggio totale. Se nessun giocatore viene trovato, viene restituito un errore.
+
 ```mermaid
 sequenceDiagram
   actor C as Client
@@ -732,6 +748,8 @@ sequenceDiagram
 ```
 
 ##### GET '/game-status/win-certify/:id_partita'
+
+La seguente rotta permette di ottenere un certificato di vittoria per una partita completata. Il client deve essere autenticato e specificare l’ID della partita. Il sistema verifica che la partita esista e che sia stata completata con un vincitore. Se tutto è corretto, viene generato un certificato in formato PDF che include i dettagli della partita (vincitore, avversario, numero di mosse, durata).
 
 ```mermaid
 sequenceDiagram
@@ -789,6 +807,8 @@ sequenceDiagram
 ```
 
 ##### PUT '/admin/recharge'
+
+La seguente rotta consente a un amministratore di ricaricare il saldo dei token di un giocatore. L’amministratore deve essere autenticato e deve fornire l’email del giocatore e il nuovo saldo di token da impostare. Il sistema verifica che l’utente sia un admin, controlla che l’email del giocatore esista e aggiorna il saldo dei token. Se il nuovo saldo è valido (maggiore o uguale a 0), l’operazione viene completata.
 
 ```mermaid
 sequenceDiagram
