@@ -1,6 +1,6 @@
 # 👨🏻‍💻Sviluppo di un sistema backend per la gestione delle partite di dama: progetto per il corso di Programmazione Avanzata
 <div align="center">
-  <img src="./images/Opening.jpg" alt="Logo del progetto" width="320"/>
+  <img src="./images/Dama.jpeg" alt="Logo del progetto" width="400"/>
 </div>
 
 
@@ -20,7 +20,7 @@ Il progetto è stato interamente concepito e realizzato da **Simone Recinelli** 
 - [Progettazione](#progettazione)
      - [Diagramma dei casi d'uso](#diagramma-dei-casi-duso)
 
-## 🏁 Obiettivi di progetto
+## 🎯 Obiettivi di progetto
 Come scritto precedentemente, l'obiettivo principale è realizzare un sistema di back-end per la gestione delle partite di dama.
 Per raggiungere tale scopo, questo va diviso in funzionalità da realizzare:
 - _Autenticazione dell'utente_ mediante token JWT, per la quale è prevista una rotta di login. Il login viene effettuato tramite l'email dell'utente e la sua password. 
@@ -49,17 +49,20 @@ Di seguito viene riportata la struttura delle directory:
 ```
 checkers_pa/
 ├── images/
+├── node_modules/
 ├── src/
 │   ├── controllers/
 │   ├── database/
+│   ├── factories/
 │   ├── helpers/
 │   ├── middleware/
 │   ├── models/
 │   ├── routes/
+│   ├── sequency_diagrams/
 │   └── services/
-│       └── app.ts
-│       └── boardConfiguration.json
-│       └── express.d.ts
+│       ├── app.ts
+│       ├── boardConfiguration.json
+│       ├── express.d.ts
 │       └── global.d.ts
 ├── .dockerignore
 ├── .env
@@ -79,23 +82,24 @@ Il sistema di gestione delle partite di dama sviluppato in questo progetto utili
 
 #### Componenti principali
 
-1.	Server (Node.js con Express)
+1.	**Server (Node.js con Express)**  
 Il server riceve e gestisce le richieste degli utenti tramite API REST. Gli utenti possono autenticarsi, creare partite, eseguire mosse e visualizzare lo storico delle partite. Tutte le interazioni sono protette da un sistema di autenticazione basato su token JWT, che garantisce che solo gli utenti autorizzati possano accedere alle funzionalità protette.
-2.	Database (PostgreSQL)
+2.	**Database (PostgreSQL)**  
 La persistenza dei dati viene gestita tramite un database PostgreSQL, interfacciato con il server tramite l’ORM Sequelize. Le principali entità memorizzate includono:
 •	Giocatori: che mantengono informazioni sugli utenti registrati, il loro saldo di token e il loro punteggio.
 •	Partite: che registrano lo stato delle partite, i partecipanti, il vincitore e il numero di mosse effettuate.
 •	Mosse: che memorizzano ogni singola mossa effettuata durante una partita, con i dettagli sulla posizione e sul giocatore che l’ha eseguita.
-3.	Autenticazione tramite JWT
+3.	**Autenticazione tramite JWT**    
 Gli utenti si autenticano tramite JSON Web Tokens (JWT), ottenuti tramite il login con email e password. Il token JWT viene poi utilizzato per ogni richiesta successiva, permettendo al sistema di riconoscere e autorizzare gli utenti senza dover richiedere nuovamente le credenziali.
-4.	Intelligenza Artificiale (AI)
-Gli utenti possono giocare contro un’intelligenza artificiale (IA) che utilizza la libreria rapid-draughts, una libreria veloce e performante per la gestione del gioco della dama. Questa libreria offre diverse strategie per l’IA, tra cui una strategia casuale (Random Strategy) e una più avanzata basata sull’algoritmo AlphaBeta, configurabile in base alla profondità di ricerca desiderata. Le partite contro l’IA possono essere personalizzate scegliendo tra vari livelli di difficoltà.
-5.	Libreria rapid-draughts
-rapid-draughts è una libreria scritta in TypeScript progettata per offrire un motore di gioco rapido e convalidato per il gioco della dama. Utilizza una rappresentazione della scacchiera tramite bitboards, che consente una generazione rapida delle mosse e un uso minimo della memoria. Le principali caratteristiche della libreria includono:
-•	La gestione dello stato della scacchiera tramite un array 1D di caselle valide.
-•	Il supporto per il tracciamento della cronologia delle mosse.
-•	L’integrazione di strategie di IA, tra cui la strategia Random e la strategia AlphaBeta.
-•	La possibilità di effettuare mosse e aggiornare lo stato della partita in modo efficiente.
+4.	**Intelligenza Artificiale (AI)**    
+Gli utenti possono giocare contro un’intelligenza artificiale (IA) che utilizza la libreria rapid-draughts, una libreria veloce e performante per la gestione del gioco della dama. Questa libreria offre diverse strategie per l’IA, tra cui una strategia casuale (Random Strategy) e una più avanzata basata sull’algoritmo AlphaBeta, configurabile in base alla profondità di ricerca desiderata. Le partite contro l’IA possono essere personalizzate scegliendo tra vari livelli di difficoltà (facile, normale o difficile).
+5.	**Libreria rapid-draughts**   
+Rapid-draughts è una libreria scritta in TypeScript progettata per offrire un motore di gioco rapido e convalidato per il gioco della dama. Utilizza una rappresentazione della scacchiera tramite bitboards, che consente una generazione rapida delle mosse e un uso minimo della memoria.  
+Le principali caratteristiche della libreria includono:
+*	La gestione dello stato della scacchiera tramite un array 1D di caselle valide.
+*	Il supporto per il tracciamento della cronologia delle mosse.
+*	L’integrazione di strategie di IA, tra cui la strategia Random e la strategia AlphaBeta.
+*	La possibilità di effettuare mosse e aggiornare lo stato della partita in modo efficiente.
 Esempio di utilizzo della libreria:
 
 ```typescript
@@ -109,10 +113,10 @@ draughts.move(moves[0]);       // Effettuare una mossa
 
 Il sistema è basato su un’architettura a livelli, che semplifica l’interazione tra i diversi componenti. Le richieste inviate dagli utenti vengono elaborate nel seguente modo:
 
-	1.	Autenticazione: il sistema verifica il token JWT per autenticare l’utente.
-	2.	Gestione delle partite: l’utente può creare nuove partite contro altri utenti o contro l’IA, con la gestione delle difficoltà configurabili.
-	3.	Esecuzione delle mosse: il sistema valida ogni mossa, assicurandosi che sia conforme alle regole di gioco, e aggiorna lo stato della scacchiera e delle partite.
-	4.	IA: se l’utente gioca contro l’IA, il sistema chiama la strategia selezionata (casuale o AlphaBeta) per eseguire le mosse dell’IA.
+1.	**Autenticazione**: il sistema verifica il token JWT per autenticare l’utente.
+2.	**Gestione delle partite**: l’utente può creare nuove partite contro altri utenti o contro l’IA, con la gestione delle difficoltà configurabili.
+3.  **Esecuzione delle mosse**: il sistema valida ogni mossa, assicurandosi che sia conforme alle regole di gioco, e aggiorna lo stato della scacchiera e delle partite.
+4.	**IA**: se l’utente gioca contro l’IA, il sistema chiama la strategia selezionata (casuale o AlphaBeta) per eseguire le mosse dell’IA.
 
 ### 📊 Diagramma dei casi d'uso
 
@@ -134,9 +138,9 @@ Nel progetto sono stati applicati diversi pattern architetturali e design patter
 
 Il pattern Model-View-Controller (MVC) è un’architettura ampiamente utilizzata per separare le responsabilità all’interno dell’applicazione. In questo progetto, è stato implementato con una particolare attenzione alla gestione dei dati e delle interazioni tra utenti e sistema, ma senza una vera componente View, in quanto il progetto è un backend. Nel contesto di questo sistema, la struttura MVC è la seguente:
 
-	•	Model: Implementato attraverso Sequelize, un ORM che mappa gli oggetti del database in modelli JavaScript/TypeScript. I modelli definiscono le entità come Giocatore, Partita, Mossa, che rappresentano i dati e contengono la logica di gestione del database. I modelli sono il cuore del livello dati, gestiscono lo stato e riflettono la struttura del database.
-	•	Controller: I controller si occupano di gestire le richieste HTTP e coordinare la logica del servizio. Essi fungono da intermediari tra i modelli e i servizi. In questo progetto, ogni controller invoca le operazioni sui servizi per eseguire la logica aziendale, ricevere i dati e restituire le risposte appropriate. Ad esempio, il moveController gestisce l’esecuzione delle mosse e l’interazione con il servizio delle mosse.
-	•	Service: Anche se non c’è una componente View, la logica è spostata sui Service che incapsulano le operazioni business-critical. I servizi lavorano a stretto contatto con i modelli per eseguire operazioni come la creazione di partite, l’esecuzione di mosse, la gestione del punteggio, ecc.
+* **Model**: Implementato attraverso Sequelize, un ORM che mappa gli oggetti del database in modelli JavaScript/TypeScript. I modelli definiscono le entità come Giocatore, Partita, Mossa, che rappresentano i dati e contengono la logica di gestione del database. I modelli sono il cuore del livello dati, gestiscono lo stato e riflettono la struttura del database.
+* **Controller**: I controller si occupano di gestire le richieste HTTP e coordinare la logica del servizio. Essi fungono da intermediari tra i modelli e i servizi. In questo progetto, ogni controller invoca le operazioni sui servizi per eseguire la logica aziendale, ricevere i dati e restituire le risposte appropriate. Ad esempio, il moveController gestisce l’esecuzione delle mosse e l’interazione con il servizio delle mosse.
+* **Service**: Anche se non c’è una componente View, la logica è spostata sui Service che incapsulano le operazioni business-critical. I servizi lavorano a stretto contatto con i modelli per eseguire operazioni come la creazione di partite, l’esecuzione di mosse, la gestione del punteggio, ecc.
 
 #### Data Access Object (DAO)
 
@@ -148,9 +152,9 @@ Il pattern Chain of Responsibility (COR) è utilizzato attraverso i middleware d
 
 Alcuni esempi concreti di middleware implementati includono:
 
-	•	Middleware di autenticazione: Verifica che un utente sia autenticato tramite un token JWT. Se l’utente non è autenticato, la catena viene interrotta e viene restituito un errore.
-	•	Middleware di validazione: Verifica che i parametri della richiesta siano validi prima di procedere. Se la richiesta è invalida, il middleware restituisce una risposta di errore.
-	•	Middleware di gestione degli errori: Cattura gli errori lungo la catena e restituisce una risposta d’errore formattata.
+* **Middleware di autenticazione**: Verifica che un utente sia autenticato tramite un token JWT. Se l’utente non è autenticato, la catena viene interrotta e viene restituito un errore.
+* **Middleware di validazione**: Verifica che i parametri della richiesta siano validi prima di procedere. Se la richiesta è invalida, il middleware restituisce una risposta di errore.
+* **Middleware di gestione degli errori**: Cattura gli errori lungo la catena e restituisce una risposta d’errore formattata.
 
 Questo pattern assicura che ogni richiesta sia gestita in modo efficiente e modulare, permettendo l’aggiunta o la rimozione di funzionalità senza modificare il core dell’applicazione.
 
@@ -160,8 +164,8 @@ Il pattern Factory viene utilizzato per gestire la creazione di errori personali
 
 L’uso della Factory consente di:
 
-	•	Creare errori con messaggi personalizzati basati sul tipo di eccezione.
-	•	Integrare facilmente i codici di stato HTTP tramite la libreria http-status-codes, fornendo una gestione uniforme degli errori.
+* Creare errori con messaggi personalizzati basati sul tipo di eccezione.
+* Integrare facilmente i codici di stato HTTP tramite la libreria http-status-codes, fornendo una gestione uniforme degli errori.
 
 #### Singleton
 
