@@ -74,6 +74,7 @@ checkers_pa/
 ├── package-lock.json
 ├── README.md
 └── tsconfig.json
+
 ```
 
 ### 🏛️Architettura dei servizi
