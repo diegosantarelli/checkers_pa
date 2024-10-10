@@ -212,6 +212,63 @@ graph TD
 
 #### 🗂️ Diagramma E-R
 
+### Schema E-R
+
+```mermaid
+erDiagram
+  GIOCATORE {
+    int id_giocatore PK
+    string nome
+    string cognome
+    string email
+    string hash
+    float token_residuo
+    float punteggio_totale
+    string ruolo
+  }
+
+  PARTITA {
+    int id_partita PK
+    int id_giocatore1 FK
+    int id_giocatore2 FK
+    string livello_IA
+    string stato
+    string tipo
+    json tavola
+    datetime data_inizio
+    int id_vincitore FK
+    int mosse_totali
+    int tempo_totale
+  }
+
+  MOSSA {
+    int id_mossa PK
+    int numero_mossa
+    json tavola
+    string pezzo
+    int id_partita FK
+    int id_giocatore FK
+    string from_position
+    string to_position
+    datetime data
+  }
+
+  MOSSAIA {
+    int id_mossa PK
+    int numero_mossa
+    json tavola
+    string pezzo
+    int id_partita FK
+    datetime data
+  }
+
+  GIOCATORE ||--o{ PARTITA : "gioca"
+  GIOCATORE ||--o{ MOSSA : "fa"
+  PARTITA ||--o{ MOSSA : "ha"
+  PARTITA ||--o{ MOSSAIA : "ha"
+  ```
+
+
 Il diagramma E-R (Entity-Relationship) rappresenta una visione concettuale del database, mostrando le entità coinvolte e le relazioni tra di esse. In questo progetto, il diagramma E-R è stato utilizzato per modellare le entità principali coinvolte nella gestione delle partite di dama, come i giocatori, le partite, le mosse e l’intelligenza artificiale. Ogni entità è stata progettata con specifiche proprietà e regole, garantendo un’adeguata gestione dei dati e una chiara rappresentazione delle interazioni tra i vari componenti del sistema.
 
 L’obiettivo del diagramma è illustrare in maniera chiara e sintetica come le informazioni vengono organizzate e come le entità interagiscono tra loro. Ad esempio:
