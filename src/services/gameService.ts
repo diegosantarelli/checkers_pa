@@ -7,13 +7,24 @@ import {
 } from 'rapid-draughts/english';
 import { Op } from "sequelize";
 import { StatusCodes } from 'http-status-codes';
-import { format } from "date-fns"; // Importa date-fns per la formattazione della data
+import { format } from "date-fns";
 
 const Giocatore = initGiocatore(sequelize);
 const Partita = initPartita(sequelize);
 
 /**
- * Interfaccia per il risultato di creazione di una partita PvP.
+ * @interface creaPartitaPvP
+ * @description Interfaccia per il risultato di creazione di una partita tra due giocatori (PvP).
+ * @property {boolean} success - Indica se la creazione della partita è avvenuta con successo.
+ * @property {number} statusCode - Codice di stato HTTP.
+ * @property {string} message - Messaggio descrittivo.
+ * @property {Object} data - Dettagli della partita creata.
+ * @property {number} data.id_partita - ID della partita creata.
+ * @property {number} data.id_giocatore1 - ID del giocatore 1.
+ * @property {number|null} data.id_giocatore2 - ID del giocatore 2 (null se la partita è contro l'IA).
+ * @property {string} data.stato - Stato della partita.
+ * @property {string} data.tavola - Stato iniziale della tavola di gioco.
+ * @property {string} data.data_inizio - Data di inizio della partita.
  */
 interface creaPartitaPvP {
     success: boolean;
@@ -30,7 +41,16 @@ interface creaPartitaPvP {
 }
 
 /**
- * Interfaccia per il risultato di creazione di una partita PvAI.
+ * @interface creaPartitaPvAI
+ * @description Interfaccia per il risultato di creazione di una partita contro l'intelligenza artificiale (PvAI).
+ * @property {boolean} success - Indica se la creazione della partita è avvenuta con successo.
+ * @property {number} statusCode - Codice di stato HTTP.
+ * @property {string} message - Messaggio descrittivo.
+ * @property {Object} data - Dettagli della partita creata.
+ * @property {number} data.id_partita - ID della partita creata.
+ * @property {string} data.stato - Stato della partita.
+ * @property {number} data.id_giocatore1 - ID del giocatore 1.
+ * @property {string} data.data_inizio - Data di inizio della partita.
  */
 interface creaPartitaPvAI {
     success: boolean;
@@ -45,20 +65,45 @@ interface creaPartitaPvAI {
 }
 
 /**
- * Funzione per formattare una data nel formato YYYY-MM-DD.
+ * @function formatDate
+ * @description Funzione per formattare una data nel formato YYYY-MM-DD.
+ *
+ * @param {Date} date - La data da formattare.
+ * @returns {string} - Ritorna la data formattata nel formato YYYY-MM-DD.
  */
 const formatDate = (date: Date): string => {
     return format(date, 'yyyy-MM-dd');
 };
 
 /**
- * Trova l'ID del giocatore in base all'email.
+ * @function getIdGiocatore
+ * @description Funzione che trova l'ID di un giocatore basandosi sull'email fornita.
+ *
+ * @param {string} email - L'email del giocatore.
+ * @returns {Promise<number|null>} - Restituisce l'ID del giocatore o null se non viene trovato.
  */
 const getIdGiocatore = async (email: string): Promise<number | null> => {
     const giocatore = await Giocatore.findOne({ where: { email } });
     return giocatore ? giocatore.id_giocatore : null;
 };
 
+/**
+ * @function createGame
+ * @description Funzione per creare una nuova partita di dama.
+ * La partita può essere tra due giocatori o contro l'intelligenza artificiale.
+ *
+ * @param {number} id_giocatore1 - L'ID del giocatore 1 (creatore della partita).
+ * @param {string|null} email_giocatore2 - L'email del giocatore 2 (se la partita è PvP).
+ * Se la partita è contro l'IA, questo parametro è null.
+ * @param {"Amichevole" | "Normale" | "Competitiva"} tipo - Il tipo di partita (Amichevole, Normale o Competitiva).
+ * @param {"facile" | "normale" | "difficile" | "estrema" | null} livello_IA - Il livello dell'intelligenza artificiale
+ * (se applicabile).
+ *
+ * @returns {Promise<creaPartitaPvP | creaPartitaPvAI>} - Ritorna i dettagli della partita creata.
+ *
+ * @throws {HttpException} - Restituisce un errore se il giocatore non ha abbastanza crediti, se ha già una partita in corso,
+ * o se si verificano altri errori.
+ */
 export const createGame = async (
     id_giocatore1: number,
     email_giocatore2: string | null,
@@ -68,18 +113,15 @@ export const createGame = async (
     const costoCreazione = 0.45;
 
     try {
-        // Verifica che il giocatore esista e abbia il ruolo corretto
         const giocatore1 = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore1) {
             throw ErrorFactory.createError('FORBIDDEN', 'Il giocatore non esiste!');
         }
 
-        // Verifica che il giocatore abbia abbastanza crediti
         if (giocatore1.token_residuo <= 0) {
             throw ErrorFactory.createError('UNAUTHORIZED', 'Token terminati. Non puoi effettuare questa operazione.');
         }
 
-        // Verifica se il giocatore ha già una partita in corso
         const partitaInCorsoGiocatore1 = await Partita.findOne({
             where: {
                 [Op.or]: [
@@ -91,13 +133,11 @@ export const createGame = async (
         });
 
         if (partitaInCorsoGiocatore1) {
-            throw ErrorFactory.createError('BAD_REQUEST', 'Hai già una partita in corso. Devi completarla o abbandonarla prima di crearne una nuova.');
+            throw ErrorFactory.createError('BAD_REQUEST', 'Hai già una partita in corso.');
         }
 
-        // Inizializza id_giocatore2 come null
         let id_giocatore2: number | null = null;
 
-        // Verifica se il secondo giocatore ha già una partita in corso
         if (email_giocatore2) {
             id_giocatore2 = await getIdGiocatore(email_giocatore2);
             if (!id_giocatore2) {
@@ -119,30 +159,6 @@ export const createGame = async (
             }
         }
 
-        // Validazione del tipo e del livello IA
-        const tipiValidi = ["Amichevole", "Normale", "Competitiva"];
-        const livelliValidi = ["facile", "normale", "difficile", "estrema"];
-
-        if (!tipiValidi.includes(tipo)) {
-            throw ErrorFactory.createError('BAD_REQUEST', `Il tipo ${tipo} non è valido. I tipi validi sono: ${tipiValidi.join(", ")}`);
-        }
-
-        if (livello_IA && !livelliValidi.includes(livello_IA)) {
-            throw ErrorFactory.createError('BAD_REQUEST', `Il livello IA ${livello_IA} non è valido. I livelli validi sono: ${livelliValidi.join(", ")}`);
-        }
-
-        // Verifica che l'utente non possa sfidare sé stesso
-        if (email_giocatore2 && email_giocatore2 === giocatore1.email) {
-            throw ErrorFactory.createError('BAD_REQUEST', "Non puoi sfidare te stesso.");
-        }
-
-        // Verifica credito
-        const creditoGiocatore1 = await verifyCredit(id_giocatore1);
-        if (creditoGiocatore1 < costoCreazione) {
-            throw ErrorFactory.createError('UNAUTHORIZED', 'Token terminati. Non puoi effettuare questa operazione.');
-        }
-
-        // Impostazione iniziale della tavola di gioco
         const draughts = Draughts.setup();
         const initialBoard = draughts.board.map((square: any, index: number) => {
             if (square && square.dark) {
@@ -157,10 +173,9 @@ export const createGame = async (
 
         const tavola = JSON.stringify({ initialBoard });
 
-        // Creazione della partita
         const partita = await Partita.create({
             id_giocatore1,
-            id_giocatore2,  // Può essere null se la partita è contro l'IA
+            id_giocatore2,
             stato: 'in corso',
             tipo,
             livello_IA,
@@ -168,10 +183,8 @@ export const createGame = async (
             data_inizio: new Date(),
         });
 
-        // Addebita crediti al giocatore
         await removeCredits(id_giocatore1, costoCreazione);
 
-        // Risposta per partita contro IA
         if (livello_IA) {
             return {
                 success: true,
@@ -186,7 +199,6 @@ export const createGame = async (
             };
         }
 
-        // Risposta per partita PvP
         return {
             success: true,
             statusCode: StatusCodes.CREATED,
@@ -196,6 +208,7 @@ export const createGame = async (
                 id_giocatore1: partita.id_giocatore1,
                 id_giocatore2: partita.id_giocatore2,
                 stato: partita.stato,
+                tavola,
                 data_inizio: formatDate(partita.data_inizio),
             }
         };
@@ -204,8 +217,15 @@ export const createGame = async (
         throw error;
     }
 };
+
 /**
- * Verifica i crediti rimanenti del giocatore.
+ * @function verifyCredit
+ * @description Verifica i crediti rimanenti di un giocatore.
+ *
+ * @param {number} id_giocatore1 - L'ID del giocatore di cui verificare i crediti.
+ * @returns {Promise<number>} - Restituisce il numero di crediti rimanenti.
+ *
+ * @throws {HttpException} - Restituisce un errore se il giocatore non viene trovato.
  */
 const verifyCredit = async (id_giocatore1: number): Promise<number> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);
@@ -216,7 +236,14 @@ const verifyCredit = async (id_giocatore1: number): Promise<number> => {
 };
 
 /**
- * Addebita i crediti al giocatore.
+ * @function removeCredits
+ * @description Addebita un importo di crediti al giocatore specificato.
+ *
+ * @param {number} id_giocatore1 - L'ID del giocatore.
+ * @param {number} importo - L'importo di crediti da addebitare.
+ * @returns {Promise<void>} - Restituisce una `Promise` vuota al termine dell'operazione.
+ *
+ * @throws {HttpException} - Restituisce un errore se il giocatore non viene trovato.
  */
 const removeCredits = async (id_giocatore1: number, importo: number): Promise<void> => {
     const giocatore = await Giocatore.findByPk(id_giocatore1);

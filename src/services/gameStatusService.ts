@@ -6,10 +6,20 @@ import { format } from 'date-fns';
 import HttpException from "../helpers/errorHandler";
 
 /**
- * Servizio per la gestione dello stato delle partite, inclusa la valutazione e l'abbandono delle partite.
+ * @class GameStatusService
+ * @description Servizio per la gestione dello stato delle partite, inclusa la valutazione,
+ * l'abbandono delle partite e la generazione di certificati di vittoria.
  */
 class GameStatusService {
-    // Metodo esistente: valutaPartita
+    /**
+     * Valuta lo stato di una partita e restituisce il risultato.
+     *
+     * @param {number} id_partita - L'ID della partita da valutare.
+     * @param {number} id_giocatore - L'ID del giocatore che richiede la valutazione.
+     * @returns {Promise<{ success: boolean, statusCode: number, risultato: string }>} - Un oggetto con lo stato della partita.
+     *
+     * @throws {HttpException} - Se la partita o il vincitore non vengono trovati.
+     */
     public static async evaluateGame(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
@@ -50,6 +60,15 @@ class GameStatusService {
         }
     }
 
+    /**
+     * Permette a un giocatore di abbandonare una partita in corso.
+     *
+     * @param {number} id_partita - L'ID della partita da abbandonare.
+     * @param {number} id_giocatore - L'ID del giocatore che vuole abbandonare.
+     * @returns {Promise<{ success: boolean, statusCode: number, risultato: string }>} - Un oggetto con lo stato del risultato dell'abbandono.
+     *
+     * @throws {HttpException} - Se la partita non viene trovata o il giocatore non fa parte della partita.
+     */
     public static async abandonGame(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
@@ -104,6 +123,14 @@ class GameStatusService {
         }
     }
 
+    /**
+     * Restituisce la classifica dei giocatori ordinata per punteggio.
+     *
+     * @param {string} order - L'ordine di ordinamento (ASC o DESC).
+     * @returns {Promise<object[]>} - Un array con i dettagli della classifica dei giocatori.
+     *
+     * @throws {HttpException} - Se non vengono trovati giocatori.
+     */
     public static async playersRanking(order: string = 'ASC'): Promise<object[]> {
         try {
             const giocatori = await Giocatore.findAll({
@@ -121,6 +148,14 @@ class GameStatusService {
         }
     }
 
+    /**
+     * Restituisce i dettagli di una partita specifica, incluso il vincitore e l'avversario.
+     *
+     * @param {number} id_partita - L'ID della partita da ottenere.
+     * @returns {Promise<any>} - I dettagli della partita.
+     *
+     * @throws {HttpException} - Se la partita o i giocatori non vengono trovati.
+     */
     public static async getGameDetails(id_partita: number): Promise<any> {
         const partita = await Partita.findByPk(id_partita, {
             attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio'],
@@ -171,6 +206,14 @@ class GameStatusService {
         };
     }
 
+    /**
+     * Genera un certificato di vittoria in formato PDF per una partita completata.
+     *
+     * @param {number} id_partita - L'ID della partita per cui generare il certificato.
+     * @returns {Promise<Buffer>} - Un buffer con i dati del certificato PDF.
+     *
+     * @throws {HttpException} - Se la partita o i dati necessari non vengono trovati.
+     */
     public static async getVictoryCertify(id_partita: number): Promise<Buffer> {
         const partita = await this.getGameDetails(id_partita);
 
@@ -239,6 +282,14 @@ class GameStatusService {
         });
     }
 
+    /**
+     * Gestisce gli errori interni nel servizio.
+     *
+     * @private
+     * @param {unknown} error - L'errore catturato.
+     * @param {string} defaultMessage - Il messaggio di default per l'errore.
+     * @throws {HttpException} - Lancia un errore HTTP se necessario.
+     */
     private static handleError(error: unknown, defaultMessage: string): never {
         if (error instanceof HttpException) {
             throw error;

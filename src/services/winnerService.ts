@@ -1,23 +1,32 @@
-import {Op, where, fn, col} from 'sequelize';
+import { Op, where, fn, col } from 'sequelize';
 import { Partita, Giocatore } from '../models';
 import ErrorFactory from '../factories/errorFactory';
 import { isValid, parseISO, format } from 'date-fns';
 import { StatusCodes } from 'http-status-codes';
 import HttpException from "../helpers/errorHandler";
 
+/**
+ * @class WinnerService
+ * @description Servizio per la gestione delle partite completate giocate da un giocatore, con possibilità di filtrare per data.
+ */
 class WinnerService {
 
     /**
-     * @function listaPartiteGiocate
+     * @function getMatchList
      * @summary Recupera l'elenco delle partite completate giocate da un giocatore.
-     * @description Questa funzione restituisce un elenco delle partite completate giocate da un giocatore specifico. È possibile filtrare i risultati fornendo una data specifica. La funzione verifica anche la validità della data e gestisce eccezioni specifiche.
+     * @description Questa funzione restituisce l'elenco delle partite completate giocate da un giocatore specifico
+     * È possibile filtrare i risultati fornendo una data specifica. La funzione gestisce la validità della data e
+     * lancia eccezioni in caso di errori.
      *
      * @param {number} id_giocatore - L'ID del giocatore per cui recuperare le partite completate.
-     * @param {string} [startDate] - Data opzionale in formato ISO (YYYY-MM-DD) per filtrare le partite giocate a partire da quella data.
+     * @param {string} [startDate] - (Opzionale) Data in formato ISO (YYYY-MM-DD) per filtrare le partite
+     * a partire da quella data.
      *
-     * @throws {HttpException} - Se si verificano errori durante la richiesta, viene generata un'eccezione gestita dal middleware di errore. Lancia un'eccezione se la data non è valida o se non ci sono partite trovate.
+     * @returns {Promise<object>} - Un oggetto che contiene lo stato della richiesta, un messaggio
+     * e un array di oggetti rappresentanti le partite giocate.
      *
-     * @returns {Promise<object>} - Restituisce un oggetto contenente lo status della richiesta, un messaggio e una lista di oggetti rappresentanti le partite completate giocate, con informazioni su stato, numero di mosse, risultato e data di inizio.
+     * @throws {HttpException} - Se il giocatore non viene trovato, la data non è valida o non vengono trovate partite.
+     * Gestisce anche eventuali errori interni.
      */
     public static async getMatchList(id_giocatore: number, startDate?: string) {
         try {
