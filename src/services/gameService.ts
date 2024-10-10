@@ -59,9 +59,6 @@ const getIdGiocatore = async (email: string): Promise<number | null> => {
     return giocatore ? giocatore.id_giocatore : null;
 };
 
-/**
- * Crea una partita PvP o contro IA.
- */
 export const createGame = async (
     id_giocatore1: number,
     email_giocatore2: string | null,
@@ -83,7 +80,7 @@ export const createGame = async (
         }
 
         // Verifica se il giocatore ha già una partita in corso
-        const partitaInCorso = await Partita.findOne({
+        const partitaInCorsoGiocatore1 = await Partita.findOne({
             where: {
                 [Op.or]: [
                     { id_giocatore1: id_giocatore1 },
@@ -93,8 +90,33 @@ export const createGame = async (
             }
         });
 
-        if (partitaInCorso) {
+        if (partitaInCorsoGiocatore1) {
             throw ErrorFactory.createError('BAD_REQUEST', 'Hai già una partita in corso. Devi completarla o abbandonarla prima di crearne una nuova.');
+        }
+
+        // Inizializza id_giocatore2 come null
+        let id_giocatore2: number | null = null;
+
+        // Verifica se il secondo giocatore ha già una partita in corso
+        if (email_giocatore2) {
+            id_giocatore2 = await getIdGiocatore(email_giocatore2);
+            if (!id_giocatore2) {
+                throw ErrorFactory.createError('NOT_FOUND', `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
+            }
+
+            const partitaInCorsoGiocatore2 = await Partita.findOne({
+                where: {
+                    [Op.or]: [
+                        { id_giocatore1: id_giocatore2 },
+                        { id_giocatore2: id_giocatore2 }
+                    ],
+                    stato: 'in corso'
+                }
+            });
+
+            if (partitaInCorsoGiocatore2) {
+                throw ErrorFactory.createError('BAD_REQUEST', `Il giocatore con email ${email_giocatore2} ha già una partita in corso. Deve completarla o abbandonarla prima di poter giocare una nuova partita.`);
+            }
         }
 
         // Validazione del tipo e del livello IA
@@ -120,20 +142,6 @@ export const createGame = async (
             throw ErrorFactory.createError('UNAUTHORIZED', 'Token terminati. Non puoi effettuare questa operazione.');
         }
 
-        // Trova l'ID del secondo giocatore, se specificato
-        let id_giocatore2: number | null = null;
-        if (email_giocatore2) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email_giocatore2)) {
-                throw ErrorFactory.createError('BAD_REQUEST', `Email ${email_giocatore2} non è valida. Usa un formato email valido.`);
-            }
-
-            id_giocatore2 = await getIdGiocatore(email_giocatore2);
-            if (!id_giocatore2) {
-                throw ErrorFactory.createError('NOT_FOUND', `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
-            }
-        }
-
         // Impostazione iniziale della tavola di gioco
         const draughts = Draughts.setup();
         const initialBoard = draughts.board.map((square: any, index: number) => {
@@ -152,7 +160,7 @@ export const createGame = async (
         // Creazione della partita
         const partita = await Partita.create({
             id_giocatore1,
-            id_giocatore2,
+            id_giocatore2,  // Può essere null se la partita è contro l'IA
             stato: 'in corso',
             tipo,
             livello_IA,
@@ -196,7 +204,6 @@ export const createGame = async (
         throw error;
     }
 };
-
 /**
  * Verifica i crediti rimanenti del giocatore.
  */
