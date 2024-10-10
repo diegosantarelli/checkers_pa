@@ -1,9 +1,9 @@
 import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
 
-
 /**
  * @interface PartitaAttributes
  * @description Definisce gli attributi della tabella `Partita`.
+ *
  * @property {number} id_partita - ID univoco della partita.
  * @property {number} id_giocatore1 - ID del primo giocatore.
  * @property {number | null} id_giocatore2 - ID del secondo giocatore (può essere null se si gioca contro l'IA).
@@ -27,7 +27,7 @@ interface PartitaAttributes {
     data_inizio: Date;
     id_vincitore: number | null;
     mosse_totali: number;
-    tempo_totale: number;  // Nuovo campo per il tempo totale in secondi
+    tempo_totale: number;
 }
 
 /**
@@ -38,8 +38,9 @@ interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_part
 
 /**
  * @class Partita
- * @extends Model<PartitaAttributes, PartitaCreationAttributes>
+ * @extends {Model<PartitaAttributes, PartitaCreationAttributes>}
  * @description Rappresenta il modello Sequelize per la tabella `Partita`.
+ * Ogni istanza della classe `Partita` rappresenta una partita di dama.
  */
 class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implements PartitaAttributes {
     public id_partita!: number;
@@ -52,11 +53,12 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
     public data_inizio!: Date;
     public id_vincitore!: number | null;
     public mosse_totali!: number;
-    public tempo_totale!: number;  // Nuovo campo
+    public tempo_totale!: number;
 
     /**
      * @method associate
      * @description Definisce le associazioni del modello `Partita` con altri modelli.
+     * Associa il modello `Partita` ai modelli `Giocatore` e `Mossa`.
      * @param {any} models - Gli altri modelli Sequelize.
      */
     static associate(models: any) {
@@ -69,7 +71,10 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
 }
 
 /**
- * Inizializza il modello `Partita`.
+ * @function
+ * @name initPartita
+ * @description Inizializza il modello `Partita` con gli attributi definiti e le opzioni di configurazione di Sequelize.
+ *
  * @param {Sequelize} sequelize - L'istanza di Sequelize utilizzata per la connessione al database.
  * @returns {Partita} - Il modello `Partita` inizializzato.
  */
@@ -132,7 +137,7 @@ export default (sequelize: Sequelize) => {
             defaultValue: 0,
         },
         tempo_totale: {
-            type: DataTypes.INTEGER,  // Nuovo campo per il tempo totale
+            type: DataTypes.INTEGER,
             allowNull: false,
             defaultValue: 0,
         },

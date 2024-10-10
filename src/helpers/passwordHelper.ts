@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 
 /**
  * @function verifyPassword
- * @description Verifica se una password in chiaro corrisponde a una password crittografata.
+ * @description Verifica se una password in chiaro corrisponde a una password crittografata utilizzando bcrypt.
  *
  * @param {string} password - La password in chiaro inserita dall'utente.
  * @param {string} hashedPassword - La password crittografata salvata nel database.

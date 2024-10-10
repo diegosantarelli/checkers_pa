@@ -2,16 +2,27 @@ import HttpException from '../helpers/errorHandler';
 import { StatusCodes } from 'http-status-codes';
 
 /**
- * @class ErrorFactory
- * @description Factory per creare errori HttpException personalizzati.
+ * @module ErrorFactory
+ * @description Factory per creare errori `HttpException` personalizzati.
+ *
+ * Questo modulo fornisce una classe `ErrorFactory` che consente di creare istanze di `HttpException`
+ * basate su tipi di errore predefiniti, implementando il pattern Factory.
  */
 class ErrorFactory {
     /**
-     * Crea un'istanza di HttpException in base al tipo di errore specificato.
+     * Crea un'istanza di `HttpException` in base al tipo di errore specificato.
      *
-     * @param {string} type - Il tipo di errore da creare.
-     * @param {string} message - Il messaggio di errore.
+     * @static
+     * @param {string} type - Il tipo di errore da creare. Deve essere uno dei seguenti:
+     *   - `'NOT_FOUND'`
+     *   - `'UNAUTHORIZED'`
+     *   - `'FORBIDDEN'`
+     *   - `'BAD_REQUEST'`
+     *   - `'INTERNAL_SERVER_ERROR'`
+     * @param {string} [message] - Il messaggio di errore personalizzato. Se non fornito, viene utilizzato un messaggio di default.
      * @returns {HttpException} - L'istanza di errore creata.
+     *
+     * @throws {HttpException} - Lancia un'istanza di `HttpException` con il codice di stato e il messaggio specificati.
      */
     static createError(type: string, message: string): HttpException {
         switch (type) {

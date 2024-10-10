@@ -2,8 +2,9 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 
 /**
  * @class MossaIA
- * @extends Model
+ * @extends {Model}
  * @classdesc Modello che rappresenta le mosse effettuate dall'intelligenza artificiale (IA) in una partita di dama.
+ * Ogni istanza della classe rappresenta una singola mossa eseguita dall'IA durante una partita.
  */
 export default (sequelize: Sequelize) => {
     /**
@@ -13,8 +14,9 @@ export default (sequelize: Sequelize) => {
     class MossaIA extends Model {
         /**
          * @method associate
-         * @description Metodo che definisce le associazioni tra il modello MossaIA e gli altri modelli.
-         * @param models - Gli altri modelli Sequelize con cui è associato il modello MossaIA.
+         * @description Metodo che definisce le associazioni tra il modello MossaIA e altri modelli.
+         * Il modello MossaIA è associato al modello Partita.
+         * @param {any} models - Gli altri modelli Sequelize con cui è associato il modello MossaIA.
          */
         static associate(models: any) {
             MossaIA.belongsTo(models.Partita, {
@@ -26,6 +28,8 @@ export default (sequelize: Sequelize) => {
 
     /**
      * @typedef {Object} MossaIAAttributes
+     * @description Attributi del modello "MossaIA", che rappresentano una mossa eseguita dall'intelligenza artificiale in una partita di dama.
+     *
      * @property {number} id_mossa - ID univoco della mossa IA.
      * @property {number} numero_mossa - Numero sequenziale della mossa IA.
      * @property {object} tavola - Stato della tavola dopo la mossa (in formato JSON).
@@ -37,8 +41,8 @@ export default (sequelize: Sequelize) => {
     /**
      * @function init
      * @memberof MossaIA
-     * @description Inizializza il modello MossaIA con i suoi attributi e le relative configurazioni.
-     * @param sequelize - L'istanza di Sequelize utilizzata per l'inizializzazione del modello.
+     * @description Inizializza il modello MossaIA con i suoi attributi e le configurazioni di Sequelize.
+     * @param {Sequelize} sequelize - L'istanza di Sequelize utilizzata per l'inizializzazione del modello.
      */
     MossaIA.init({
         id_mossa: {

@@ -5,43 +5,33 @@ import { authenticateJWT } from '../middleware/auth';
 const router = express.Router();
 
 /**
- * Rotta per effettuare una mossa nel gioco.
- *
- * @route POST /mossa
- * @middleware authenticateJWT - Middleware che autentica l'utente tramite JWT.
- * @controller moveController.move - Gestisce la logica di una mossa nel gioco.
- *
- * @description
- * Questa rotta permette a un giocatore autenticato di effettuare una mossa.
- * L'autenticazione tramite JWT è necessaria per assicurarsi che solo i giocatori autenticati
- * possano fare una mossa.
+ * @route POST /move
+ * @description Rotta per effettuare una mossa nel gioco.
+ * Permette a un giocatore autenticato di effettuare una mossa durante una partita.
  * La logica della mossa viene gestita dal controller `moveController.move`.
  *
- * @returns {Promise<void>} - Restituisce lo stato della partita dopo aver effettuato la mossa.
+ * @middleware authenticateJWT - Middleware che autentica l'utente tramite JWT.
  *
- * @example
- * // Esempio di richiesta JSON:
- * {
- *   "id_partita": 1,
- *   "from": "A7",
- *    "to": "E7"
- * }
+ * @returns {Promise<void>} - Restituisce lo stato aggiornato della partita dopo la mossa effettuata.
  *
- * // Esempio di risposta:
- * {
- *     "success": true,
- *     "statusCode": 201,
- *     "message": "Mossa eseguita correttamente",
- *     "data": {
- *         "move": "Hai mosso un pezzo singolo di colore nero da A7 a E7. L'IA ha mosso un pezzo singolo di colore nero da F6 a B6."
- *     }
- * }
+ * @throws {HttpException} - Restituisce 401 se l'utente non è autenticato, 404 se la partita non viene trovata,
+ * o 500 per errori interni.
  */
 router.post('/move', authenticateJWT, moveController.move);
 
 /**
- * Rotta per esportare lo storico delle mosse di una partita.
- * Supporta i formati JSON e PDF.
+ * @route GET /move/:id_partita/export
+ * @description Rotta per esportare lo storico delle mosse di una partita.
+ * Supporta i formati JSON e PDF. Il formato può essere specificato tramite il parametro `format` nella query.
+ *
+ * @param {number} id_partita - L'ID della partita di cui esportare lo storico delle mosse.
+ * @queryparam {string} [format=json] - Parametro opzionale per specificare il formato di esportazione. Può essere "json" o "pdf".
+ * @middleware authenticateJWT - Middleware che autentica l'utente tramite JWT.
+ *
+ * @returns {Promise<void>} - Restituisce lo storico delle mosse della partita nel formato richiesto.
+ *
+ * @throws {HttpException} - Restituisce 404 se la partita non viene trovata, 500 per errori interni,
+ * o un errore se il formato non è supportato.
  */
 router.get('/move/:id_partita/export', authenticateJWT, moveController.exportMoveHistory);
 

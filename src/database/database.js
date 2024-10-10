@@ -12,12 +12,28 @@ console.log('DB Config:', {
 
 /**
  * @module DatabaseConnection
- * @description Configura e stabilisce la connessione a un database Postgres utilizzando Sequelize e le variabili d'ambiente.
+ * @description Configura e stabilisce la connessione a un database Postgres utilizzando Sequelize
+ * e le variabili d'ambiente definite nel file `.env`.
  */
 class DatabaseConnection {
+    /**
+     * @static
+     * @property {Sequelize} instance - L'istanza singleton di Sequelize.
+     * @description Istanza unica di Sequelize che rappresenta la connessione al database.
+     */
     static instance;
 
-    // Metodo per ottenere l'istanza del database
+    /**
+     * Restituisce l'istanza singleton della connessione al database.
+     *
+     * @function getInstance
+     * @memberof DatabaseConnection
+     *
+     * @returns {Sequelize} - L'istanza della connessione Sequelize.
+     *
+     * @description Se l'istanza non esiste ancora, viene creata e configurata utilizzando le variabili d'ambiente.
+     * Altrimenti, viene restituita l'istanza esistente.
+     */
     static getInstance() {
         if (!DatabaseConnection.instance) {
             DatabaseConnection.instance = new Sequelize(
@@ -45,4 +61,10 @@ DatabaseConnection.getInstance().authenticate()
         console.error('Impossibile connettersi al database:', err);
     });
 
+/**
+ * Esporta l'istanza della connessione al database.
+ *
+ * @module DatabaseConnection
+ * @returns {Sequelize} - L'istanza della connessione Sequelize.
+ */
 module.exports = DatabaseConnection.getInstance();

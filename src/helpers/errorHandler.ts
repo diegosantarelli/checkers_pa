@@ -1,10 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
 
 /**
- * Classe HttpException personalizzata per la gestione degli errori HTTP.
- *
- * @class
+ * @class HttpException
  * @extends {Error}
+ * @description Classe personalizzata per la gestione delle eccezioni HTTP. Estende la classe nativa `Error` di JavaScript.
+ *
+ * @property {number} statusCode - Il codice di stato HTTP associato all'errore.
+ * @property {string} message - Il messaggio descrittivo dell'errore.
  */
 class HttpException extends Error {
     statusCode: number;
@@ -13,8 +15,9 @@ class HttpException extends Error {
     /**
      * Crea un'istanza di HttpException.
      *
-     * @param {number} statusCode - Il codice di stato HTTP.
-     * @param {string} message - Il messaggio di errore.
+     * @constructor
+     * @param {number} statusCode - Il codice di stato HTTP dell'errore.
+     * @param {string} message - Il messaggio descrittivo dell'errore.
      */
     constructor(statusCode: number, message: string) {
         super(message);
@@ -28,10 +31,14 @@ class HttpException extends Error {
 }
 
 /**
- * Funzione per gestire l'errore e inviare una risposta.
+ * Funzione per gestire l'errore e inviare una risposta HTTP.
  *
- * @param {HttpException} err - L'errore che si è verificato.
- * @param {any} res - L'oggetto di risposta Express.
+ * @function handleError
+ * @param {HttpException} err - L'errore di tipo `HttpException` che si è verificato.
+ * @param {any} res - L'oggetto di risposta Express utilizzato per inviare la risposta HTTP.
+ *
+ * @description Questa funzione invia una risposta HTTP formattata con il codice di stato e il messaggio di errore.
+ * Inoltre, sostituisce alcuni caratteri HTML codificati come entità con i loro caratteri originali.
  */
 export const handleError = (err: HttpException, res: any) => {
     const { statusCode, message } = err;

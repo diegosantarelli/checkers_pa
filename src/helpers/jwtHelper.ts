@@ -4,7 +4,7 @@ import ErrorFactory from '../factories/errorFactory';
 
 dotenv.config();
 
-const secret = process.env.JWT_SECRET as string; // Estrae la variabile d’ambiente JWT_SECRET
+const secret = process.env.JWT_SECRET as string;
 
 /**
  * @interface TokenPayload
@@ -21,18 +21,14 @@ interface TokenPayload {
 
 /**
  * @function generateToken
- * @description Genera un token JWT utilizzando il payload fornito e lo firma con il segreto configurato. La durata del token è di 1 ora.
+ * @description Genera un token JWT utilizzando il payload fornito e lo firma con il segreto configurato.
+ * La durata del token è di 1 ora.
  *
  * @param {TokenPayload} payload - Il payload da includere nel token JWT, contenente l'ID del giocatore, l'email e il ruolo.
  *
  * @throws {HttpException} - Lancia un'eccezione se si verifica un errore durante la generazione del token.
  *
  * @returns {string} - Restituisce il token JWT generato.
- *
- * @example
- * const payload = { id_giocatore: 1, email: 'user@example.com', ruolo: 'utente' };
- * const token = generateToken(payload);
- * console.log(token); // Restituisce un token JWT
  */
 export const generateToken = (payload: TokenPayload): string => {
     try {
@@ -46,18 +42,14 @@ export const generateToken = (payload: TokenPayload): string => {
 
 /**
  * @function verifyToken
- * @description Verifica e decodifica il token JWT utilizzando il segreto configurato. Restituisce il payload decodificato se il token è valido.
+ * @description Verifica e decodifica il token JWT utilizzando il segreto configurato. Restituisce il payload decodificato
+ * se il token è valido.
  *
  * @param {string} token - Il token JWT da verificare.
  *
  * @throws {HttpException} - Lancia un'eccezione se il token è scaduto, non valido o se si verifica un errore durante la verifica.
  *
  * @returns {JwtPayload | null} - Restituisce il payload decodificato se il token è valido, altrimenti null.
- *
- * @example
- * const token = 'someValidJWTToken';
- * const decodedPayload = verifyToken(token);
- * console.log(decodedPayload); // Restituisce il payload decodificato o null
  */
 export const verifyToken = (token: string): JwtPayload | null => {
     try {

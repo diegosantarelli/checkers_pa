@@ -5,10 +5,27 @@ import { StatusCodes } from 'http-status-codes';
 import WinnerService from "../services/winnerService";
 import HttpException from "../helpers/errorHandler";
 
+/**
+ * @class GameStatusController
+ * @description Controller per la gestione dello stato delle partite, la classifica dei giocatori
+ * e la generazione di certificati di vittoria.
+ */
 class GameStatusController {
+
     /**
-     * Valuta lo stato di una partita in base all'ID e all'ID del giocatore.
+     * Valuta lo stato di una partita in base all'ID della partita e all'ID del giocatore autenticato.
+     *
+     * @function evaluateGame
+     * @memberof GameStatusController
+     * @param {Request} req - La richiesta HTTP che contiene l'ID della partita nei parametri e l'ID del giocatore autenticato.
+     * @param {Response} res - La risposta HTTP con il risultato della valutazione della partita.
+     * @param {NextFunction} next - La funzione che passa il controllo al middleware successivo in caso di errore.
+     *
+     * @throws {HttpException} - Se l'utente non è autenticato o se si verifica un errore durante l'elaborazione della richiesta.
+     *
+     * @returns {Promise<void>} - Restituisce un oggetto JSON con il risultato della valutazione della partita.
      */
+
     public static async evaluateGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id_partita } = req.params;
@@ -28,6 +45,16 @@ class GameStatusController {
 
     /**
      * Permette a un giocatore di abbandonare una partita in corso.
+     *
+     * @function abandonGame
+     * @memberof GameStatusController
+     * @param {Request} req - La richiesta HTTP che contiene l'ID della partita nei parametri e l'ID del giocatore autenticato.
+     * @param {Response} res - La risposta HTTP con il risultato dell'abbandono della partita.
+     * @param {NextFunction} next - La funzione che passa il controllo al middleware successivo in caso di errore.
+     *
+     * @throws {HttpException} - Se l'utente non è autenticato o se si verifica un errore durante l'abbandono della partita.
+     *
+     * @returns {Promise<void>} - Restituisce un oggetto JSON con il risultato dell'abbandono della partita.
      */
     public static async abandonGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -48,6 +75,14 @@ class GameStatusController {
 
     /**
      * Restituisce la classifica dei giocatori con ordinamento ascendente o discendente.
+     *
+     * @function playersRanking
+     * @memberof GameStatusController
+     * @param {Request} req - La richiesta HTTP che può contenere il parametro `order` per specificare l'ordinamento.
+     * @param {Response} res - La risposta HTTP con la classifica dei giocatori.
+     * @param {NextFunction} next - La funzione che passa il controllo al middleware successivo in caso di errore.
+     *
+     * @returns {Promise<void>} - Restituisce un oggetto JSON con la classifica dei giocatori.
      */
     public static async playersRanking(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -66,7 +101,15 @@ class GameStatusController {
     }
 
     /**
-     * Restituisce il certificato di vittoria di una partita.
+     * Restituisce il certificato di vittoria di una partita in formato PDF.
+     *
+     * @function getVictoryCertify
+     * @memberof GameStatusController
+     * @param {Request} req - La richiesta HTTP che contiene l'ID della partita nei parametri.
+     * @param {Response} res - La risposta HTTP che invia il certificato di vittoria come file PDF.
+     * @param {NextFunction} next - La funzione che passa il controllo al middleware successivo in caso di errore.
+     *
+     * @returns {Promise<void>} - Invia un file PDF come risposta.
      */
     public static async getVictoryCertify(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -83,7 +126,19 @@ class GameStatusController {
     }
 
     /**
-     * Recupera l'elenco delle partite giocate dal giocatore autenticato.
+     * Recupera l'elenco delle partite giocate dal giocatore autenticato, con un'opzione di filtro per la data di inizio.
+     *
+     * @function getMatchList
+     * @memberof GameStatusController
+     * @param {Request} req - La richiesta HTTP che può contenere `startDate` come parametro di query per filtrare
+     * le partite in base alla data di inizio.
+     * @param {Response} res - La risposta HTTP con l'elenco delle partite.
+     * @param {NextFunction} next - La funzione che passa il controllo al middleware successivo in caso di errore.
+     *
+     * @throws {HttpException} - Se l'utente non è autenticato o se si verifica un errore durante il recupero dell'elenco
+     * delle partite.
+     *
+     * @returns {Promise<void>} - Restituisce un oggetto JSON con l'elenco delle partite giocate dal giocatore.
      */
     public static async getMatchList(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

@@ -2,7 +2,7 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 
 /**
  * @class Mossa
- * @extends Model
+ * @extends {Model}
  * @classdesc Rappresenta il modello della tabella "Mossa" nel database.
  * Ogni istanza della classe rappresenta una singola mossa all'interno di una partita di dama.
  */
@@ -10,6 +10,7 @@ export default (sequelize: Sequelize) => {
     /**
      * @class Mossa
      * @description Modello Sequelize per la tabella "Mossa".
+     * Ogni record rappresenta una mossa eseguita in una partita di dama, con informazioni sulla posizione di partenza, di destinazione, il tipo di pezzo mosso e lo stato della tavola dopo la mossa.
      */
     class Mossa extends Model {
         public id_mossa!: number;
@@ -18,14 +19,15 @@ export default (sequelize: Sequelize) => {
         public pezzo!: string | null;
         public id_partita!: number;
         public id_giocatore!: number;
-        public from_position!: string; // Colonna per la posizione di origine della mossa
-        public to_position!: string;   // Colonna per la posizione di destinazione della mossa
+        public from_position!: string;
+        public to_position!: string;
         public data!: Date;
 
         /**
          * @method associate
          * @description Metodo per definire le associazioni tra i modelli.
-         * @param models - Gli altri modelli Sequelize con cui è associato il modello Mossa.
+         * Associa il modello Mossa ai modelli Partita e Giocatore.
+         * @param {any} models - Gli altri modelli Sequelize con cui è associato il modello Mossa.
          */
         static associate(models: any) {
             Mossa.belongsTo(models.Partita, {
@@ -35,13 +37,14 @@ export default (sequelize: Sequelize) => {
 
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
-                as: 'giocatore', // Assicurati che l'alias sia corretto
+                as: 'giocatore', // Associa Mossa al modello Giocatore
             });
         }
     }
 
     /**
      * @typedef {Object} MossaAttributes
+     * @description Attributi del modello "Mossa", che rappresentano una mossa eseguita durante una partita.
      * @property {number} id_mossa - ID univoco della mossa.
      * @property {number} numero_mossa - Numero sequenziale della mossa.
      * @property {object} tavola - Stato della tavola dopo la mossa (in formato JSON).
@@ -57,7 +60,7 @@ export default (sequelize: Sequelize) => {
      * @function init
      * @memberof Mossa
      * @description Inizializza il modello Mossa con i suoi attributi e le relative configurazioni.
-     * @param sequelize - L'istanza di Sequelize utilizzata per l'inizializzazione del modello.
+     * @param {Sequelize} sequelize - L'istanza di Sequelize utilizzata per l'inizializzazione del modello.
      */
     Mossa.init({
         id_mossa: {
@@ -91,11 +94,11 @@ export default (sequelize: Sequelize) => {
             allowNull: false,
         },
         from_position: {
-            type: DataTypes.STRING,  // Registra la posizione di origine della mossa
+            type: DataTypes.STRING,
             allowNull: false,
         },
         to_position: {
-            type: DataTypes.STRING,  // Registra la posizione di destinazione della mossa
+            type: DataTypes.STRING,
             allowNull: false,
         },
         data: {

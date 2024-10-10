@@ -4,20 +4,36 @@ import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes';
 import checkerRoutes from './routes/gameRoutes';
 import mossaRoutes from './routes/moveRoutes';
-import gameStatusRoutes from "./routes/gameStatusRoutes";
-import adminRoutes from "./routes/AdminRoutes";
-import ErrorFactory from "./factories/errorFactory";
+import gameStatusRoutes from './routes/gameStatusRoutes';
+import adminRoutes from './routes/AdminRoutes';
+import ErrorFactory from './factories/errorFactory';
 
-/* Carica le variabili d'ambiente da file .env */
+/**
+ * @file app.ts
+ * @description File principale che avvia l'applicazione Express.
+ */
+
+/** Carica le variabili d'ambiente da file .env */
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-/* Crea un'istanza dell'applicazione Express */
+/**
+ * Crea un'istanza dell'applicazione Express.
+ *
+ * @constant {express.Application} app
+ */
 const app = express();
-/* Definisce la porta su cui il server sarà in esecuzione, altrimenti la 3001 se non specificato */
+
+/**
+ * Definisce la porta su cui il server sarà in esecuzione.
+ * Utilizza il valore della variabile d'ambiente `PORT` oppure, in assenza, utilizza la porta 3001.
+ *
+ * @constant {number|string} port
+ */
 const port = process.env.PORT || 3001;
 
 /**
- *  Middleware per interpretare il corpo delle richieste in formato JSON
+ * Middleware per interpretare il corpo delle richieste in formato JSON.
+ * Utilizza `express.json()` per il parsing automatico dei payload JSON nelle richieste.
  */
 app.use(express.json());
 
@@ -27,7 +43,7 @@ app.use(express.json());
  * @route GET /
  * @returns {string} Un messaggio di conferma che il server è attivo.
  */
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.send('Ciao, il server è attivo!');
 });
 
@@ -40,7 +56,7 @@ app.get('/', (req, res) => {
 app.use('/login', loginRoutes);
 
 /**
- * Rotta protetta per la creazione di una partita.
+ * Rotta protetta per la creazione di nuove partite.
  *
  * @route /game
  * @see checkerRoutes
@@ -48,7 +64,7 @@ app.use('/login', loginRoutes);
 app.use('/game', checkerRoutes);
 
 /**
- * Rotta per la validazione delle mosse in partita.
+ * Rotta per la gestione delle mosse in partita.
  *
  * @route /do
  * @see mossaRoutes
@@ -56,7 +72,12 @@ app.use('/game', checkerRoutes);
 app.use('/do', mossaRoutes);
 
 /**
- * Rotta per ottenere lo stato attuale di una partita e gestione dell'abbandono.
+ * Rotta per ottenere informazioni riguardanti le partite.
+ * In particolare consente di:
+ *  - valutare lo stato di una partita.
+ *  - abbandonare una partita.
+ *  - ottenere la classifica dei giocatori.
+ *  - ottenere l'elenco delle partite giocate eventualmente filtrando sulla data di inizio.
  *
  * @route /game-status
  * @see gameStatusRoutes
@@ -69,10 +90,16 @@ app.use('/game-status', gameStatusRoutes);
  * @route /admin
  * @see adminRoutes
  */
-
 app.use('/admin', adminRoutes);
 
-// Aggiungi il middleware per gestire le rotte non trovate
+/**
+ * Middleware per gestire le rotte non trovate.
+ * Se l'utente tenta di accedere a una rotta non esistente, viene restituito un errore 404.
+ *
+ * @param {Request} req - L'oggetto richiesta Express.
+ * @param {Response} res - L'oggetto risposta Express.
+ * @param {NextFunction} next - La funzione di callback per passare il controllo al middleware successivo.
+ */
 app.use((req: Request, res: Response, next: NextFunction) => {
     const error = ErrorFactory.createError('NOT_FOUND', `La rotta ${req.originalUrl} non esiste.`);
     next(error); // Passa l'errore al middleware di gestione degli errori
@@ -87,5 +114,9 @@ app.listen(port, () => {
     console.log(`Server in esecuzione su http://localhost:${port}`);
 });
 
-/* Esporta l'istanza dell'applicazione per utilizzarla in altri moduli */
+/**
+ * Esporta l'istanza dell'applicazione per utilizzarla in altri moduli.
+ *
+ * @exports app
+ */
 export default app;
