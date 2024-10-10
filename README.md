@@ -1127,6 +1127,8 @@ La rotta `GET /do/move/:id_partita/export?format={pdf, json}` permette a un gioc
 | Query Param      | `format`          | `string`  | Formato di esportazione (json/pdf) | ✅               |
 
 #### Esempio di risposta (`http://localhost:3001/do/move/1/export?format=json`)
+
+GIOCATORE NOME E COGNOME MANCA
 ```
 [
     {
