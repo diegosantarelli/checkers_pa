@@ -158,7 +158,7 @@ class GameStatusService {
      */
     public static async getGameDetails(id_partita: number): Promise<any> {
         const partita = await Partita.findByPk(id_partita, {
-            attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio'],
+            attributes: ['id_giocatore1', 'id_giocatore2', 'id_vincitore', 'stato', 'tempo_totale', 'mosse_totali', 'data_inizio', 'livello_IA'],
         });
 
         if (!partita) {
@@ -186,11 +186,12 @@ class GameStatusService {
             throw ErrorFactory.createError('BAD_REQUEST', 'Non vi è un vincitore per questa partita');
         }
 
+        // Controllo se si tratta di una partita contro l'IA
         let avversario: any;
-        if (vincitore.id_giocatore === partita.id_giocatore1) {
-            avversario = giocatore2;
+        if (partita.livello_IA !== null) {
+            avversario = { nome: 'Intelligenza', cognome: 'Artificiale' };  // Setta "Intelligenza Artificiale" come avversario
         } else {
-            avversario = giocatore1;
+            avversario = vincitore.id_giocatore === partita.id_giocatore1 ? giocatore2 : giocatore1;
         }
 
         const avversarioDettagli = avversario
