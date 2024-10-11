@@ -144,6 +144,10 @@ export const createGame = async (
                 throw ErrorFactory.createError('NOT_FOUND', `Il giocatore con email ${email_giocatore2} non è stato trovato.`);
             }
 
+            if (id_giocatore2 === id_giocatore1) {
+                throw ErrorFactory.createError('BAD_REQUEST', 'Non puoi creare una partita contro te stesso.');
+            }
+
             const partitaInCorsoGiocatore2 = await Partita.findOne({
                 where: {
                     [Op.or]: [
@@ -208,7 +212,6 @@ export const createGame = async (
                 id_giocatore1: partita.id_giocatore1,
                 id_giocatore2: partita.id_giocatore2,
                 stato: partita.stato,
-                tavola,
                 data_inizio: formatDate(partita.data_inizio),
             }
         };
