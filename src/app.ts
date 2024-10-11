@@ -2,8 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import dotenv from 'dotenv';
 import loginRoutes from './routes/loginRoutes';
-import checkerRoutes from './routes/gameRoutes';
-import mossaRoutes from './routes/moveRoutes';
+import gameRoutes from './routes/gameRoutes';
+import moveRoutes from './routes/moveRoutes';
 import gameStatusRoutes from './routes/gameStatusRoutes';
 import adminRoutes from './routes/AdminRoutes';
 import ErrorFactory from './factories/errorFactory';
@@ -61,7 +61,7 @@ app.use('/login', loginRoutes);
  * @route /game
  * @see checkerRoutes
  */
-app.use('/game', checkerRoutes);
+app.use('/game', gameRoutes);
 
 /**
  * Rotta per la gestione delle mosse in partita.
@@ -69,7 +69,7 @@ app.use('/game', checkerRoutes);
  * @route /do
  * @see mossaRoutes
  */
-app.use('/do', mossaRoutes);
+app.use('/do', moveRoutes);
 
 /**
  * Rotta per ottenere informazioni riguardanti le partite.
