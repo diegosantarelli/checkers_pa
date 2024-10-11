@@ -370,6 +370,13 @@ class MoveService {
      * @returns {Promise<Buffer>} - Un buffer contenente il file PDF con lo storico delle mosse.
      * @throws {HttpException} - Se ci sono errori durante la generazione del PDF.
      */
+    /**
+     * Esporta lo storico delle mosse di una partita in formato PDF.
+     *
+     * @param {number} id_partita - L'ID della partita.
+     * @returns {Promise<Buffer>} - Un buffer contenente il file PDF con lo storico delle mosse.
+     * @throws {HttpException} - Se ci sono errori durante la generazione del PDF.
+     */
     public static async exportToPDF(id_partita: number): Promise<Buffer> {
         const moveHistory = await this.getMoveHistory(id_partita);
 
@@ -383,20 +390,22 @@ class MoveService {
         };
         const printer = new PdfPrinter(fonts);
 
+        // Aggiorniamo la definizione del documento per includere il tipo di mossa
         const docDefinition = {
             content: [
-                { text: `STORICO DELLE MOSSE per la partita ${id_partita}`, style: 'header' },
+                { text: `Storico delle mosse per la partita con id: ${id_partita}`, style: 'header' },
                 {
                     table: {
                         headerRows: 1,
-                        widths: ['*', '*', '*', '*'],
+                        widths: ['*', '*', '*', '*', '*'],  // Aggiungi una colonna in più per il tipo di mossa
                         body: [
-                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa'],
+                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa', 'Tipo'],  // Aggiungi l'intestazione per il tipo
                             ...moveHistory.map(mossa => [
                                 mossa.numeroMossa,
                                 mossa.origin,
                                 mossa.destination,
-                                mossa.dataMossa
+                                mossa.dataMossa,
+                                mossa.tipo
                             ])
                         ]
                     }
@@ -417,6 +426,7 @@ class MoveService {
             pdfDoc.end();
         });
     }
+
 }
 
 export default MoveService;

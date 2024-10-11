@@ -28,39 +28,50 @@ module.exports = {
         for (const partita of partite) {
             const draughts = Draughts.setup(); // Setup della partita per ottenere il board iniziale
 
-            // Simula alcune mosse
+            // Simula la prima mossa dell'IA
             const moves = draughts.moves; // Ottieni le mosse legali disponibili
             const selectedMove1 = moves[0]; // Seleziona una mossa valida
 
             // Esegui la prima mossa e salva lo stato della tavola
             draughts.move(selectedMove1);
-            const boardAfterMove1 = draughts.board;
+            const boardAfterMove1 = draughts.board; // Aggiorna la tavola
 
-            // Aggiungi le mosse relative a questa partita
-            mosseIA.push(
-                {
-                    numero_mossa: 1,
-                    tavola: JSON.stringify({ initialBoard: boardAfterMove1 }), // Salva lo stato della tavola nel formato corretto
-                    pezzo: 'singolo',
-                    id_partita: partita.id_partita,  // Associa alla partita corrente
-                    data: new Date(),
-                    from_position: convertPositionToNotation(selectedMove1.origin), // Converti l'origine
-                    to_position: convertPositionToNotation(selectedMove1.destination), // Converti la destinazione
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
-                {
+            // Aggiungi la prima mossa dell'IA
+            mosseIA.push({
+                numero_mossa: 1,
+                tavola: JSON.stringify({ initialBoard: boardAfterMove1 }), // Salva lo stato della tavola
+                pezzo: 'singolo',
+                id_partita: partita.id_partita,
+                data: new Date(),
+                from_position: convertPositionToNotation(selectedMove1.origin), // Converti l'origine
+                to_position: convertPositionToNotation(selectedMove1.destination), // Converti la destinazione
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            });
+
+            // Ottieni le nuove mosse disponibili dopo la prima mossa dell'IA
+            const movesAfterMove1 = draughts.moves; // Ottieni le nuove mosse disponibili
+
+            if (movesAfterMove1.length > 0) {
+                const selectedMove2 = movesAfterMove1[0]; // Seleziona una seconda mossa valida
+
+                // Esegui la seconda mossa
+                draughts.move(selectedMove2);
+                const boardAfterMove2 = draughts.board; // Aggiorna la tavola dopo la seconda mossa
+
+                // Aggiungi la seconda mossa dell'IA
+                mosseIA.push({
                     numero_mossa: 2,
-                    tavola: JSON.stringify({ initialBoard: boardAfterMove1 }), // Salva lo stato della tavola nel formato corretto
-                    pezzo: 'dama',
-                    id_partita: partita.id_partita,  // Associa alla partita corrente
+                    tavola: JSON.stringify({ initialBoard: boardAfterMove2 }), // Salva lo stato della tavola
+                    pezzo: 'dama', // Può essere singolo o dama
+                    id_partita: partita.id_partita,
                     data: new Date(),
-                    from_position: convertPositionToNotation(selectedMove1.origin), // Converti l'origine
-                    to_position: convertPositionToNotation(selectedMove1.destination), // Converti la destinazione
+                    from_position: convertPositionToNotation(selectedMove2.origin), // Converti l'origine
+                    to_position: convertPositionToNotation(selectedMove2.destination), // Converti la destinazione
                     createdAt: new Date(),
                     updatedAt: new Date(),
-                }
-            );
+                });
+            }
         }
 
         // Inserisci tutte le mosse IA nel database
