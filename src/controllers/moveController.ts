@@ -84,8 +84,9 @@ class moveController {
                 }
             });
         } catch (error) {
+            console.error('Errore durante l\'esecuzione della mossa:', error); // Aggiungi un log dettagliato
             if (error instanceof HttpException) {
-                next(error); // Passa l'errore al middleware per la gestione degli errori
+                next(error);
             } else {
                 next(ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore sconosciuto durante la esecuzione della mossa'));
             }

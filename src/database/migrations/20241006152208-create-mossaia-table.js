@@ -19,6 +19,9 @@ module.exports = {
       pezzo: {
         type: Sequelize.STRING,
         allowNull: true,
+        validate: {
+          isIn: [['singolo', 'dama']],
+        },
       },
       id_partita: {
         type: Sequelize.INTEGER,
@@ -33,6 +36,15 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
+      },
+      // Aggiunte le nuove colonne per la posizione della mossa
+      from_position: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      to_position: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,

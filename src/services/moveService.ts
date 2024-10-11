@@ -198,7 +198,18 @@ class MoveService {
                 tavola: JSON.stringify({ initialBoard: draughts.board }),
                 pezzo: draughts.board[aiMove.origin]?.piece?.king ? 'dama' : 'singolo',
                 id_partita,
+                from_position: MoveService.convertPositionBack(aiMove.origin),  // Assicurati di settare questo
+                to_position: MoveService.convertPositionBack(aiMove.destination), // Assicurati di settare anche questo
                 data: new Date(),
+            }).catch(err => {
+                console.error('Errore nel salvataggio della mossa IA:', {
+                    tavola: JSON.stringify({ initialBoard: draughts.board }),
+                    pezzo: draughts.board[aiMove.origin]?.piece?.king ? 'dama' : 'singolo',
+                    id_partita,
+                    data: new Date(),
+                    error: err
+                });
+                throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore durante il salvataggio della mossa IA');
             });
 
             const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
@@ -304,24 +315,52 @@ class MoveService {
      * @throws {HttpException} - Se nessuna mossa viene trovata per la partita.
      */
     public static async getMoveHistory(id_partita: number): Promise<any[]> {
-        const mosse = await Mossa.findAll({
+        // Trova tutte le mosse dei giocatori umani
+        const mosseGiocatori = await Mossa.findAll({
             where: { id_partita },
             order: [['numero_mossa', 'ASC']]
         });
 
-        if (mosse.length === 0) {
+        // Trova tutte le mosse dell'IA
+        const mosseIA = await MossaIA.findAll({
+            where: { id_partita },
+            attributes: ['numero_mossa', 'from_position', 'to_position', 'data'], // Includi esplicitamente gli attributi
+            order: [['numero_mossa', 'ASC']]
+        });
+
+        // Se non ci sono mosse, restituisci un errore
+        if (mosseGiocatori.length === 0 && mosseIA.length === 0) {
             throw ErrorFactory.createError('NOT_FOUND', 'Nessuna mossa trovata per questa partita');
         }
 
-        return mosse.map(mossa => {
-            const dataMossa = format(new Date(mossa.data), 'yyyy-MM-dd HH:mm:ss');
-            return {
-                numeroMossa: mossa.numero_mossa,
-                origin: mossa.from_position,
-                destination: mossa.to_position,
-                dataMossa
-            };
-        });
+        // Combina le mosse dei giocatori umani e dell'IA in un singolo array
+        const tutteLeMosse = [
+            ...mosseGiocatori.map(mossa => {
+                const dataMossa = format(new Date(mossa.data), 'yyyy-MM-dd HH:mm:ss');
+                return {
+                    numeroMossa: mossa.numero_mossa,
+                    origin: mossa.from_position,
+                    destination: mossa.to_position,
+                    dataMossa,
+                    tipo: 'Giocatore'
+                };
+            }),
+            ...mosseIA.map(mossa => {
+                const dataMossa = format(new Date(mossa.data), 'yyyy-MM-dd HH:mm:ss');
+                return {
+                    numeroMossa: mossa.numero_mossa,
+                    origin: mossa.from_position,
+                    destination: mossa.to_position,
+                    dataMossa,
+                    tipo: 'IA'
+                };
+            })
+        ];
+
+        // Ordina le mosse in base al numero di mossa
+        tutteLeMosse.sort((a, b) => a.numeroMossa - b.numeroMossa);
+
+        return tutteLeMosse;
     }
 
     /**
@@ -346,7 +385,7 @@ class MoveService {
 
         const docDefinition = {
             content: [
-                { text: 'STORICO DELLE MOSSE', style: 'header' },
+                { text: `STORICO DELLE MOSSE per la partita ${id_partita}`, style: 'header' },
                 {
                     table: {
                         headerRows: 1,

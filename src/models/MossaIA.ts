@@ -12,6 +12,15 @@ export default (sequelize: Sequelize) => {
      * @description Modello Sequelize per la tabella "MossaIA", utilizzato per tracciare le mosse eseguite dall'intelligenza artificiale in una partita di dama.
      */
     class MossaIA extends Model {
+        public id_mossa!: number;
+        public numero_mossa!: number;
+        public tavola!: object;
+        public pezzo!: string | null;
+        public id_partita!: number;
+        public from_position!: string;
+        public to_position!: string;
+        public data!: Date; // Aggiungi questo campo esplicitamente
+
         /**
          * @method associate
          * @description Metodo che definisce le associazioni tra il modello MossaIA e altri modelli.
@@ -27,22 +36,7 @@ export default (sequelize: Sequelize) => {
     }
 
     /**
-     * @typedef {Object} MossaIAAttributes
-     * @description Attributi del modello "MossaIA", che rappresentano una mossa eseguita dall'intelligenza artificiale in una partita di dama.
-     *
-     * @property {number} id_mossa - ID univoco della mossa IA.
-     * @property {number} numero_mossa - Numero sequenziale della mossa IA.
-     * @property {object} tavola - Stato della tavola dopo la mossa (in formato JSON).
-     * @property {string|null} pezzo - Tipo di pezzo mosso dall'IA ('singolo' o 'dama').
-     * @property {number} id_partita - ID della partita associata alla mossa IA.
-     * @property {Date} data - Data e ora in cui la mossa IA è stata eseguita.
-     */
-
-    /**
-     * @function init
-     * @memberof MossaIA
-     * @description Inizializza il modello MossaIA con i suoi attributi e le configurazioni di Sequelize.
-     * @param {Sequelize} sequelize - L'istanza di Sequelize utilizzata per l'inizializzazione del modello.
+     * Inizializza il modello MossaIA con i suoi attributi e le configurazioni di Sequelize.
      */
     MossaIA.init({
         id_mossa: {
@@ -71,8 +65,16 @@ export default (sequelize: Sequelize) => {
             },
             onDelete: 'CASCADE',
         },
+        from_position: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        to_position: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         data: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATE, // Campo corretto per la data
             allowNull: false,
             defaultValue: DataTypes.NOW,
         },
