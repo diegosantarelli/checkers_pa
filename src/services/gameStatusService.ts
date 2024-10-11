@@ -186,21 +186,18 @@ class GameStatusService {
             throw ErrorFactory.createError('BAD_REQUEST', 'Non vi è un vincitore per questa partita');
         }
 
-        // Controllo se si tratta di una partita contro l'IA
-        let avversario: any;
+        // Correggiamo la logica per determinare l'avversario
+        let avversarioDettagli;
         if (partita.livello_IA !== null) {
-            avversario = { nome: 'Intelligenza', cognome: 'Artificiale' };  // Setta "Intelligenza Artificiale" come avversario
+            avversarioDettagli = { nome: 'Intelligenza', cognome: 'Artificiale' };
         } else {
-            avversario = vincitore.id_giocatore === partita.id_giocatore1 ? giocatore2 : giocatore1;
+            // Se il vincitore è giocatore1, l'avversario è giocatore2 e viceversa
+            avversarioDettagli = partita.id_giocatore1 === partita.id_vincitore ? giocatore2 : giocatore1;
         }
 
-        const avversarioDettagli = avversario
-            ? { nome: avversario.nome, cognome: avversario.cognome }
-            : { nome: 'Intelligenza', cognome: 'Artificiale' };
-
         return {
-            vincitore: `${vincitore.nome} ${vincitore.cognome}`,
-            avversario: `${avversarioDettagli.nome} ${avversarioDettagli.cognome}`,
+            vincitore: vincitore ? `${vincitore.nome} ${vincitore.cognome}` : 'Nessun vincitore',
+            avversario: avversarioDettagli ? `${avversarioDettagli.nome} ${avversarioDettagli.cognome}` : 'Nessun avversario',
             tempo_totale: partita.tempo_totale,
             mosse_totali: partita.mosse_totali,
             data_inizio: partita.data_inizio
