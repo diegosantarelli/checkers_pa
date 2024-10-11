@@ -905,13 +905,15 @@ La rotta POST /login serve per effettuare l’autenticazione di un utente. L’u
 
 #### Esempio di richiesta
 
-```
+```http
+POST /login HTTP/1.1
+Content-Type: application/json
 {
     "email": "simone@example.com",
     "password": "progavanzata"
 }
 ```
-#### Risposta
+#### Esempio di risposta
 ```
 {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9naW9jYXRvcmUiOjEsInJ1b2xvIjoidXRlbnRlIiwiZW1haWwiOiJzaW1vbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3Mjg1NTA1OTIsImV4cCI6MTcyODU1NDE5Mn0.iraDD3h4vAG4VjJQVM04xCEehdrxBkXxkSXcV95xhx4"
@@ -929,16 +931,20 @@ La rotta POST `/game/create` permette a un giocatore di creare una nuova partita
 | Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP)            | ❌               |
 | Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA)            | ✅               |
 | Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA) | ❌               |
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione   | ✅               |
 
 #### Esempio di richiesta per la creazione di una partita contro un giocatore
-```
+```http
+POST /game/create HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
 {
   "email_giocatore2": "piero@example.com",
   "tipo": "Competitiva"
 }
 ```
 
-#### Risposta
+#### Esempio di risposta
 ```
 {
   "success": true,
@@ -955,14 +961,17 @@ La rotta POST `/game/create` permette a un giocatore di creare una nuova partita
 ```
 
 #### Esempio di richiesta per la creazione di una partita contro un l'IA
-```
+```http
+POST /game/create HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
 {
   "livello_IA": "difficile",
   "tipo": "Competitiva"
 }
 ```
 
-#### Risposta
+#### Esempio di risposta
 ```
 {
     "success": true,
@@ -988,9 +997,12 @@ La rotta POST `/do/move` permette a un giocatore di eseguire una mossa in una pa
 | Richiesta nel body | `id_partita`  | `number`  | ID della partita               | ✅               |
 | Richiesta nel body | `from`        | `string`  | Coordinata di origine della mossa | ✅               |
 | Richiesta nel body | `to`          | `string`  | Coordinata di destinazione della mossa | ✅               |
-
-#### Esempio di richiesta in una partita con un giocatore
-```
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione   | ✅               |
+#### Esempio di richiesta
+```http
+POST /do/move HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
 {
     "id_partita": 7,
     "from": "D7",
@@ -998,7 +1010,7 @@ La rotta POST `/do/move` permette a un giocatore di eseguire una mossa in una pa
 }
 ```
 
-#### Risposta
+#### Esempio di risposta
 ```
 {
   "success": true,
@@ -1011,7 +1023,10 @@ La rotta POST `/do/move` permette a un giocatore di eseguire una mossa in una pa
 ```
 
 #### Esempio di richiesta in una partita con l'IA
-```
+```http
+POST /do/move HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
 {
     "id_partita": 8,
     "from": "D7",
@@ -1019,7 +1034,7 @@ La rotta POST `/do/move` permette a un giocatore di eseguire una mossa in una pa
 }
 ```
 
-#### Risposta
+#### Esempio di risposta
 ```
 {
     "success": true,
@@ -1040,6 +1055,13 @@ La rotta GET `/game-status/match-list` permette a un giocatore autenticato di re
 | **Posizione**    | **Nome**      | **Tipo**  | **Descrizione**                        | **Obbligatorio** |
 |------------------|---------------|-----------|----------------------------------------|---------------|
 | Query param      | `startDate`   | `string`  | Data di inizio in formato `YYYY-MM-DD` | ❌            |
+| Header           | `Authorization` | `string` | Token JWT per l'autenticazione         | ✅               |
+
+#### Esempio di richiesta senza filtro per la data
+```http
+GET /game-status/match-list HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
 
 #### Esempio di risposta senza filtro per la data
 ```
@@ -1067,7 +1089,12 @@ La rotta GET `/game-status/match-list` permette a un giocatore autenticato di re
     }
 }
 ```
-#### Esempio di risposta con filtro per la data "2024-04-09"
+#### Esempio di richiesta con filtro per la data
+```http
+GET /game-status/match-list?startDate=2024-04-09 HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
+#### Esempio di risposta con filtro per la data
 ```
 {
     "partite": {
@@ -1103,8 +1130,14 @@ La rotta `PUT /game-status/check-status/:id_partita` permette a un giocatore di 
 | **Posizione**    | **Nome**         | **Tipo**  | **Descrizione**              | **Obbligatorio** |
 |------------------|------------------|-----------|------------------------------|------------------|
 | Path Param       | `id_partita`      | `integer` | ID della partita da verificare | ✅               |
+| Header           | `Authorization` | `string` | Token JWT per l'autenticazione         | ✅               |
+#### Esempio di richiesta
 
-#### Esempio di risposta (`http://localhost:3001/game-status/check-status/1`)
+```http
+PUT /game-status/check-status/1 HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
+#### Esempio di risposta
 ```
 {
     "risultato": {
@@ -1125,8 +1158,16 @@ La rotta `GET /do/move/:id_partita/export?format={pdf, json}` permette a un gioc
 |------------------|------------------|-----------|-----------------------------------|------------------|
 | Path Param       | `id_partita`      | `integer` | ID della partita da esportare     | ✅               |
 | Query Param      | `format`          | `string`  | Formato di esportazione (json/pdf) | ✅               |
+| Header           | `Authorization` | `string` | Token JWT per l'autenticazione         | ✅               |
 
-#### Esempio di risposta (`http://localhost:3001/do/move/1/export?format=json`)
+#### Esempio di richiesta
+
+```http
+GET /do/move/1/export?format=json HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
+
+#### Esempio di risposta
 
 GIOCATORE NOME E COGNOME MANCA
 ```
@@ -1146,19 +1187,248 @@ GIOCATORE NOME E COGNOME MANCA
 ]
 ```
 
-#### Esempio di risposta (`http://localhost:3001/do/move/1/export?format=pdf`)
+#### Esempio di richiesta
+
+```http
+GET /do/move/1/export?format=pdf HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
+
+#### Esempio di risposta
 
 AGGIUNGERE PDF
 
-### Abandon
+### PUT `/game-status/abandon-game/:id_partita`
+
+La rotta `PUT /game-status/abandon-game/:id_partita` consente a un giocatore di abbandonare una partita in corso. Il giocatore deve essere autenticato tramite un token JWT e deve fornire l'ID della partita che desidera abbandonare. Il sistema verifica l'autenticazione dell'utente, controlla che il giocatore faccia parte della partita e che la partita sia ancora in corso. Se il giocatore decide di abbandonare, la partita viene segnata come abbandonata e l'avversario viene dichiarato vincitore. Il giocatore che abbandona perde 0.5 punti, mentre l'avversario guadagna 1 punto.
+
+#### Parametri
+
+| **Posizione**    | **Nome**         | **Tipo**  | **Descrizione**               | **Obbligatorio** |
+|------------------|------------------|-----------|-------------------------------|------------------|
+| Path Param       | `id_partita`      | `integer` | ID della partita da abbandonare | ✅               |
+| Header           | `Authorization`   | `string`  | Token JWT per l'autenticazione | ✅               |
+
+#### Esempio di richiesta
+
+```http
+PUT /game-status/abandon-game/1 HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
+
+#### Esempio di risposta
+```
+{
+  "risultato": {
+    "success": true,
+    "statusCode": 201,
+    "risultato": "Il giocatore Simone Recinelli ha abbandonato la partita. Il giocatore Piero Matteotti ha vinto e ha ricevuto 1 punto."
+  }
+}
+```
+
+### GET `/game-status/ranking?order={asc, desc}`
+
+La rotta `GET /game-status/ranking` restituisce la classifica dei giocatori, ordinata in base al punteggio totale. Il client può specificare se desidera ordinare la classifica in modo crescente o decrescente. Il sistema autentica l'utente e restituisce l'elenco dei giocatori ordinati per punteggio totale. Se nessun giocatore viene trovato, viene restituito un errore.
+
+#### Parametri
+
+| **Posizione** | **Nome**    | **Tipo**   | **Descrizione**                                               | **Obbligatorio** |
+|---------------|-------------|------------|---------------------------------------------------------------|------------------|
+| Query Param   | `order`     | `string`   | Ordine della classifica: `asc` o `desc`. Valore di default = `asc` | ❌               |
+
+#### Esempio di richiesta (senza specificare l'ordine)
+
+```http
+GET /game-status/ranking HTTP/1.1
+```
+
+#### Esempio di risposta (senza specificare l'ordine)
+```
+{
+    "success": true,
+    "data": [
+        {
+            "nome": "Piero",
+            "cognome": "Matteotti",
+            "punteggio_totale": 70
+        },
+        {
+            "nome": "Simone",
+            "cognome": "Recinelli",
+            "punteggio_totale": 100
+        },
+        {
+            "nome": "Diego",
+            "cognome": "Santarelli",
+            "punteggio_totale": 120
+        },
+        {
+            "nome": "Davide",
+            "cognome": "Santurbano",
+            "punteggio_totale": 160
+        }
+    ]
+}
+```
+#### Esempio di richiesta (specificando l'ordine)
+
+```http
+GET /game-status/ranking?order=desc HTTP/1.1
+```
+#### Esempio di risposta
+```
+{
+    "success": true,
+    "data": [
+        {
+            "nome": "Davide",
+            "cognome": "Santurbano",
+            "punteggio_totale": 160
+        },
+        {
+            "nome": "Diego",
+            "cognome": "Santarelli",
+            "punteggio_totale": 120
+        },
+        {
+            "nome": "Simone",
+            "cognome": "Recinelli",
+            "punteggio_totale": 100
+        },
+        {
+            "nome": "Piero",
+            "cognome": "Matteotti",
+            "punteggio_totale": 70
+        }
+    ]
+}
+```
+
+### GET `/game-status/win-certify/:id_partita`
+
+La rotta `GET /game-status/win-certify/:id_partita` permette di ottenere un certificato di vittoria per una partita completata. Il client deve essere autenticato tramite token JWT e specificare l'ID della partita. Il sistema verifica che la partita esista e che sia stata completata con un vincitore. Se tutto è corretto, viene generato un certificato in formato PDF che include i dettagli della partita (vincitore, avversario, numero di mosse, durata).
+
+#### Parametri
+
+| **Posizione**    | **Nome**        | **Tipo**   | **Descrizione**                     | **Obbligatorio** |
+|------------------|-----------------|------------|-------------------------------------|------------------|
+| Path Param       | `id_partita`     | `integer`  | ID della partita completata         | ✅               |
+| Header           | `Authorization`  | `string`   | Token JWT per l'autenticazione      | ✅               |
+
+#### Esempio di richiesta
+
+```http
+GET /game-status/win-certify/7 HTTP/1.1
+Authorization: Bearer {{jwt_token}}
+```
+
+#### Esempio di risposta
+
+AGGIUNGERE PDF CORRETTO
+
+
+### PUT `/admin/recharge`
+
+La rotta `PUT /admin/recharge` consente a un amministratore di ricaricare il saldo dei token di un giocatore. L'amministratore deve essere autenticato tramite token JWT e fornire l'email del giocatore e il nuovo saldo di token da impostare. Il sistema verifica che l'utente sia un amministratore, controlla l'esistenza del giocatore e aggiorna il saldo dei token. Se il nuovo saldo è valido (maggiore o uguale a 0), l'operazione viene completata con successo.
+
+#### Parametri
+
+| **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**              | **Obbligatorio** |
+|--------------------|---------------|-----------|------------------------------|------------------|
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione  | ✅               |
+| Richiesta nel body | `email`        | `string`  | Email del giocatore           | ✅               |
+| Richiesta nel body | `nuovoCredito` | `number`  | Nuovo saldo di token          | ✅               |
+
+#### Esempio di richiesta
+
+```http
+PUT /admin/recharge HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
 
 {
-"risultato": {
-"success": true,
-"statusCode": 201,
-"risultato": "Il giocatore Simone Recinelli ha abbandonato la partita. Il giocatore Piero Matteotti ha vinto e ha ricevuto 1 punto."
+  "email": "simone@example.com",
+  "nuovoCredito": 100
 }
+```
+
+#### Esempio di risposta
+```
+{
+    "success": true,
+    "statusCode": 201,
+    "message": "Credito aggiornato per l'utente Simone Recinelli",
+    "data": {
+        "email": "simone@example.com",
+        "token_residuo": 100
+    }
 }
+```
+
+## ▶️ Configurazione e uso
+
+Di seguito verranno esplicati i passaggi per eseguire correttamente l'applicazione:
+
+1. **Installazione di Docker**: Assicurati di avere Docker e docker-compose installati sul tuo sistema.
+2. **Clonazione della repository**: Esegui la clonazione del repository sul tuo terminale con i seguenti comandi:
+
+    ```
+    git clone https://github.com/diegosantarelli/checkers_pa
+    cd checkers_pa
+    ```
+
+3.	**Importazione del file .env**: È fondamentale importare il file .env all’interno della directory principale del progetto per configurare correttamente le variabili d’ambiente necessarie.
+4.	**Avvio del sistema**: Una volta nella directory principale, avvia l’applicazione tramite Docker eseguendo il seguente comando:
+
+    ```
+    docker-compose up --build
+    ```
+
+L’applicazione sarà in ascolto all’indirizzo http://localhost:3001.
+
+5.	**Testing delle API**: Le rotte API, descritte nella sezione API Routes, possono essere testate utilizzando Postman. Troverai i file necessari per il testing nella directory postman:
+   * Collection: Checkers_game_collection.postman_collection.json
+   * Environment: Auth.postman_environment.json
+
+Questi file ti permetteranno di configurare facilmente Postman e testare le rotte disponibili, come ad esempio http://localhost:3001/login.
+
+
+## 🛠️ Strumenti utilizzati
+
+🛠️ Strumenti utilizzati
+
+* Node.js: Runtime utilizzato per eseguire il codice JavaScript sul lato server.
+* TypeScript: Linguaggio utilizzato per aggiungere tipizzazione statica a JavaScript, migliorando la manutenibilità del codice.
+* Express: Framework per applicazioni web Node.js, utilizzato per creare il server e gestire le API.
+* PostgreSQL: Database relazionale utilizzato per memorizzare le informazioni relative a giocatori, partite e mosse.
+* Sequelize: ORM (Object-Relational Mapping) utilizzato per interagire con il database PostgreSQL tramite modelli JavaScript.
+* JWT (JSON Web Tokens): Utilizzato per l’autenticazione degli utenti tramite token.
+* Docker: Strumento per la containerizzazione, utilizzato per creare ambienti di sviluppo e produzione isolati.
+* docker-compose: Strumento utilizzato per definire e gestire applicazioni multi-contenitore Docker.
+* Postman: Strumento per testare le API, utilizzato per verificare il corretto funzionamento delle rotte create.
+* WebStorm: Editor di codice avanzato utilizzato per lo sviluppo del progetto.
+* DBeaver: Strumento per la gestione e l’interazione con il database PostgreSQL, utile per visualizzare e manipolare i dati.
+* Rapid-draughts: Libreria utilizzata per gestire la logica di gioco della dama, inclusa l’integrazione dell’intelligenza artificiale.
+
+## ✍🏼 Autori
+
+Il progetto è stato sviluppato da **Simone Recinelli** (Matricola: S1118757) e **Diego Santarelli** (Matricola: S1118746) come parte del corso di **Programmazione Avanzata** (A.A. 2023/2024) presso l'**Università Politecnica delle Marche**, nel corso di Laurea Magistrale in **Ingegneria Informatica e dell’Automazione** (LM-32).
+
+### 📌 Contributi:
+
+- **Simone Recinelli**: Si è occupato della progettazione e implementazione dell'architettura back-end, gestendo l'integrazione della libreria `rapid-draughts` per la logica di gioco e la realizzazione del sistema di gestione delle mosse e partite. Ha anche sviluppato la logica di gestione dell'intelligenza artificiale e il sistema di autenticazione JWT.
+
+- **Diego Santarelli**: Ha contribuito alla realizzazione del sistema di persistenza dei dati, lavorando sull'integrazione di **Sequelize** con **PostgreSQL**. Ha inoltre sviluppato i controlli di validazione per le richieste e la gestione degli errori tramite il pattern Factory. Diego ha anche curato la configurazione di Docker per la containerizzazione del progetto e l'implementazione del sistema di ricarica dei token per gli utenti.
+
+Entrambi hanno collaborato attivamente in tutte le fasi del progetto, dalla progettazione all'implementazione, fino alla fase di testing su Postman, garantendo un sistema robusto e manutenibile.
+
+
+
+
+
+
+
 
 
 
