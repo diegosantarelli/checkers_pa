@@ -41,7 +41,7 @@ module.exports = {
       cognome: 'Santurbano',
       email: 'davide@example.com',
       hash: await bcrypt.hash('cracovia', saltRounds),
-      token_residuo: 0.5,
+      token_residuo: 1.5,
       punteggio_totale: 8,
       ruolo: 'utente',
       createdAt: new Date(),
