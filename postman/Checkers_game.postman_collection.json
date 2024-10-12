@@ -1,13 +1,13 @@
 {
 	"info": {
-		"_postman_id": "80ff406c-6cdc-45aa-92b9-9ed998ca1b6f",
-		"name": "ROTTE PROGETTO PROGRAMMAZIONE AVANZATA",
+		"_postman_id": "de54b483-ace4-4373-8b2e-6ac7c0641a5d",
+		"name": "Checkers_game",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "18688602"
+		"_exporter_id": "18688648"
 	},
 	"item": [
 		{
-			"name": "Server attivo",
+			"name": "test server",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -32,19 +32,16 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"// Verifica che la risposta contenga un token",
-							"if (pm.response.code === 200) {",
-							"    // Parla di JWT nel body della risposta o header, adatta il percorso in base alla tua API",
-							"    var jsonData = pm.response.json();",
-							"",
-							"    // Salva il token JWT in una variabile d'ambiente chiamata 'jwt_token'",
-							"    pm.environment.set(\"jwt_token\", jsonData.token);",
-							"    ",
-							"    // Stampa nel console log per verificare che il token sia stato salvato",
-							"    console.log(\"JWT salvato:\", jsonData.token);",
-							"    console.log(jsonData); // Stampa il contenuto dell'intera risposta JSON",
-							"} else {",
-							"    console.log(\"Login fallito, impossibile salvare il token\");",
+							"if (pm.response.code === 200) {\r",
+							"    \r",
+							"    var jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.environment.set(\"jwt_token\", jsonData.token);\r",
+							"\r",
+							"    console.log(\"JWT salvato:\", jsonData.token);\r",
+							"    console.log(jsonData);\r",
+							"} else {\r",
+							"    console.log(\"Login fallito, impossibile salvare il token\");\r",
 							"}"
 						],
 						"type": "text/javascript",
@@ -57,7 +54,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"simone@example.com\",\n    \"password\": \"progavanzata\"\n}",
+					"raw": "{\r\n    \"email\": \"davide@example.com\",\r\n    \"password\": \"cracovia\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -80,22 +77,38 @@
 		},
 		{
 			"name": "Login Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"if (pm.response.code === 200) {\r",
+							"\r",
+							"    var jsonData = pm.response.json();\r",
+							"\r",
+							"    pm.environment.set(\"jwt_token\", jsonData.token);\r",
+							"\r",
+							"    console.log(\"JWT salvato:\", jsonData.token);\r",
+							"    console.log(jsonData);\r",
+							"} else {\r",
+							"    console.log(\"Login fallito, impossibile salvare il token\");\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
 			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9naW9jYXRvcmUiOjEsInJ1b2xvIjoidXRlbnRlIiwiZW1haWwiOiJzaW1vbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3MjgzODQ4MTgsImV4cCI6MTcyODM4ODQxOH0.FBKq9yRuFc8fa8qk89D9Kmz4RfqDx6j1H0SMXrJpU_8",
-							"type": "string"
-						}
-					]
-				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"diego@example.com\",\n    \"password\": \"provaprova\"\n}",
+					"raw": "{\r\n    \"email\": \"diego@example.com\",\r\n    \"password\": \"provaprova\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -117,7 +130,7 @@
 			"response": []
 		},
 		{
-			"name": "Game create PvIA",
+			"name": "Creazione Partita PvP",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -130,67 +143,10 @@
 					]
 				},
 				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9naW9jYXRvcmUiOjEsInJ1b2xvIjoidXRlbnRlIiwiZW1haWwiOiJzaW1vbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3MjgxMjA5ODAsImV4cCI6MTcyODEyNDU4MH0.SIpH2npUhEXHTVJTnRVq0ptk_rr2MUaND7dyqKeU-Tg",
-						"type": "text"
-					}
-				],
+				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"livello_IA\": \"difficile\",\n  \"tipo\": \"Competitiva\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3001/game/create?Authentication=Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9naW9jYXRvcmUiOjEsInJ1b2xvIjoidXRlbnRlIiwiZW1haWwiOiJzaW1vbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3MjgxMTM4NDcsImV4cCI6MTcyODExNzQ0N30.c2YEzruFjXiUl4LVB-6_jixODk-Iarnb_0vhqMTnvPI",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"game",
-						"create"
-					],
-					"query": [
-						{
-							"key": "Authentication",
-							"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF9naW9jYXRvcmUiOjEsInJ1b2xvIjoidXRlbnRlIiwiZW1haWwiOiJzaW1vbmVAZXhhbXBsZS5jb20iLCJpYXQiOjE3MjgxMTM4NDcsImV4cCI6MTcyODExNzQ0N30.c2YEzruFjXiUl4LVB-6_jixODk-Iarnb_0vhqMTnvPI"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Game create PvP",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "",
-						"value": "",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"email_giocatore2\": \"piero@example.com\",\n  \"tipo\": \"Competitiva\"\n}",
+					"raw": "{\r\n    \"email_giocatore2\": \"simone@example.com\",\r\n    \"tipo\": \"Normale\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -213,7 +169,10 @@
 			"response": []
 		},
 		{
-			"name": "Esecuzione mossa valida",
+			"name": "Creazione Partita IA",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -229,7 +188,46 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"id_partita\": 8,\n    \"from\": \"D7\",\n    \"to\": \"H7\"\n}",
+					"raw": "{\r\n    \"livello_IA\": \"normale\",\r\n    \"tipo\": \"Normale\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/game/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"game",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Esecuzione Mossa",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id_partita\": 5,\r\n    \"from\": \"B7\",\r\n    \"to\": \"G7\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -252,69 +250,7 @@
 			"response": []
 		},
 		{
-			"name": "Stato Partita",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/game-status/check-status/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"game-status",
-						"check-status",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Abbandona partita",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/game-status/abandon-game/7",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"game-status",
-						"abandon-game",
-						"7"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Lista partite giocate senza filtro per data",
+			"name": "Partite vinte",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
@@ -356,7 +292,7 @@
 			"response": []
 		},
 		{
-			"name": "Lista partita giocata filtrata per data",
+			"name": "Singola Partita",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -371,7 +307,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3001/game-status/match-list?startDate=2024-04-09",
+					"raw": "http://localhost:3001/game-status/match-list?startDate=2024-10-08",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -384,7 +320,7 @@
 					"query": [
 						{
 							"key": "startDate",
-							"value": "2024-04-09"
+							"value": "2024-10-08"
 						}
 					]
 				}
@@ -392,7 +328,7 @@
 			"response": []
 		},
 		{
-			"name": "Esporta mosse JSON",
+			"name": "Verifica stato partita",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -404,86 +340,19 @@
 						}
 					]
 				},
-				"method": "GET",
+				"method": "PUT",
 				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/do/move/1/export?format=json",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"do",
-						"move",
-						"1",
-						"export"
-					],
-					"query": [
-						{
-							"key": "format",
-							"value": "json"
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Esporta mosse PDF",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
+					}
 				},
-				"method": "GET",
-				"header": [],
 				"url": {
-					"raw": "http://localhost:3001/do/move/1/export?format=json",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"do",
-						"move",
-						"1",
-						"export"
-					],
-					"query": [
-						{
-							"key": "format",
-							"value": "json"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Ranking generico (ASC)",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/game-status/ranking",
+					"raw": "http://localhost:3001/game-status/check-status/3",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -491,14 +360,15 @@
 					"port": "3001",
 					"path": [
 						"game-status",
-						"ranking"
+						"check-status",
+						"3"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Ranking DESC",
+			"name": "Abbandona partita",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -510,6 +380,142 @@
 						}
 					]
 				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/game-status/abandon-game/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"game-status",
+						"abandon-game",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ricarica credito Admin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"simone@example.com\",\r\n  \"nuovoCredito\": 5\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3001/admin/recharge",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"admin",
+						"recharge"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Storico mosse PDF",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/do/move/4/export?format=pdf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"do",
+						"move",
+						"4",
+						"export"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "pdf"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Storico mosse JSON",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{jwt_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3001/do/move/4/export?format=json",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"do",
+						"move",
+						"4",
+						"export"
+					],
+					"query": [
+						{
+							"key": "format",
+							"value": "json"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Classifica giocatori",
+			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -534,7 +540,7 @@
 			"response": []
 		},
 		{
-			"name": "Certificato di vittoria",
+			"name": "Certificato vittoria",
 			"request": {
 				"auth": {
 					"type": "bearer",
@@ -559,36 +565,6 @@
 						"game-status",
 						"win-certify",
 						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Admin ricarica",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{jwt_token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3001/admin/recharge",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3001",
-					"path": [
-						"admin",
-						"recharge"
 					]
 				}
 			},
