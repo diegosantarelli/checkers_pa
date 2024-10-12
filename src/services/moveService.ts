@@ -78,10 +78,6 @@ class MoveService {
             throw ErrorFactory.createError('NOT_FOUND', "Giocatore non trovato.");
         }
 
-        if (giocatore.token_residuo <= 0) {
-            throw ErrorFactory.createError('UNAUTHORIZED', "Token terminati. Non puoi fare altre mosse.");
-        }
-
         await MoveService.verificaGiocatoreNellaPartita(id_partita, id_giocatore1);
 
         const partita = await Partita.findByPk(id_partita);
