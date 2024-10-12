@@ -49,7 +49,7 @@ Di seguito viene riportata la struttura delle directory:
 ```
 checkers_pa/
 ├── images/
-├── node_modules/
+├── postman/
 ├── src/
 │   ├── controllers/
 │   ├── database/
@@ -65,7 +65,6 @@ checkers_pa/
 │   ├── express.d.ts
 │   └── global.d.ts
 ├── .dockerignore
-├── .env
 ├── .gitignore
 ├── docker-compose.yml
 ├── Dockerfile
