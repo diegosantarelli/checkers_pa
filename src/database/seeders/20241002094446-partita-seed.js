@@ -74,6 +74,18 @@ module.exports = {
         id_vincitore: 3,
         livello_IA: null,
         tavola: this.generateRandomBoardConfig(),
+      },
+      {
+        data_inizio: this.getRandomDate(startDate, endDate),
+        stato: 'completata',
+        tipo: 'Normale',
+        mosse_totali: 10,
+        tempo_totale: 180,
+        id_giocatore1: 2,
+        id_giocatore2: 4,
+        id_vincitore: 4,
+        livello_IA: null,
+        tavola: this.generateRandomBoardConfig(),
       }
     ]);
   },

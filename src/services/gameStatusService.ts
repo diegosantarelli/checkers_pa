@@ -37,7 +37,7 @@ class GameStatusService {
                     throw ErrorFactory.createError('NOT_FOUND', 'Vincitore non trovato');
                 }
 
-                risultato = `La partita è stata vinta da ${vincitore.nome}`;
+                risultato = `La partita è stata vinta da ${vincitore.nome} ${vincitore.cognome}`;
             } else if (partita.stato === 'abbandonata') {
                 const giocatore = await Giocatore.findByPk(id_giocatore);
 

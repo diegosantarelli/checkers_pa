@@ -73,8 +73,8 @@ class WinnerService {
 
             if (!partite || partite.length === 0) {
                 const message = startDate
-                    ? `Nessuna partita trovata per la data ${startDate}`
-                    : 'Nessuna partita trovata';
+                    ? `${giocatore.nome} ${giocatore.cognome} non ha giocato nessuna partita in data ${startDate}`
+                    : `${giocatore.nome} ${giocatore.cognome} non ha giocato nessuna partita.`;
                 console.warn(message);
                 throw ErrorFactory.createError('NOT_FOUND', message);
             }
