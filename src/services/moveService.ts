@@ -14,6 +14,7 @@ const Partita = initPartita(sequelize);
 const Mossa = initMossa(sequelize);
 const MossaIA = initMossaIA(sequelize);
 
+
 /**
  * @class MoveService
  * @description Servizio per la gestione delle mosse nel gioco della dama, inclusa la gestione delle mosse del giocatore,
@@ -169,6 +170,9 @@ class MoveService {
         const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
 
         if (partita.livello_IA) {
+            // Deduce il costo sia della mossa del giocatore che di quella dell'IA
+            await MoveService.deductMoveCost(id_giocatore1, 2); // Deduce il costo di due mosse
+
             const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
 
             draughts.move(aiMove);
@@ -293,13 +297,15 @@ class MoveService {
      * @returns {Promise<void>} - Effettua la deduzione del costo della mossa.
      * @throws {HttpException} - Se il giocatore non viene trovato o ci sono errori nel salvataggio.
      */
-    private static async deductMoveCost(id_giocatore1: number): Promise<void> {
+    private static async deductMoveCost(id_giocatore1: number, numberOfMoves: number = 1): Promise<void> {
         const giocatore = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore) {
             throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato.');
         }
 
-        giocatore.token_residuo -= 0.0125;
+        const totalDeduction = 0.0125 * numberOfMoves;
+        giocatore.token_residuo -= totalDeduction;
+
         await giocatore.save();
     }
 
