@@ -891,27 +891,27 @@ sequenceDiagram
 
 # 🔗API Routes
 
-| **Verbo HTTP** | **Endpoint**                                      | **Descrizione**                                                                                 | **Autenticazione JWT** |
-|----------------|---------------------------------------------------|-------------------------------------------------------------------------------------------------|------------------------|
-| **POST**       | `/login`                                          | Autenticazione dell'utente tramite email e password.                                             | ❌                     |
-| **PUT**        | `/admin/recharge`                                 | Ricarica del saldo dei token per un utente (solo admin).                                         | ✅                     |
-| **GET**        | `/game-status/ranking?order={asc,desc}`           | Recupero della classifica dei giocatori per punteggio.                                           | ❌                     |
-| **POST**       | `/game/create`                                    | Creazione di una nuova partita tra giocatori o contro l'IA.                                      | ✅                     |
-| **POST**       | `/do/move`                                        | Esecuzione di una mossa nella partita corrente.                                                  | ✅                     |
-| **PUT**        | `/game-status/check-status/{:id_partita}`         | Recupero dello stato attuale di una specifica partita.                                           | ✅                     |
-| **GET**        | `/game-status/win-certify/{:id_partita}`          | Generazione del certificato di vittoria per una partita.                                         | ✅                     |
-| **GET**        | `/do/move/{:id_partita}/export?format={pdf,json}` | Esportazione della cronologia delle mosse di una partita (formato PDF o JSON).                   | ✅                     |
-| **PUT**        | `/game-status/abandon-game/{:id_partita}`         | Abbandono di una partita in corso, con aggiornamento del punteggio.                              | ✅                     |
-| **GET**        | `/game-status/match-list?startDate=YYYY-MM-DD`    | Recupero della cronologia delle partite giocate dal giocatore con filtro data opzionale.          | ✅                     |
+| **Verbo HTTP** | **Endpoint**                                      | **Descrizione**                                                                          | **Autenticazione JWT** |
+|----------------|---------------------------------------------------|------------------------------------------------------------------------------------------|------------------------|
+| **POST**       | `/login`                                          | Autenticazione dell'utente tramite email e password.                                     | ❌                     |
+| **PUT**        | `/admin/recharge`                                 | Ricarica del saldo dei token per un utente (solo admin).                                 | ✅                     |
+| **GET**        | `/game-status/ranking?order={asc,desc}`           | Recupero della classifica dei giocatori per punteggio.                                   | ❌                     |
+| **POST**       | `/game/create`                                    | Creazione di una nuova partita tra giocatori o contro l'IA.                              | ✅                     |
+| **POST**       | `/do/move`                                        | Esecuzione di una mossa nella partita corrente.                                          | ✅                     |
+| **PUT**        | `/game-status/check-status/{:id_partita}`         | Recupero dello stato attuale di una specifica partita.                                   | ✅                     |
+| **GET**        | `/game-status/win-certify/{:id_partita}`          | Generazione del certificato di vittoria per una partita.                                 | ✅                     |
+| **GET**        | `/do/move/{:id_partita}/export?format={pdf,json}` | Esportazione della cronologia delle mosse di una partita (formato PDF o JSON).           | ✅                     |
+| **PUT**        | `/game-status/abandon-game/{:id_partita}`         | Abbandono di una partita in corso, con aggiornamento del punteggio.                      | ✅                     |
+| **GET**        | `/game-status/match-list?startDate=YYYY-MM-DD`    | Recupero della cronologia delle partite giocate dai giocatori con filtro data opzionale. | ✅                     |
 
 ## POST `/login`
 
 ### Parametri
 
-| **Posizione**      | **Nome**   | **Tipo**  | **Descrizione**              | **Obbligatorio** |
-|--------------------|------------|-----------|------------------------------|------------------|
-| Richiesta nel body | `email`    | `string`  | Indirizzo email dell'utente   | ✅               |
-| Richiesta nel body     | `password` | `string`  | Password dell'utente          | ✅               |
+| **Posizione**      | **Nome**   | **Tipo**  | **Descrizione**                                                                                    | **Obbligatorio** |
+|--------------------|------------|-----------|----------------------------------------------------------------------------------------------------|------------------|
+| Richiesta nel body | `email`    | `string`  | Indirizzo email dell'utente. Formato: `tuo_username@example.com` oppure `tuo_username@example.it`. | ✅               |
+| Richiesta nel body     | `password` | `string`  | Password dell'utente                                                                               | ✅               |
 
 #### Esempio di richiesta
 
@@ -934,12 +934,12 @@ Content-Type: application/json
 
 ### Parametri
 
-| **Posizione**      | **Nome**           | **Tipo** | **Descrizione**                              | **Obbligatorio** |
-|--------------------|--------------------|----------|----------------------------------------------|------------------|
-| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP)            | ❌               |
-| Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA)            | ✅               |
-| Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA) | ❌               |
-| Header             | `Authorization`| `string`  | Token JWT per autenticazione   | ✅               |
+| **Posizione**      | **Nome**           | **Tipo** | **Descrizione**                                                                                                   | **Obbligatorio** |
+|--------------------|--------------------|----------|-------------------------------------------------------------------------------------------------------------------|------------------|
+| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP). Formato: `tuo_username@example.com` oppure `tuo_username@example.it`.          | ❌               |
+| Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA). I valori da inserire possono essere: `Amichevole`, `Normale` e `Competitiva`.        | ✅               |
+| Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA). I valore da inserire possono essere: `facile`, `normale` e `difficile`. | ❌               |
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione                                                                                      | ✅               |
 
 #### Esempio di richiesta per la creazione di una partita contro un giocatore
 ```http
@@ -998,12 +998,12 @@ Authorization: Bearer {{jwt_token}}
 
 ### Parametri
 
-| **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**                | **Obbligatorio** |
-|--------------------|---------------|-----------|--------------------------------|------------------|
-| Richiesta nel body | `id_partita`  | `number`  | ID della partita               | ✅               |
-| Richiesta nel body | `from`        | `string`  | Coordinata di origine della mossa | ✅               |
-| Richiesta nel body | `to`          | `string`  | Coordinata di destinazione della mossa | ✅               |
-| Header             | `Authorization`| `string`  | Token JWT per autenticazione   | ✅               |
+| **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**                                         | **Obbligatorio** |
+|--------------------|---------------|-----------|---------------------------------------------------------|------------------|
+| Richiesta nel body | `id_partita`  | `number`  | ID della partita                                        | ✅               |
+| Richiesta nel body | `from`        | `string`  | Coordinata di origine della mossa, ad esempio `D7`.     | ✅               |
+| Richiesta nel body | `to`          | `string`  | Coordinata di destinazione della mossa, ad esempio `H7`. | ✅               |
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione                            | ✅               |
 #### Esempio di richiesta
 ```http
 POST /do/move HTTP/1.1
@@ -1056,10 +1056,10 @@ Authorization: Bearer {{jwt_token}}
 
 ### Parametri
 
-| **Posizione**    | **Nome**      | **Tipo**  | **Descrizione**                        | **Obbligatorio** |
-|------------------|---------------|-----------|----------------------------------------|---------------|
-| Query param      | `startDate`   | `string`  | Data di inizio in formato `YYYY-MM-DD` | ❌            |
-| Header           | `Authorization` | `string` | Token JWT per l'autenticazione         | ✅               |
+| **Posizione**    | **Nome**      | **Tipo**  | **Descrizione**                         | **Obbligatorio** |
+|------------------|---------------|-----------|-----------------------------------------|---------------|
+| Query param      | `startDate`   | `string`  | Data di inizio in formato `YYYY-MM-DD`. | ❌            |
+| Header           | `Authorization` | `string` | Token JWT per l'autenticazione          | ✅               |
 
 #### Esempio di richiesta senza filtro per la data
 ```http
@@ -1160,14 +1160,14 @@ Authorization: Bearer {{jwt_token}}
 | Query Param      | `format`          | `string`  | Formato di esportazione (json/pdf) | ✅               |
 | Header           | `Authorization` | `string` | Token JWT per l'autenticazione         | ✅               |
 
-#### Esempio di richiesta
+#### Esempio di richiesta (formato JSON)
 
 ```http
 GET /do/move/1/export?format=json HTTP/1.1
 Authorization: Bearer {{jwt_token}}
 ```
 
-#### Esempio di risposta
+#### Esempio di risposta (formato JSON)
 
 ```
 [
@@ -1188,14 +1188,14 @@ Authorization: Bearer {{jwt_token}}
 ]
 ```
 
-#### Esempio di richiesta
+#### Esempio di richiesta (formato PDF)
 
 ```http
 GET /do/move/1/export?format=pdf HTTP/1.1
 Authorization: Bearer {{jwt_token}}
 ```
 
-#### Esempio di risposta
+#### Esempio di risposta (formato PDF)
 
 <img src="./images/Storico_mosse.jpg" alt="Risposta rotta '/do/move/1/export?format=pdf'"/>
 
@@ -1230,9 +1230,9 @@ Authorization: Bearer {{jwt_token}}
 
 ### Parametri
 
-| **Posizione** | **Nome**    | **Tipo**   | **Descrizione**                                               | **Obbligatorio** |
-|---------------|-------------|------------|---------------------------------------------------------------|------------------|
-| Query Param   | `order`     | `string`   | Ordine della classifica: `asc` o `desc`. Valore di default = `asc` | ❌               |
+| **Posizione** | **Nome**    | **Tipo**   | **Descrizione**                                                     | **Obbligatorio** |
+|---------------|-------------|------------|---------------------------------------------------------------------|------------------|
+| Query Param   | `order`     | `string`   | Ordine della classifica: `asc` o `desc`. Valore di default = `asc`. | ❌               |
 
 #### Esempio di richiesta (senza specificare l'ordine)
 
@@ -1327,11 +1327,11 @@ Authorization: Bearer {{jwt_token}}
 
 ### Parametri
 
-| **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**              | **Obbligatorio** |
-|--------------------|---------------|-----------|------------------------------|------------------|
-| Header             | `Authorization`| `string`  | Token JWT per autenticazione  | ✅               |
-| Richiesta nel body | `email`        | `string`  | Email del giocatore           | ✅               |
-| Richiesta nel body | `nuovoCredito` | `number`  | Nuovo saldo di token          | ✅               |
+| **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**                                                                            | **Obbligatorio** |
+|--------------------|---------------|-----------|--------------------------------------------------------------------------------------------|------------------|
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione                                                               | ✅               |
+| Richiesta nel body | `email`        | `string`  | Email del giocatore. Formato: `tuo_username@example.com` oppure `tuo_username@example.it`. | ✅               |
+| Richiesta nel body | `nuovoCredito` | `number`  | Nuovo saldo di token                                                                       | ✅               |
 
 #### Esempio di richiesta
 
