@@ -1,14 +1,6 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });  // Carica il file .env
-
-console.log('DB Config:', {
-    database: process.env.POSTGRES_DB,
-    user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
-    host: process.env.POSTGRES_HOST,
-    port: process.env.POSTGRES_PORT,
-});
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 /**
  * @module DatabaseConnection
@@ -16,43 +8,46 @@ console.log('DB Config:', {
  * e le variabili d'ambiente definite nel file `.env`.
  */
 class DatabaseConnection {
-    /**
-     * @static
-     * @property {Sequelize} instance - L'istanza singleton di Sequelize.
-     * @description Istanza unica di Sequelize che rappresenta la connessione al database.
-     */
     static instance;
 
     /**
-     * Restituisce l'istanza singleton della connessione al database.
+     * Costruttore privato simulato per prevenire istanziazioni multiple.
+     * Se viene chiamato esternamente, lancia un errore.
+     */
+    constructor() {
+        if (DatabaseConnection.instance) {
+            throw new Error("Non puoi creare un'altra istanza di DatabaseConnection. Usa DatabaseConnection.getInstance()");
+        }
+
+        // Configura la connessione a Sequelize
+        DatabaseConnection.instance = new Sequelize(
+            process.env.POSTGRES_DB,
+            process.env.POSTGRES_USER,
+            process.env.POSTGRES_PASSWORD,
+            {
+                host: process.env.POSTGRES_HOST,
+                port: Number(process.env.POSTGRES_PORT) || 5432,
+                dialect: 'postgres',
+                logging: console.log,
+            }
+        );
+    }
+
+    /**
+     * Restituisce l'istanza Singleton della connessione Sequelize.
+     * Se l'istanza non esiste, viene creata una nuova.
      *
-     * @function getInstance
-     * @memberof DatabaseConnection
-     *
-     * @returns {Sequelize} - L'istanza della connessione Sequelize.
-     *
-     * @description Se l'istanza non esiste ancora, viene creata e configurata utilizzando le variabili d'ambiente.
-     * Altrimenti, viene restituita l'istanza esistente.
+     * @returns {Sequelize} - L'istanza Sequelize della connessione al database.
      */
     static getInstance() {
         if (!DatabaseConnection.instance) {
-            DatabaseConnection.instance = new Sequelize(
-                process.env.POSTGRES_DB,
-                process.env.POSTGRES_USER,
-                process.env.POSTGRES_PASSWORD,
-                {
-                    host: process.env.POSTGRES_HOST,
-                    port: Number(process.env.POSTGRES_PORT) || 5432,
-                    dialect: 'postgres',
-                    logging: console.log,
-                }
-            );
+            new DatabaseConnection(); // Viene creato solo una volta
         }
         return DatabaseConnection.instance;
     }
 }
 
-// Permette di eseguire l'autenticazione solo una volta
+// Esegui l'autenticazione al database
 DatabaseConnection.getInstance().authenticate()
     .then(() => {
         console.log('Connessione al database stabilita con successo.');
@@ -61,10 +56,5 @@ DatabaseConnection.getInstance().authenticate()
         console.error('Impossibile connettersi al database:', err);
     });
 
-/**
- * Esporta l'istanza della connessione al database.
- *
- * @module DatabaseConnection
- * @returns {Sequelize} - L'istanza della connessione Sequelize.
- */
+// Esporta l'istanza della connessione al database
 module.exports = DatabaseConnection.getInstance();
