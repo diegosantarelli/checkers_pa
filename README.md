@@ -18,7 +18,15 @@ Il progetto è stato interamente concepito e realizzato da **Simone Recinelli** 
 # 👆🏼Indice
 - [Obiettivi di progetto](#obiettivi-di-progetto)
 - [Progettazione](#progettazione)
-     - [Diagramma dei casi d'uso](#diagramma-dei-casi-duso)
+     - [Architettura dei servizi](#architettura-dei-servizi)
+     - [Diagrammi UML](#diagrammi-uml)
+          - [Diagramma dei casi d'uso](#diagramma-dei-casi-duso)
+          - [Diagramma E-R](#-diagramma-e-r)
+- [Pattern utilizzati](#-pattern-utilizzati)
+    - [Diagrammi delle sequenze](#-diagrammi-delle-sequenze)
+- [API Routes](#api-routes)
+- [Configurazione e uso](#-configurazione-e-uso)
+- [Strumenti utilizzati](#-strumenti-utilizzati)
 
 ## 🎯 Obiettivi di progetto
 Come scritto precedentemente, l'obiettivo principale è realizzare un sistema di back-end per la gestione delle partite di dama.
@@ -1384,9 +1392,9 @@ Di seguito verranno esplicati i passaggi per eseguire correttamente l'applicazio
     docker-compose up --build
     ```
 
-L’applicazione sarà in ascolto all’indirizzo http://localhost:3001.
+L’applicazione sarà in ascolto all’indirizzo `http://localhost:3001`.
 
-5.	**Testing delle API**: Le rotte API, descritte nella sezione API Routes, possono essere testate utilizzando Postman. Troverai i file necessari per il testing nella directory postman:
+5.	**Testing delle API**: Le rotte API, descritte nella sezione API Routes, possono essere testate utilizzando Postman. I file necessari per il testing si trovano nella directory `/postman`:
    * Collection: Checkers_game_collection.postman_collection.json
    * Environment: Auth.postman_environment.json
 
@@ -1395,33 +1403,30 @@ Questi file ti permetteranno di configurare facilmente Postman e testare le rott
 
 ## 🛠️ Strumenti utilizzati
 
-🛠️ Strumenti utilizzati
-
-* Node.js: Runtime utilizzato per eseguire il codice JavaScript sul lato server.
-* TypeScript: Linguaggio utilizzato per aggiungere tipizzazione statica a JavaScript, migliorando la manutenibilità del codice.
-* Express: Framework per applicazioni web Node.js, utilizzato per creare il server e gestire le API.
-* PostgreSQL: Database relazionale utilizzato per memorizzare le informazioni relative a giocatori, partite e mosse.
-* Sequelize: ORM (Object-Relational Mapping) utilizzato per interagire con il database PostgreSQL tramite modelli JavaScript.
-* JWT (JSON Web Tokens): Utilizzato per l’autenticazione degli utenti tramite token.
-* Docker: Strumento per la containerizzazione, utilizzato per creare ambienti di sviluppo e produzione isolati.
-* docker-compose: Strumento utilizzato per definire e gestire applicazioni multi-contenitore Docker.
-* Postman: Strumento per testare le API, utilizzato per verificare il corretto funzionamento delle rotte create.
-* WebStorm: Editor di codice avanzato utilizzato per lo sviluppo del progetto.
-* DBeaver: Strumento per la gestione e l’interazione con il database PostgreSQL, utile per visualizzare e manipolare i dati.
-* Rapid-draughts: Libreria utilizzata per gestire la logica di gioco della dama, inclusa l’integrazione dell’intelligenza artificiale.
+* **Node.js**: Runtime utilizzato per eseguire il codice JavaScript sul lato server.
+* **TypeScript**: Linguaggio utilizzato per aggiungere tipizzazione statica a JavaScript, migliorando la manutenibilità del codice.
+* **Express**: Framework per applicazioni web Node.js, utilizzato per creare il server e gestire le API.
+* **PostgreSQL**: Database relazionale utilizzato per memorizzare le informazioni relative a giocatori, partite e mosse.
+* **Sequelize**: ORM (Object-Relational Mapping) utilizzato per interagire con il database PostgreSQL tramite modelli JavaScript.
+* **JWT (JSON Web Tokens)**: Utilizzato per l’autenticazione degli utenti tramite token.
+* **Docker**: Strumento per la containerizzazione, utilizzato per creare ambienti di sviluppo e produzione isolati.
+* **docker-compose**: Strumento utilizzato per definire e gestire applicazioni multi-contenitore Docker.
+* **Postman**: Strumento per testare le API, utilizzato per verificare il corretto funzionamento delle rotte create.
+* **WebStorm**: Editor di codice avanzato utilizzato per lo sviluppo del progetto.
+* **DBeaver**: Strumento per la gestione e l’interazione con il database PostgreSQL, utile per visualizzare e manipolare i dati.
+* **Rapid-draughts**: Libreria utilizzata per gestire la logica di gioco della dama, inclusa l’integrazione dell’intelligenza artificiale.
 
 ## ✍🏼 Autori
 
 Il progetto è stato sviluppato da **Simone Recinelli** (Matricola: S1118757) e **Diego Santarelli** (Matricola: S1118746) come parte del corso di **Programmazione Avanzata** (A.A. 2023/2024) presso l'**Università Politecnica delle Marche**, nel corso di Laurea Magistrale in **Ingegneria Informatica e dell’Automazione** (LM-32).
 
-### 📌 Contributi:
+<!-- ### 📌 Contributi: -->
 
-- **Simone Recinelli**: Si è occupato della progettazione e implementazione dell'architettura back-end, gestendo l'integrazione della libreria `rapid-draughts` per la logica di gioco e la realizzazione del sistema di gestione delle mosse e partite. Ha anche sviluppato la logica di gestione dell'intelligenza artificiale e il sistema di autenticazione JWT.
+<!-- - **Simone Recinelli**: Si è occupato della progettazione e implementazione dell'architettura back-end, gestendo l'integrazione della libreria `rapid-draughts` per la logica di gioco e la realizzazione del sistema di gestione delle mosse e partite. Ha anche sviluppato la logica di gestione dell'intelligenza artificiale e il sistema di autenticazione JWT. -->
 
-- **Diego Santarelli**: Ha contribuito alla realizzazione del sistema di persistenza dei dati, lavorando sull'integrazione di **Sequelize** con **PostgreSQL**. Ha inoltre sviluppato i controlli di validazione per le richieste e la gestione degli errori tramite il pattern Factory. Diego ha anche curato la configurazione di Docker per la containerizzazione del progetto e l'implementazione del sistema di ricarica dei token per gli utenti.
+<!-- - **Diego Santarelli**: Ha contribuito alla realizzazione del sistema di persistenza dei dati, lavorando sull'integrazione di **Sequelize** con **PostgreSQL**. Ha inoltre sviluppato i controlli di validazione per le richieste e la gestione degli errori tramite il pattern Factory. Diego ha anche curato la configurazione di Docker per la containerizzazione del progetto e l'implementazione del sistema di ricarica dei token per gli utenti. -->
 
-Entrambi hanno collaborato attivamente in tutte le fasi del progetto, dalla progettazione all'implementazione, fino alla fase di testing su Postman, garantendo un sistema robusto e manutenibile.
-
+<!-- Entrambi hanno collaborato attivamente in tutte le fasi del progetto, dalla progettazione all'implementazione, fino alla fase di testing su Postman, garantendo un sistema robusto e manutenibile. -->
 
 
 
