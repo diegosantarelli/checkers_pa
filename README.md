@@ -1197,7 +1197,7 @@ Authorization: Bearer {{jwt_token}}
 
 #### Esempio di risposta
 
-AGGIUNGERE PDF
+<img src="./images/Storico_mosse.jpg" alt="Risposta rotta '/do/move/1/export?format=pdf'"/>
 
 ## PUT `/game-status/abandon-game/:id_partita`
 
@@ -1314,13 +1314,13 @@ GET /game-status/ranking?order=desc HTTP/1.1
 #### Esempio di richiesta
 
 ```http
-GET /game-status/win-certify/7 HTTP/1.1
+GET /game-status/win-certify/1 HTTP/1.1
 Authorization: Bearer {{jwt_token}}
 ```
 
 #### Esempio di risposta
 
-AGGIUNGERE PDF CORRETTO
+<img src="./images/Certificato_vittoria.jpg" alt="Risposta rotta '/game-status/win-certify/1'"/>
 
 
 ## PUT `/admin/recharge`
