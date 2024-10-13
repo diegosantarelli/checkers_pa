@@ -79,7 +79,8 @@ class GameStatusService {
 
             const isPartitaControIA = partita.id_giocatore2 === null && partita.livello_IA !== null;
 
-            if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore && !isPartitaControIA) {
+            // Verifica se il giocatore loggato è il giocatore 1 o 2, oppure il giocatore 1 contro IA
+            if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore && !(isPartitaControIA && partita.id_giocatore1 === id_giocatore)) {
                 throw ErrorFactory.createError('FORBIDDEN', 'Il giocatore non fa parte di questa partita');
             }
 
@@ -87,7 +88,8 @@ class GameStatusService {
                 throw ErrorFactory.createError('BAD_REQUEST', 'La partita NON è in corso e non può essere abbandonata');
             }
 
-            const id_vincitore = isPartitaControIA ? partita.id_giocatore1 : (partita.id_giocatore1 === id_giocatore ? partita.id_giocatore2 : partita.id_giocatore1);
+            // Se la partita è contro IA, il vincitore è "Intelligenza Artificiale"
+            const id_vincitore = isPartitaControIA ? null : (partita.id_giocatore1 === id_giocatore ? partita.id_giocatore2 : partita.id_giocatore1);
 
             partita.stato = 'abbandonata';
             partita.id_vincitore = id_vincitore;
@@ -113,10 +115,11 @@ class GameStatusService {
                 }
             }
 
+            // Restituisci un messaggio personalizzato per la vittoria dell'IA
             return {
                 success: true,
                 statusCode: StatusCodes.CREATED,
-                risultato: `Il giocatore ${giocatore?.nome} ${giocatore?.cognome} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti.`
+                risultato: `Il giocatore ${giocatore?.nome} ${giocatore?.cognome} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti. L'Intelligenza Artificiale ha vinto.`
             };
         } catch (error: unknown) {
             return GameStatusService.handleError(error, 'Errore durante l\'abbandono della partita');
