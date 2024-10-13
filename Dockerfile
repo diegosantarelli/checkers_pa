@@ -22,5 +22,5 @@ RUN npm run build
 # Espone la porta 3000
 EXPOSE 3000
 
-# Comando per avviare l'applicazione (modificato per usare wait-for-it)
-CMD ["bash", "-c", "./wait-for-it.sh db:5432 --timeout=30 --strict -- npm start"]
+# Comando per avviare l'applicazione (modificato per usare wait-for-it e pg_isready)
+CMD ["bash", "-c", "./wait-for-it.sh db:5432 --timeout=60 --strict -- pg_isready -h db -p 5432 && npm start"]
