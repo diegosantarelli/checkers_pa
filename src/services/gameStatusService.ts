@@ -65,7 +65,8 @@ class GameStatusService {
      *
      * @param {number} id_partita - L'ID della partita da abbandonare.
      * @param {number} id_giocatore - L'ID del giocatore che vuole abbandonare.
-     * @returns {Promise<{ success: boolean, statusCode: number, risultato: string }>} - Un oggetto con lo stato del risultato dell'abbandono.
+     * @returns {Promise<{ success: boolean, statusCode: number, risultato: string }>} - Un oggetto con lo stato del
+     * risultato dell'abbandono.
      *
      * @throws {HttpException} - Se la partita non viene trovata o il giocatore non fa parte della partita.
      */
@@ -79,7 +80,6 @@ class GameStatusService {
 
             const isPartitaControIA = partita.id_giocatore2 === null && partita.livello_IA !== null;
 
-            // Verifica se il giocatore loggato è il giocatore 1 o 2, oppure il giocatore 1 contro IA
             if (partita.id_giocatore1 !== id_giocatore && partita.id_giocatore2 !== id_giocatore && !(isPartitaControIA && partita.id_giocatore1 === id_giocatore)) {
                 throw ErrorFactory.createError('FORBIDDEN', 'Il giocatore non fa parte di questa partita');
             }
@@ -88,7 +88,6 @@ class GameStatusService {
                 throw ErrorFactory.createError('BAD_REQUEST', 'La partita NON è in corso e non può essere abbandonata');
             }
 
-            // Se la partita è contro IA, il vincitore è "Intelligenza Artificiale"
             const id_vincitore = isPartitaControIA ? null : (partita.id_giocatore1 === id_giocatore ? partita.id_giocatore2 : partita.id_giocatore1);
 
             partita.stato = 'abbandonata';
@@ -115,7 +114,6 @@ class GameStatusService {
                 }
             }
 
-            // Restituisci un messaggio personalizzato per la vittoria dell'IA
             return {
                 success: true,
                 statusCode: StatusCodes.CREATED,
@@ -193,7 +191,6 @@ class GameStatusService {
         if (partita.livello_IA !== null) {
             avversarioDettagli = { nome: 'Intelligenza', cognome: 'Artificiale' };
         } else {
-            // Se il vincitore è giocatore1, l'avversario è giocatore2 e viceversa
             avversarioDettagli = partita.id_giocatore1 === partita.id_vincitore ? giocatore2 : giocatore1;
         }
 

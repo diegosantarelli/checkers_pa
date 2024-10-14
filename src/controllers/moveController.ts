@@ -42,28 +42,9 @@ class moveController {
      *
      * @throws {HttpException} - Lancia un'eccezione se l'utente non è autenticato o se si verifica un errore durante
      * l'esecuzione della mossa.
-     *
-     * @example
-     * // Richiesta di esempio:
-     * // POST /do/move
-     * // {
-     * //   "id_partita": 1,
-     * //   "from": "A7",
-     * //   "to": "B7"
-     * // }
-     * // Risposta di esempio:
-     * // {
-     * //   "success": true,
-     * //   "statusCode": 201,
-     * //   "message": "Mossa eseguita correttamente",
-     * //   "data": {
-     * //     "move": "Hai mosso un pezzo singolo di colore nero da A7 a F7."
-     * //   }
-     * // }
      */
     public static async move(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // Verifica se req.user è definito
             if (!req.user) {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Utente non autenticato.');
             }
@@ -71,7 +52,6 @@ class moveController {
             const { id_partita, from, to } = req.body;
             const id_giocatore1 = req.user.id_giocatore;
 
-            // Esegui la mossa e ottieni il risultato
             const result = await MoveService.executeMove(id_partita, from, to, id_giocatore1);
 
             // Risposta con la descrizione della mossa
@@ -84,7 +64,7 @@ class moveController {
                 }
             });
         } catch (error) {
-            console.error('Errore durante l\'esecuzione della mossa:', error); // Aggiungi un log dettagliato
+            console.error('Errore durante la esecuzione della mossa:', error);
             if (error instanceof HttpException) {
                 next(error);
             } else {
@@ -110,30 +90,6 @@ class moveController {
      *
      * @throws {HttpException} - Lancia un'eccezione se si verifica un errore durante l'esportazione dello storico
      * delle mosse o se viene fornito un formato non valido.
-     *
-     * @example
-     * // Richiesta per esportare lo storico delle mosse in formato JSON:
-     * // GET /do/move-history/1?format=json
-     * // Risposta:
-     * // [
-     * //   {
-     * //      "numeroMossa": 1,
-     * //      "origin": "A6",
-     * //      "destination": "B5",
-     * //      "dataMossa": "2024-10-10 13:45:13"
-     * //  },
-     * //  {
-     * //      "numeroMossa": 2,
-     * //      "origin": "H3",
-     * //      "destination": "E4",
-     * //      "dataMossa": "2024-10-10 13:45:13"
-     * //  }
-     * // ]
-     *
-     * @example
-     * // Richiesta per esportare lo storico delle mosse in formato PDF:
-     * // GET /do/move-history/1?format=pdf
-     * // Risposta: File PDF con lo storico delle mosse scaricato.
      */
     public static async exportMoveHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

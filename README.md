@@ -115,8 +115,8 @@ Esempio di utilizzo della libreria:
 import { EnglishDraughts as Draughts } from 'rapid-draughts/english';
 
 const draughts = Draughts.setup();
-const moves = draughts.moves;  // Ottenere le mosse legali
-draughts.move(moves[0]);       // Effettuare una mossa
+const moves = draughts.moves;
+draughts.move(moves[0]);
 ```
 ### Interazione tra i componenti
 
@@ -148,11 +148,11 @@ Il pattern Data Access Object (DAO) è stato implementato utilizzando Sequelize,
 
 ### Chain of Responsibility (COR)
 
-Il pattern Chain of Responsibility (COR) è utilizzato attraverso i middleware di Express.js. Ogni middleware gestisce una fase specifica della pipeline delle richieste HTTP, permettendo un flusso organizzato e modulare. Le richieste passano attraverso una catena di middleware che validano, autenticano e infine gestiscono l’errore o restituiscono la risposta.
+Il pattern Chain of Responsibility (COR) è utilizzato attraverso i middleware di `Express.js`. Ogni middleware gestisce una fase specifica della pipeline delle richieste HTTP, permettendo un flusso organizzato e modulare. Le richieste passano attraverso una catena di middleware che validano, autenticano e infine gestiscono l’errore o restituiscono la risposta.
 
 Alcuni esempi concreti di middleware implementati includono:
 
-* **Middleware di autenticazione**: Verifica che un utente sia autenticato tramite un token JWT. Se l’utente non è autenticato, la catena viene interrotta e viene restituito un errore. È chiaramente implementato con la funzione authenticateJWT, che verifica la validità del token JWT nella richiesta. Se il token non è valido o mancante, viene interrotta la catena e viene restituito un errore UNAUTHORIZED.
+* **Middleware di autenticazione**: Verifica che un utente sia autenticato tramite un token JWT. Se l’utente non è autenticato, la catena viene interrotta e viene restituito un errore. È chiaramente implementato con la funzione authenticateJWT, che verifica la validità del token JWT nella richiesta. Se il token non è valido o mancante, viene interrotta la catena e viene restituito un errore `UNAUTHORIZED`.
 * **Middleware di gestione degli errori**: Cattura gli errori lungo la catena e restituisce una risposta d’errore formattata. È stato implementato come middleware globale per catturare e gestire gli errori lungo la catena, formattando le risposte di errore con l’uso della ErrorFactory.
 
 Questo pattern assicura che ogni richiesta sia gestita in modo efficiente e modulare, permettendo l’aggiunta o la rimozione di funzionalità senza modificare il core dell’applicazione.
@@ -161,14 +161,14 @@ Questo pattern assicura che ogni richiesta sia gestita in modo efficiente e modu
 
 ### Factory
 
-Il pattern Factory è stato impiegato per gestire in maniera centralizzata la creazione di errori personalizzati nel progetto, tramite il file ErrorFactory.ts. Questa classe fornisce un’interfaccia unificata per generare diverse tipologie di errori HTTP in base al contesto specifico. Il vantaggio principale di questo approccio è la riduzione della ripetizione del codice, centralizzando la logica di creazione degli errori e migliorando la manutenibilità del progetto.
+Il pattern Factory è stato impiegato per gestire in maniera centralizzata la creazione di errori personalizzati nel progetto, tramite il file `ErrorFactory.ts`. Questa classe fornisce un’interfaccia unificata per generare diverse tipologie di errori HTTP in base al contesto specifico. Il vantaggio principale di questo approccio è la riduzione della ripetizione del codice, centralizzando la logica di creazione degli errori e migliorando la manutenibilità del progetto.
 
-La classe ErrorFactory nel file ErrorFactory.ts utilizza la libreria http-status-codes per associare facilmente i codici di stato HTTP ai relativi errori, permettendo la generazione di errori come NOT_FOUND, UNAUTHORIZED, FORBIDDEN, e altri, in modo flessibile.
+La classe ErrorFactory nel file `ErrorFactory.ts` utilizza la libreria http-status-codes per associare facilmente i codici di stato HTTP ai relativi errori, permettendo la generazione di errori come `NOT_FOUND`, `UNAUTHORIZED`, `FORBIDDEN`, e altri, in modo flessibile.
 
 L’adozione del pattern Factory consente di:
 
 * Centralizzare la gestione degli errori, semplificando la creazione di messaggi di errore personalizzati.
-* Integrare in modo coerente i codici di stato HTTP, utilizzando la libreria http-status-codes, garantendo una gestione uniforme e standardizzata delle eccezioni.
+* Integrare in modo coerente i codici di stato HTTP, utilizzando la libreria `http-status-codes`, garantendo una gestione uniforme e standardizzata delle eccezioni.
 * Estendere il sistema di gestione degli errori in modo semplice e pulito, senza dover modificare singolarmente ogni parte del codice dove gli errori vengono gestiti.
 
 **Motivo della scelta**: Il pattern Factory è stato scelto per centralizzare la creazione degli errori, riducendo la duplicazione del codice e garantendo una gestione uniforme degli errori in tutto il progetto.
@@ -177,7 +177,7 @@ L’adozione del pattern Factory consente di:
 
 Il pattern Singleton è stato implementato per gestire la connessione al database. L’istanza di Sequelize, che gestisce tutte le interazioni con il database, viene creata una sola volta durante l’inizializzazione dell’applicazione. Questo assicura che ci sia una singola fonte di connessione al database condivisa tra tutte le componenti, evitando problemi di concorrenza o conflitti di connessione. L’utilizzo di un Singleton per la connessione al database migliora l’efficienza e la coerenza delle operazioni di lettura e scrittura sui dati.
 
-Al fine di integrare il pattern Singleton nel progetto, è stata implementata una classe DatabaseConnection che sfrutta una proprietà statica per memorizzare un’istanza di Sequelize. Il metodo getInstance() si occupa di verificare se l’istanza esiste già: se sì, la restituisce, altrimenti la crea utilizzando le variabili d’ambiente configurate. In questo modo, assicuriamo che solo una singola connessione al database venga utilizzata da tutte le richieste che transitano nell’applicazione.
+Al fine di integrare il pattern Singleton nel progetto, è stata implementata una classe `DatabaseConnection` che sfrutta una proprietà statica per memorizzare un’istanza di Sequelize. Il metodo `getInstance()` si occupa di verificare se l’istanza esiste già: se sì, la restituisce, altrimenti la crea utilizzando le variabili d’ambiente configurate. In questo modo, assicuriamo che solo una singola connessione al database venga utilizzata da tutte le richieste che transitano nell’applicazione.
 
 **Motivo della scelta**: Il pattern Singleton è stato implementato per assicurare che l’applicazione utilizzi una singola istanza di connessione al database, migliorando l’efficienza e prevenendo problemi di concorrenza nelle operazioni di accesso ai dati.
 
@@ -297,7 +297,7 @@ erDiagram
 
 #### POST '/login'
 
-La seguente rotta autentica un giocatore nel sistema. Il client invia l’email e la password del giocatore. Il sistema cerca un giocatore con quell’email nel database. Se l’email è corretta, il sistema verifica che la password fornita corrisponda a quella memorizzata. Se entrambi i controlli passano, il sistema genera un token JWT che include l’ID del giocatore, l’email e il ruolo (utente o admin). Questo token sarà usato per autenticare le richieste successive. Se le credenziali non sono valide, viene restituito un errore con codice 401 Unauthorized.
+La seguente rotta autentica un giocatore nel sistema. Il client invia l’email e la password del giocatore. Il sistema cerca un giocatore con quell’email nel database. Se l’email è corretta, il sistema verifica che la password fornita corrisponda a quella memorizzata. Se entrambi i controlli passano, il sistema genera un token JWT che include l’ID del giocatore, l’email e il ruolo (utente o admin). Questo token sarà usato per autenticare le richieste successive. Se le credenziali non sono valide, viene restituito un errore con codice `401 UNAUTHORIZED`.
 
 ```mermaid
 sequenceDiagram
@@ -552,7 +552,7 @@ sequenceDiagram
 
 #### PUT '/game-status/check-status/:id_partita'
 
-La seguente rotta verifica lo stato di una partita specifica. Il client invia un token JWT per autenticarsi e l’ID della partita che vuole controllare. Il sistema autentica l’utente e controlla che la partita esista. Se la partita è terminata, il sistema restituisce lo stato (vittoria, sconfitta o pareggio) e, se esiste, il nome del vincitore. Se la partita è ancora in corso, viene restituito lo stato “in corso”. Se la partita è stata abbandonata, il sistema lo segnala.
+La seguente rotta verifica lo stato di una partita specifica. Il client invia un token JWT per autenticarsi e l’ID della partita che vuole controllare. Il sistema autentica l’utente e controlla che la partita esista. Se la partita è terminata, il sistema restituisce lo stato (vittoria, sconfitta o pareggio) e, se esiste, il nome del vincitore. Se la partita è ancora in corso, viene restituito lo stato _“in corso”_. Se la partita è stata abbandonata, il sistema lo segnala.
 
 ```mermaid
 sequenceDiagram
@@ -916,7 +916,7 @@ sequenceDiagram
 
 | **Posizione**      | **Nome**   | **Tipo**  | **Descrizione**                                                                                    | **Obbligatorio** |
 |--------------------|------------|-----------|----------------------------------------------------------------------------------------------------|------------------|
-| Richiesta nel body | `email`    | `string`  | Indirizzo email dell'utente. Formato: `tuo_username@example.com` oppure `tuo_username@example.it`. | ✅               |
+| Richiesta nel body | `email`    | `string`  | Indirizzo email dell'utente. Formato: `tuo_username@example.com`. | ✅               |
 | Richiesta nel body     | `password` | `string`  | Password dell'utente                                                                               | ✅               |
 
 #### Esempio di richiesta
@@ -942,7 +942,7 @@ Content-Type: application/json
 
 | **Posizione**      | **Nome**           | **Tipo** | **Descrizione**                                                                                                                    | **Obbligatorio** |
 |--------------------|--------------------|----------|------------------------------------------------------------------------------------------------------------------------------------|------------------|
-| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP). Formato: `tuo_username@example.com` oppure `tuo_username@example.it`.                           | ❌               |
+| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP). Formato: `tuo_username@example.com`.                           | ❌               |
 | Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA). I valori da inserire possono essere: `Amichevole`, `Normale` e `Competitiva`.                   | ✅               |
 | Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA). I valore da inserire possono essere: `facile`, `normale`, `difficile` ed `estrema`. | ❌               |
 | Header             | `Authorization`| `string`  | Token JWT per autenticazione                                                                                                       | ✅               |
@@ -1127,7 +1127,7 @@ Authorization: Bearer {{jwt_token}}
 #### Esempio di risposta in caso di mancata partita trovata in quella specifica data
 ```
 {
-    "error": "Nessuna partita trovata per la data 2023-12-26"
+    "error": "Simone Recinelli non ha giocato nessuna partita in data 2023-12-26"
 }
 ```
 
@@ -1151,7 +1151,7 @@ Authorization: Bearer {{jwt_token}}
     "risultato": {
         "success": true,
         "statusCode": 200,
-        "risultato": "La partita è stata vinta da Simone"
+        "risultato": "La partita è stata vinta da Simone Recinelli"
     }
 }
 ```
@@ -1336,7 +1336,7 @@ Authorization: Bearer {{jwt_token}}
 | **Posizione**      | **Nome**      | **Tipo**  | **Descrizione**                                                                            | **Obbligatorio** |
 |--------------------|---------------|-----------|--------------------------------------------------------------------------------------------|------------------|
 | Header             | `Authorization`| `string`  | Token JWT per autenticazione                                                               | ✅               |
-| Richiesta nel body | `email`        | `string`  | Email del giocatore. Formato: `tuo_username@example.com` oppure `tuo_username@example.it`. | ✅               |
+| Richiesta nel body | `email`        | `string`  | Email del giocatore. Formato: `tuo_username@example.com`. | ✅               |
 | Richiesta nel body | `nuovoCredito` | `number`  | Nuovo saldo di token                                                                       | ✅               |
 
 #### Esempio di richiesta
@@ -1435,7 +1435,7 @@ Questi file ti permetteranno di configurare facilmente Postman e testare le rott
 * **WebStorm**: Editor di codice avanzato utilizzato per lo sviluppo del progetto.
 * **DBeaver**: Strumento per la gestione e l’interazione con il database PostgreSQL, utile per visualizzare e manipolare i dati.
 * **Rapid-draughts**: Libreria utilizzata per gestire la logica di gioco della dama, inclusa l’integrazione dell’intelligenza artificiale.
-* **Wait for it**: Script di shell utilizzato per sincronizzare l’avvio di servizi dipendenti in ambiente Docker. In questo progetto, viene utilizzato per assicurarsi che il database PostgreSQL sia completamente avviato e pronto per accettare connessioni prima di avviare l’applicazione Node.js. Questo previene errori di connessione (ad esempio, ECONNREFUSED) quando l’applicazione tenta di connettersi al database prima che sia pronto (di seguito viene inserito il link al quale è possibile trovare la corrispondente repository Github: [https://github.com/vishnubob/wait-for-it.git](https://github.com/vishnubob/wait-for-it.git)).
+* **Wait-for-it**: Script di shell utilizzato per sincronizzare l’avvio di servizi dipendenti in ambiente Docker. In questo progetto, viene utilizzato per assicurarsi che il database PostgreSQL sia completamente avviato e pronto per accettare connessioni prima di avviare l’applicazione Node.js. Questo previene errori di connessione (ad esempio, ECONNREFUSED) quando l’applicazione tenta di connettersi al database prima che sia pronto (di seguito viene inserito il link al quale è possibile trovare la corrispondente repository Github: [https://github.com/vishnubob/wait-for-it.git](https://github.com/vishnubob/wait-for-it.git)).
 
 # ✍🏼 Autori
 

@@ -2,7 +2,12 @@
 
 const { EnglishDraughts: Draughts } = require('rapid-draughts/english');
 
-// Funzione di conversione da posizione numerica a notazione scacchistica
+/**
+ * Funzione che converte una posizione numerica della scacchiera in notazione scacchistica.
+ *
+ * @param {number} position - La posizione numerica sulla scacchiera (0-31) in cui i pezzi possono trovarsi.
+ * @returns {string} - La notazione scacchistica della posizione, nel formato "ColonnaRiga" (es. "A1").
+ */
 const convertPositionToNotation = (position) => {
     const files = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; // Lettere per le colonne
     const row = 8 - Math.floor(position / 4); // Calcola la riga (1-8)
@@ -13,8 +18,18 @@ const convertPositionToNotation = (position) => {
 };
 
 module.exports = {
+
+    /**
+     * Seeder per generare mosse simulate effettuate dall'intelligenza artificiale (IA) per le partite esistenti.
+     *
+     * Questo seeder estrae tutte le partite dal database e per ciascuna simula fino a due mosse dell'IA usando la libreria `rapid-draughts`.
+     * Le mosse vengono inserite nella tabella `MossaIA` con dettagli sulla tavola di gioco prima e dopo le mosse.
+     *
+     * @param {object} queryInterface - L'interfaccia utilizzata per eseguire le query di inserimento in Sequelize.
+     * @param {object} Sequelize - Il modulo Sequelize che fornisce i tipi di dati e funzioni utilizzati.
+     * @returns {Promise<void>} - Restituisce una promise risolta quando i dati delle mosse IA vengono inseriti con successo.
+     */
     async up(queryInterface, Sequelize) {
-        // Ottieni tutte le partite dal database
         const partite = await queryInterface.sequelize.query(
             `SELECT id_partita, tavola FROM "Partita"`,
             {
@@ -24,60 +39,60 @@ module.exports = {
 
         const mosseIA = [];
 
-        // Itera su tutte le partite per generare le mosse corrispondenti
         for (const partita of partite) {
-            const draughts = Draughts.setup(); // Setup della partita per ottenere il board iniziale
+            const draughts = Draughts.setup();
 
-            // Simula la prima mossa dell'IA
-            const moves = draughts.moves; // Ottieni le mosse legali disponibili
-            const selectedMove1 = moves[0]; // Seleziona una mossa valida
+            const moves = draughts.moves;
+            const selectedMove1 = moves[0];
 
-            // Esegui la prima mossa e salva lo stato della tavola
             draughts.move(selectedMove1);
-            const boardAfterMove1 = draughts.board; // Aggiorna la tavola
+            const boardAfterMove1 = draughts.board;
 
-            // Aggiungi la prima mossa dell'IA
             mosseIA.push({
                 numero_mossa: 1,
-                tavola: JSON.stringify({ initialBoard: boardAfterMove1 }), // Salva lo stato della tavola
+                tavola: JSON.stringify({ initialBoard: boardAfterMove1 }),
                 pezzo: 'singolo',
                 id_partita: partita.id_partita,
                 data: new Date(),
-                from_position: convertPositionToNotation(selectedMove1.origin), // Converti l'origine
-                to_position: convertPositionToNotation(selectedMove1.destination), // Converti la destinazione
+                from_position: convertPositionToNotation(selectedMove1.origin),
+                to_position: convertPositionToNotation(selectedMove1.destination),
                 createdAt: new Date(),
                 updatedAt: new Date(),
             });
 
-            // Ottieni le nuove mosse disponibili dopo la prima mossa dell'IA
-            const movesAfterMove1 = draughts.moves; // Ottieni le nuove mosse disponibili
+            const movesAfterMove1 = draughts.moves;
 
             if (movesAfterMove1.length > 0) {
-                const selectedMove2 = movesAfterMove1[0]; // Seleziona una seconda mossa valida
+                const selectedMove2 = movesAfterMove1[0];
 
-                // Esegui la seconda mossa
                 draughts.move(selectedMove2);
-                const boardAfterMove2 = draughts.board; // Aggiorna la tavola dopo la seconda mossa
+                const boardAfterMove2 = draughts.board;
 
-                // Aggiungi la seconda mossa dell'IA
                 mosseIA.push({
                     numero_mossa: 2,
-                    tavola: JSON.stringify({ initialBoard: boardAfterMove2 }), // Salva lo stato della tavola
+                    tavola: JSON.stringify({ initialBoard: boardAfterMove2 }),
                     pezzo: 'dama', // Può essere singolo o dama
                     id_partita: partita.id_partita,
                     data: new Date(),
-                    from_position: convertPositionToNotation(selectedMove2.origin), // Converti l'origine
-                    to_position: convertPositionToNotation(selectedMove2.destination), // Converti la destinazione
+                    from_position: convertPositionToNotation(selectedMove2.origin),
+                    to_position: convertPositionToNotation(selectedMove2.destination),
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 });
             }
         }
-
-        // Inserisci tutte le mosse IA nel database
         await queryInterface.bulkInsert('MossaIA', mosseIA);
     },
 
+    /**
+     * Funzione per eseguire il rollback delle mosse IA inserite.
+     *
+     * Cancella tutte le mosse IA inserite durante la fase `up` dalla tabella `MossaIA`.
+     *
+     * @param {object} queryInterface - L'interfaccia utilizzata per eseguire le query di cancellazione in Sequelize.
+     * @param {object} Sequelize - Il modulo Sequelize che fornisce i tipi di dati e funzioni utilizzati.
+     * @returns {Promise<void>} - Restituisce una promise risolta quando le mosse IA vengono cancellate con successo.
+     */
     async down(queryInterface, Sequelize) {
         return queryInterface.bulkDelete('MossaIA', null, {});
     }

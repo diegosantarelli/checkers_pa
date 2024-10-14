@@ -21,7 +21,7 @@ const sequelize = new Sequelize(
         host: process.env.POSTGRES_HOST,
         port: Number(process.env.POSTGRES_PORT) || 5432,
         dialect: 'postgres',
-        logging: false, // Disabilita il logging SQL in produzione se non necessario
+        logging: false,
     }
 );
 

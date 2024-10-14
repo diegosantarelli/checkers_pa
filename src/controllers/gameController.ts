@@ -30,50 +30,6 @@ class GameController {
      * @throws {HttpException} - Viene lanciata un'eccezione se l'utente non è autenticato, se l'id del giocatore è mancante, o se i parametri forniti non sono corretti.
      *
      * @returns {Promise<void>} - Restituisce una risposta JSON con i dettagli della partita creata, a seconda che sia una partita PvP (contro un altro giocatore) o PvAI (contro l'intelligenza artificiale).
-     *
-     * @example
-     * // Richiesta per creare una partita PvP:
-     * // POST /game
-     * // {
-     * //   "email_giocatore2": "secondoplayer@example.com",
-     * //   "tipo": "Competitiva"
-     * // }
-     *
-     * // Risposta per partita PvP creata:
-     * // {
-     * //   "success": true,
-     * //   "statusCode": 201,
-     * //   "message": "Partita PvP creata con successo",
-     * //   "data": {
-     * //     "id_partita": 5,
-     * //     "id_giocatore1": 1,
-     * //     "id_giocatore2": 2,
-     * //     "stato": "in corso",
-     * //     "tipo": "Competitiva"
-     * //   }
-     * // }
-     *
-     *
-     * // Richiesta per creare una partita PvAI:
-     * // POST /game
-     * // {
-     * //   "livello_IA": "normale",
-     * //   "tipo": "Amichevole"
-     * // }
-     *
-     * // Risposta per partita PvAI creata:
-     * // {
-     * //   "success": true,
-     * //   "statusCode": 200,
-     * //   "message": "Partita contro IA creata con successo",
-     * //   "data": {
-     * //     "id_partita": 6,
-     * //     "id_giocatore1": 1,
-     * //     "livello_IA": "normale",
-     * //     "stato": "in corso",
-     * //     "tipo": "Amichevole"
-     * //   }
-     * // }
      */
     public static async createGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
@@ -85,12 +41,11 @@ class GameController {
             const { id_giocatore } = req.user!;
             const { email_giocatore2, tipo, livello_IA } = req.body;
 
-            // Verifica che solo uno dei due parametri sia fornito
+            // Verifica che solo uno dei due parametri sia fornito (PvP o PvAI)
             if ((email_giocatore2 && livello_IA) || (!email_giocatore2 && !livello_IA)) {
                 throw ErrorFactory.createError('BAD_REQUEST', 'Devi specificare o email del giocatore 2 oppure il livello IA.');
             }
 
-            // Creazione della partita
             const result = await createGame(id_giocatore, email_giocatore2, tipo, livello_IA);
 
             if ('id_giocatore2' in result.data && result.data.id_giocatore2 !== null) {
@@ -111,8 +66,7 @@ class GameController {
                 });
             }
         } catch (error) {
-            // Gestione dell'errore tramite il middleware di gestione degli errori
-            next(error);
+            next(error); // Gestione dell'errore tramite il middleware di gestione degli errori
         }
     }
 }

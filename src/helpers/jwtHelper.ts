@@ -34,7 +34,6 @@ export const generateToken = (payload: TokenPayload): string => {
     try {
         return jwt.sign(payload, secret, { expiresIn: '1h' });
     } catch (e) {
-        // Logga l'errore per tracciabilità
         console.error('Errore durante la generazione del token:', e);
         throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore nella generazione del token');
     }
@@ -59,7 +58,6 @@ export const verifyToken = (token: string): JwtPayload | null => {
         }
         return decoded as JwtPayload; // Se la verifica ha successo, ritorna il payload decodificato
     } catch (e) {
-        // Logga l'errore per tracciabilità
         console.error('Errore durante la verifica del token:', e);
 
         if (e instanceof jwt.TokenExpiredError) {

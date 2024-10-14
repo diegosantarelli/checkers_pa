@@ -9,7 +9,8 @@ import { Model, DataTypes, Sequelize } from 'sequelize';
 export default (sequelize: Sequelize) => {
     /**
      * @class MossaIA
-     * @description Modello Sequelize per la tabella "MossaIA", utilizzato per tracciare le mosse eseguite dall'intelligenza artificiale in una partita di dama.
+     * @description Modello Sequelize per la tabella "MossaIA", utilizzato per tracciare le mosse eseguite
+     * dall'intelligenza artificiale in una partita di dama.
      */
     class MossaIA extends Model {
         public id_mossa!: number;
@@ -19,7 +20,7 @@ export default (sequelize: Sequelize) => {
         public id_partita!: number;
         public from_position!: string;
         public to_position!: string;
-        public data!: Date; // Aggiungi questo campo esplicitamente
+        public data!: Date;
 
         /**
          * @method associate
@@ -74,7 +75,7 @@ export default (sequelize: Sequelize) => {
             allowNull: false,
         },
         data: {
-            type: DataTypes.DATE, // Campo corretto per la data
+            type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
         },

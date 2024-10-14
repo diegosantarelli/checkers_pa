@@ -10,7 +10,8 @@ export default (sequelize: Sequelize) => {
     /**
      * @class Mossa
      * @description Modello Sequelize per la tabella "Mossa".
-     * Ogni record rappresenta una mossa eseguita in una partita di dama, con informazioni sulla posizione di partenza, di destinazione, il tipo di pezzo mosso e lo stato della tavola dopo la mossa.
+     * Ogni record rappresenta una mossa eseguita in una partita di dama, con informazioni sulla posizione di partenza,
+     * di destinazione, il tipo di pezzo mosso e lo stato della tavola dopo la mossa.
      */
     class Mossa extends Model {
         public id_mossa!: number;
@@ -37,7 +38,7 @@ export default (sequelize: Sequelize) => {
 
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
-                as: 'giocatore', // Associa Mossa al modello Giocatore
+                as: 'giocatore',
             });
         }
     }

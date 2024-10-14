@@ -170,8 +170,7 @@ class MoveService {
         const moveDescription = `Hai mosso ${savedBoard[origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzo} da ${from} a ${to}.`;
 
         if (partita.livello_IA) {
-            // Deduce il costo sia della mossa del giocatore che di quella dell'IA
-            await MoveService.deductMoveCost(id_giocatore1, 2); // Deduce il costo di due mosse
+            await MoveService.deductMoveCost(id_giocatore1, 2);
 
             const aiMove = await MoveService.executeAiMove(draughts, partita.livello_IA);
 
@@ -198,8 +197,8 @@ class MoveService {
                 tavola: JSON.stringify({ initialBoard: draughts.board }),
                 pezzo: draughts.board[aiMove.origin]?.piece?.king ? 'dama' : 'singolo',
                 id_partita,
-                from_position: MoveService.convertPositionBack(aiMove.origin),  // Assicurati di settare questo
-                to_position: MoveService.convertPositionBack(aiMove.destination), // Assicurati di settare anche questo
+                from_position: MoveService.convertPositionBack(aiMove.origin),
+                to_position: MoveService.convertPositionBack(aiMove.destination),
                 data: new Date(),
             }).catch(err => {
                 console.error('Errore nel salvataggio della mossa IA:', {
@@ -317,7 +316,6 @@ class MoveService {
      * @throws {HttpException} - Se nessuna mossa viene trovata per la partita.
      */
     public static async getMoveHistory(id_partita: number): Promise<any[]> {
-        // Trova tutte le mosse dei giocatori umani
         const mosseGiocatori = await Mossa.findAll({
             where: { id_partita },
             order: [['numero_mossa', 'ASC']]
@@ -326,11 +324,10 @@ class MoveService {
         // Trova tutte le mosse dell'IA
         const mosseIA = await MossaIA.findAll({
             where: { id_partita },
-            attributes: ['numero_mossa', 'from_position', 'to_position', 'data'], // Includi esplicitamente gli attributi
+            attributes: ['numero_mossa', 'from_position', 'to_position', 'data'],
             order: [['numero_mossa', 'ASC']]
         });
 
-        // Se non ci sono mosse, restituisci un errore
         if (mosseGiocatori.length === 0 && mosseIA.length === 0) {
             throw ErrorFactory.createError('NOT_FOUND', 'Nessuna mossa trovata per questa partita');
         }
@@ -359,7 +356,6 @@ class MoveService {
             })
         ];
 
-        // Ordina le mosse in base al numero di mossa
         tutteLeMosse.sort((a, b) => a.numeroMossa - b.numeroMossa);
 
         return tutteLeMosse;
@@ -392,16 +388,15 @@ class MoveService {
         };
         const printer = new PdfPrinter(fonts);
 
-        // Aggiorniamo la definizione del documento per includere il tipo di mossa
         const docDefinition = {
             content: [
                 { text: `Storico delle mosse per la partita con id: ${id_partita}`, style: 'header' },
                 {
                     table: {
                         headerRows: 1,
-                        widths: ['*', '*', '*', '*', '*'],  // Aggiungi una colonna in più per il tipo di mossa
+                        widths: ['*', '*', '*', '*', '*'],
                         body: [
-                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa', 'Tipo'],  // Aggiungi l'intestazione per il tipo
+                            ['Numero Mossa', 'Origine', 'Destinazione', 'Data Mossa', 'Tipo'],
                             ...moveHistory.map(mossa => [
                                 mossa.numeroMossa,
                                 mossa.origin,

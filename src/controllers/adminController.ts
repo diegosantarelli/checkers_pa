@@ -30,25 +30,6 @@ class AdminController {
      * @throws {Error} NOT_FOUND - Se l'utente con l'email specificata non viene trovato.
      * @throws {Error} BAD_REQUEST - Se il credito è inferiore a 0.
      * @returns {Promise<void>} - Restituisce una risposta JSON con il successo dell'operazione o passa l'errore al middleware di gestione errori.
-     *
-     * @example
-     * // Richiesta di esempio
-     * // POST /admin/credit-recharge
-     * // {
-     * //   "email": "utente@example.com",
-     * //   "nuovoCredito": 1.5
-     * // }
-     *
-     * // Risposta di esempio
-     * // {
-     * //   "success": true,
-     * //   "statusCode": 201,
-     * //   "message": "Credito aggiornato per l'utente Mario Rossi",
-     * //   "data": {
-     * //     "email": "utente@example.com",
-     * //     "token_residuo": 1.5
-     * //   }
-     * // }
      */
     static async creditRecharge(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

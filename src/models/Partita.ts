@@ -7,7 +7,7 @@ import { Model, DataTypes, Sequelize, Optional } from 'sequelize';
  * @property {number} id_partita - ID univoco della partita.
  * @property {number} id_giocatore1 - ID del primo giocatore.
  * @property {number | null} id_giocatore2 - ID del secondo giocatore (può essere null se si gioca contro l'IA).
- * @property {'facile' | 'normale' | 'difficile' | 'estrema' | null} livello_IA - Livello dell'IA nella partita (se applicabile).
+ * @property {'facile' | 'normale' | 'difficile' | 'estrema' | null} livello_IA - Livello dell'IA nella partita(se applicabile).
  * @property {'in corso' | 'completata' | 'abbandonata'} stato - Stato corrente della partita.
  * @property {'Amichevole' | 'Normale' | 'Competitiva'} tipo - Tipo di partita.
  * @property {any} tavola - Stato della tavola di gioco in formato JSON.
@@ -62,10 +62,8 @@ class Partita extends Model<PartitaAttributes, PartitaCreationAttributes> implem
      * @param {any} models - Gli altri modelli Sequelize.
      */
     static associate(models: any) {
-        // Associazione tra Partita e Giocatore
         Partita.belongsTo(models.Giocatore, { as: 'giocatore1', foreignKey: 'id_giocatore1' });
         Partita.belongsTo(models.Giocatore, { as: 'giocatore2', foreignKey: 'id_giocatore2' });
-        // Associazione tra Partita e Mossa
         Partita.hasMany(models.Mossa, { foreignKey: 'id_partita', as: 'mosse' });
     }
 }

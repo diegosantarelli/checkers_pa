@@ -25,7 +25,8 @@ router.post('/move', authenticateJWT, moveController.move);
  * Supporta i formati JSON e PDF. Il formato può essere specificato tramite il parametro `format` nella query.
  *
  * @param {number} id_partita - L'ID della partita di cui esportare lo storico delle mosse.
- * @queryparam {string} [format=json] - Parametro opzionale per specificare il formato di esportazione. Può essere "json" o "pdf".
+ * @queryparam {string} [format=json] - Parametro opzionale per specificare il formato di esportazione.
+ * Può essere "json" o "pdf".
  * @middleware authenticateJWT - Middleware che autentica l'utente tramite JWT.
  *
  * @returns {Promise<void>} - Restituisce lo storico delle mosse della partita nel formato richiesto.

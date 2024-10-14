@@ -19,7 +19,6 @@ class DatabaseConnection {
             throw new Error("Non puoi creare un'altra istanza di DatabaseConnection. Usa DatabaseConnection.getInstance()");
         }
 
-        // Configura la connessione a Sequelize
         DatabaseConnection.instance = new Sequelize(
             process.env.POSTGRES_DB,
             process.env.POSTGRES_USER,
@@ -47,7 +46,7 @@ class DatabaseConnection {
     }
 }
 
-// Esegui l'autenticazione al database
+// Autenticazione al database
 DatabaseConnection.getInstance().authenticate()
     .then(() => {
         console.log('Connessione al database stabilita con successo.');
@@ -56,5 +55,5 @@ DatabaseConnection.getInstance().authenticate()
         console.error('Impossibile connettersi al database:', err);
     });
 
-// Esporta l'istanza della connessione al database
+// Esportazione dell'istanza della connessione al database
 module.exports = DatabaseConnection.getInstance();

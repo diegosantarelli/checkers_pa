@@ -19,7 +19,8 @@ class ErrorFactory {
      *   - `'FORBIDDEN'`
      *   - `'BAD_REQUEST'`
      *   - `'INTERNAL_SERVER_ERROR'`
-     * @param {string} [message] - Il messaggio di errore personalizzato. Se non fornito, viene utilizzato un messaggio di default.
+     * @param {string} [message] - Il messaggio di errore personalizzato.
+     * Se non fornito, viene utilizzato un messaggio di default.
      * @returns {HttpException} - L'istanza di errore creata.
      *
      * @throws {HttpException} - Lancia un'istanza di `HttpException` con il codice di stato e il messaggio specificati.

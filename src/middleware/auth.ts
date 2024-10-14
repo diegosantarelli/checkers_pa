@@ -67,6 +67,5 @@ export const isAdmin = (req: Request, res: Response, next: NextFunction): void =
     if (user && user.ruolo === 'admin') {
         return next(); // Se l'utente ha il ruolo di admin, continua al middleware successivo
     }
-    // Se non è admin, lancia un'eccezione di accesso non autorizzato
     next(ErrorFactory.createError('FORBIDDEN', 'Accesso non autorizzato, solo gli admin possono accedere'));
 };

@@ -33,9 +33,8 @@ class WinnerService {
             console.log("ID Giocatore:", id_giocatore);
             console.log("Start Date:", startDate);
 
-            // Recupera il giocatore per ottenere nome e cognome
             const giocatore = await Giocatore.findByPk(id_giocatore, {
-                attributes: ['nome', 'cognome'] // Seleziona solo nome e cognome
+                attributes: ['nome', 'cognome']
             });
 
             if (!giocatore) {
@@ -82,7 +81,7 @@ class WinnerService {
             // Mappatura dei risultati delle partite completate con formattazione della data
             const data = partite.map((partita) => {
                 const risultato = partita.id_vincitore === id_giocatore ? 'Vinta' : 'Persa';
-                const dataFormattata = format(new Date(partita.data_inizio), 'yyyy-MM-dd'); // Formatta la data
+                const dataFormattata = format(new Date(partita.data_inizio), 'yyyy-MM-dd');
 
                 return {
                     id_partita: partita.id_partita,

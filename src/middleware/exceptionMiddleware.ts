@@ -22,6 +22,5 @@ app.use((err: HttpException, req: any, res: any, next: any) => {
     if (!(err instanceof HttpException)) {
         err = ErrorFactory.createError('INTERNAL_SERVER_ERROR', 'Errore sconosciuto.');
     }
-
     handleError(err, res);
 });

@@ -4,7 +4,9 @@ import { authenticateJWT } from '../middleware/auth';
 
 /**
  * @module GameStatusRoutes
- * @description Router per la gestione delle operazioni sullo stato delle partite. Include rotte protette tramite JWT per la valutazione dello stato della partita, abbandono partita, classifica giocatori, certificato di vittoria, e la lista delle partite giocate.
+ * @description Router per la gestione delle operazioni sullo stato delle partite. Include rotte protette tramite JWT
+ * per la valutazione dello stato della partita, abbandono partita, classifica giocatori, certificato di vittoria,
+ * e la lista delle partite giocate.
  */
 const router = Router();
 
@@ -25,7 +27,8 @@ router.put('/check-status/:id_partita', authenticateJWT, GameStatusController.ev
 /**
  * @route PUT /abandon-game/:id_partita
  * @description Rotta per abbandonare una partita.
- * Permette a un giocatore di abbandonare la partita, con penalità per il giocatore che abbandona e punti bonus per l'avversario.
+ * Permette a un giocatore di abbandonare la partita, con penalità per il giocatore che abbandona e punti bonus per
+ * l'avversario.
  *
  * @param {number} id_partita - L'ID della partita da abbandonare.
  * @access Protetta - Richiede autenticazione tramite JWT.
@@ -67,7 +70,8 @@ router.get('/win-certify/:id_partita', authenticateJWT, GameStatusController.get
 
 /**
  * @route GET /match-list
- * @description Rotta per ottenere l'elenco delle partite giocate da un giocatore autenticato, con filtro opzionale per la data di inizio.
+ * @description Rotta per ottenere l'elenco delle partite giocate da un giocatore autenticato, con filtro opzionale per
+ * la data di inizio.
  *
  * @queryparam {string} [startDate] - Parametro opzionale per filtrare le partite iniziate dopo una certa data.
  * @access Protetta - Richiede autenticazione tramite JWT.

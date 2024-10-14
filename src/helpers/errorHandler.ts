@@ -24,7 +24,6 @@ class HttpException extends Error {
         this.statusCode = statusCode;
         this.message = message;
 
-        // Mantiene il nome del costruttore di classe nella stack trace
         Object.setPrototypeOf(this, new.target.prototype);
         Error.captureStackTrace(this);
     }

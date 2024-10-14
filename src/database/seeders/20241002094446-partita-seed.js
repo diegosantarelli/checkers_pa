@@ -1,11 +1,24 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Seeder} */
 module.exports = {
+
+  /**
+   * Genera una data casuale compresa tra due date specifiche.
+   *
+   * @param {Date} start - La data di inizio del range.
+   * @param {Date} end - La data di fine del range.
+   * @returns {Date} - Una data casuale compresa tra `start` e `end`.
+   */
   getRandomDate(start, end) {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
   },
 
+  /**
+   * Genera una configurazione casuale della tavola di gioco per la dama.
+   * La tavola viene rappresentata come un array di 32 caselle con pezzi iniziali per due giocatori.
+   *
+   * @returns {string} - La configurazione della tavola di gioco come stringa JSON.
+   */
   generateRandomBoardConfig() {
     const board = Array(32).fill(null); // Crea una tavola 32-caselle per i pezzi scuri (configurazione Draughts)
 
@@ -21,10 +34,19 @@ module.exports = {
     return JSON.stringify({ initialBoard: board });
   },
 
+  /**
+   * Seeder per inserire dati di esempio nella tabella `Partita`.
+   *
+   * Questo seeder inserisce un insieme di partite con configurazioni casuali.
+   *
+   * @param {object} queryInterface - L'interfaccia utilizzata per eseguire le query di inserimento in Sequelize.
+   * @param {object} Sequelize - Il modulo Sequelize che fornisce i tipi di dati e funzioni utilizzati.
+   * @returns {Promise<void>} - Restituisce una promise risolta quando i dati vengono inseriti con successo.
+   */
   async up(queryInterface, Sequelize) {
     const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate()); // Un anno fa
-    const endDate = currentDate; // Oggi
+    const startDate = new Date(currentDate.getFullYear() - 1, currentDate.getMonth(), currentDate.getDate());
+    const endDate = currentDate;
 
     await queryInterface.bulkInsert('Partita', [
       {
