@@ -139,9 +139,12 @@ Il pattern Model-View-Controller (MVC) è un’architettura ampiamente utilizzat
 * **Controller**: I controller si occupano di gestire le richieste HTTP e coordinare la logica del servizio. Essi fungono da intermediari tra i modelli e i servizi. In questo progetto, ogni controller invoca le operazioni sui servizi per eseguire la logica aziendale, ricevere i dati e restituire le risposte appropriate. Ad esempio, il moveController gestisce l’esecuzione delle mosse e l’interazione con il servizio delle mosse.
 * **Service**: Anche se non c’è una componente View, la logica è spostata sui Service che incapsulano le operazioni business-critical. I servizi lavorano a stretto contatto con i modelli per eseguire operazioni come la creazione di partite, l’esecuzione di mosse, la gestione del punteggio, ecc.
 
+**Motivo della scelta**: Il pattern MVC è stato scelto per separare in modo chiaro la gestione dei dati (Model), la logica di business (Service) e la gestione delle richieste HTTP (Controller), facilitando la manutenibilità e lo sviluppo collaborativo del progetto.
 ### Data Access Object (DAO)
 
 Il pattern Data Access Object (DAO) è stato implementato utilizzando Sequelize, che fornisce un’interfaccia per l’accesso ai dati. Questo pattern permette di astrarre e isolare la logica di accesso al database dal resto dell’applicazione. Sequelize agisce come il DAO, poiché gestisce tutte le operazioni CRUD (Create, Read, Update, Delete) per i modelli. Il vantaggio dell’utilizzo del DAO è la modularità e la facilità di sostituzione o aggiornamento della logica di accesso ai dati senza influenzare la logica di business. Ogni modello di dati ha le sue operazioni CRUD ben definite tramite i metodi di Sequelize.
+
+**Motivo della scelta**: Il pattern DAO è stato scelto per astrarre l’accesso al database, garantendo una separazione netta tra la logica di business e l’interazione diretta con la persistenza dei dati, migliorando così la modularità e la manutenibilità.
 
 ### Chain of Responsibility (COR)
 
@@ -153,6 +156,8 @@ Alcuni esempi concreti di middleware implementati includono:
 * **Middleware di gestione degli errori**: Cattura gli errori lungo la catena e restituisce una risposta d’errore formattata. È stato implementato come middleware globale per catturare e gestire gli errori lungo la catena, formattando le risposte di errore con l’uso della ErrorFactory.
 
 Questo pattern assicura che ogni richiesta sia gestita in modo efficiente e modulare, permettendo l’aggiunta o la rimozione di funzionalità senza modificare il core dell’applicazione.
+
+**Motivo della scelta**: Il pattern Chain of Responsibility è stato adottato per gestire il flusso delle richieste HTTP tramite una catena di middleware modulari, consentendo una gestione flessibile e facilmente estendibile di autenticazione, validazione e gestione degli errori.
 
 ### Factory
 
@@ -166,7 +171,7 @@ L’adozione del pattern Factory consente di:
 * Integrare in modo coerente i codici di stato HTTP, utilizzando la libreria http-status-codes, garantendo una gestione uniforme e standardizzata delle eccezioni.
 * Estendere il sistema di gestione degli errori in modo semplice e pulito, senza dover modificare singolarmente ogni parte del codice dove gli errori vengono gestiti.
 
-Grazie a questa implementazione, il progetto è più modulare, leggibile e facilmente manutenibile.
+**Motivo della scelta**: Il pattern Factory è stato scelto per centralizzare la creazione degli errori, riducendo la duplicazione del codice e garantendo una gestione uniforme degli errori in tutto il progetto.
 
 ### Singleton
 
@@ -174,6 +179,7 @@ Il pattern Singleton è stato implementato per gestire la connessione al databas
 
 Al fine di integrare il pattern Singleton nel progetto, è stata implementata una classe DatabaseConnection che sfrutta una proprietà statica per memorizzare un’istanza di Sequelize. Il metodo getInstance() si occupa di verificare se l’istanza esiste già: se sì, la restituisce, altrimenti la crea utilizzando le variabili d’ambiente configurate. In questo modo, assicuriamo che solo una singola connessione al database venga utilizzata da tutte le richieste che transitano nell’applicazione.
 
+**Motivo della scelta**: Il pattern Singleton è stato implementato per assicurare che l’applicazione utilizzi una singola istanza di connessione al database, migliorando l’efficienza e prevenendo problemi di concorrenza nelle operazioni di accesso ai dati.
 
 ## 📊Diagrammi UML
 
