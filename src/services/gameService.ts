@@ -221,22 +221,6 @@ export const createGame = async (
     }
 };
 
-/**
- * @function verifyCredit
- * @description Verifica i crediti rimanenti di un giocatore.
- *
- * @param {number} id_giocatore1 - L'ID del giocatore di cui verificare i crediti.
- * @returns {Promise<number>} - Restituisce il numero di crediti rimanenti.
- *
- * @throws {HttpException} - Restituisce un errore se il giocatore non viene trovato.
- */
-const verifyCredit = async (id_giocatore1: number): Promise<number> => {
-    const giocatore = await Giocatore.findByPk(id_giocatore1);
-    if (!giocatore) {
-        throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato.');
-    }
-    return giocatore.token_residuo;
-};
 
 /**
  * @function removeCredits

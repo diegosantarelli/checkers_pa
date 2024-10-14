@@ -62,7 +62,7 @@ if (Partita.associate) {
 if (Mossa.associate) {
     Mossa.associate({ Partita, Giocatore });
 }
-if (MossaIA.associate) {  // Associazioni per MossaIA
+if (MossaIA.associate) {
     MossaIA.associate({ Partita });
 }
 

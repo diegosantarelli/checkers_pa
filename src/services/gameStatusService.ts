@@ -122,7 +122,7 @@ class GameStatusService {
                 risultato: `Il giocatore ${giocatore?.nome} ${giocatore?.cognome} ha abbandonato la partita contro l'IA ed ha perso 0.5 punti. L'Intelligenza Artificiale ha vinto.`
             };
         } catch (error: unknown) {
-            return GameStatusService.handleError(error, 'Errore durante l\'abbandono della partita');
+            return GameStatusService.handleError(error, 'Errore durante abbandono della partita');
         }
     }
 
@@ -189,7 +189,6 @@ class GameStatusService {
             throw ErrorFactory.createError('BAD_REQUEST', 'Non vi è un vincitore per questa partita');
         }
 
-        // Correggiamo la logica per determinare l'avversario
         let avversarioDettagli;
         if (partita.livello_IA !== null) {
             avversarioDettagli = { nome: 'Intelligenza', cognome: 'Artificiale' };

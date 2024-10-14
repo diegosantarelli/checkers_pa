@@ -37,7 +37,6 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.fn('now'),
       },
-      // Aggiunte le nuove colonne per la posizione della mossa
       from_position: {
         type: Sequelize.STRING,
         allowNull: false,

@@ -38,13 +38,9 @@ module.exports = {
         defaultValue: 0.0,  // Valore predefinito per il punteggio totale
       },
       ruolo: {
-        type: Sequelize.ENUM('utente', 'admin', 'ai'),  // Aggiunge 'ai' come ruolo per l'IA
+        type: Sequelize.ENUM('utente', 'admin'),
         allowNull: false,
         defaultValue: 'utente',  // Imposta 'utente' come ruolo predefinito
-      },
-      JWT: {
-        type: Sequelize.STRING,
-        allowNull: true,  // Campo opzionale per il token JWT
       },
       createdAt: {
         type: Sequelize.DATE,

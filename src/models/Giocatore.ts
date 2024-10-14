@@ -66,40 +66,8 @@ class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> 
     public punteggio_totale!: number;
     public ruolo!: 'utente' | 'admin';
 
-    // timestamps
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-
-    /**
-     * @method sottraiToken
-     * @description Sottrae una quantità specificata di token dal giocatore, se il saldo dei token residui è sufficiente.
-     * @param {number} quantita - La quantità di token da sottrarre.
-     * @returns {boolean} - Restituisce `true` se la sottrazione è avvenuta con successo,
-     * `false` se i token non erano sufficienti.
-     */
-    public sottraiToken(quantita: number): boolean {
-        if (this.token_residuo >= quantita) {
-            this.token_residuo -= quantita;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @method aggiungiPunto
-     * @description Aggiunge 1 punto al punteggio totale del giocatore.
-     */
-    public aggiungiPunto(): void {
-        this.punteggio_totale += 1;
-    }
-
-    /**
-     * @method sottraiPunto
-     * @description Sottrae 0.5 punti al punteggio totale del giocatore in caso di abbandono della partita.
-     */
-    public sottraiPunto(): void {
-        this.punteggio_totale -= 0.5;
-    }
 
     /**
      * @method associate

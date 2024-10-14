@@ -891,18 +891,18 @@ sequenceDiagram
 
 # 🔗API Routes
 
-| **Verbo HTTP** | **Endpoint**                                      | **Descrizione**                                                                          | **Autenticazione JWT** |
-|----------------|---------------------------------------------------|------------------------------------------------------------------------------------------|------------------------|
-| **POST**       | `/login`                                          | Autenticazione dell'utente tramite email e password.                                     | ❌                     |
-| **PUT**        | `/admin/recharge`                                 | Ricarica del saldo dei token per un utente (solo admin).                                 | ✅                     |
-| **GET**        | `/game-status/ranking?order={asc,desc}`           | Recupero della classifica dei giocatori per punteggio.                                   | ❌                     |
-| **POST**       | `/game/create`                                    | Creazione di una nuova partita tra giocatori o contro l'IA.                              | ✅                     |
-| **POST**       | `/do/move`                                        | Esecuzione di una mossa nella partita corrente.                                          | ✅                     |
-| **PUT**        | `/game-status/check-status/{:id_partita}`         | Recupero dello stato attuale di una specifica partita.                                   | ✅                     |
-| **GET**        | `/game-status/win-certify/{:id_partita}`          | Generazione del certificato di vittoria per una partita.                                 | ✅                     |
-| **GET**        | `/do/move/{:id_partita}/export?format={pdf,json}` | Esportazione della cronologia delle mosse di una partita (formato PDF o JSON).           | ✅                     |
-| **PUT**        | `/game-status/abandon-game/{:id_partita}`         | Abbandono di una partita in corso, con aggiornamento del punteggio.                      | ✅                     |
-| **GET**        | `/game-status/match-list?startDate=YYYY-MM-DD`    | Recupero della cronologia delle partite giocate dai giocatori con filtro data opzionale. | ✅                     |
+| **Verbo HTTP** | **Endpoint**                                      | **Descrizione**                                                                            | **Autenticazione JWT** |
+|----------------|---------------------------------------------------|--------------------------------------------------------------------------------------------|------------------------|
+| **POST**       | `/login`                                          | Autenticazione dell'utente tramite email e password.                                       | ❌                     |
+| **PUT**        | `/admin/recharge`                                 | Ricarica del saldo dei token per un utente (solo admin).                                   | ✅                     |
+| **GET**        | `/game-status/ranking?order={asc,desc}`           | Recupero della classifica dei giocatori per punteggio.                                     | ❌                     |
+| **POST**       | `/game/create`                                    | Creazione di una nuova partita tra giocatori o contro l'IA.                                | ✅                     |
+| **POST**       | `/do/move`                                        | Esecuzione di una mossa nella partita corrente.                                            | ✅                     |
+| **PUT**        | `/game-status/check-status/{:id_partita}`         | Recupero dello stato attuale di una specifica partita.                                     | ✅                     |
+| **GET**        | `/game-status/win-certify/{:id_partita}`          | Generazione del certificato di vittoria per una partita.                                   | ✅                     |
+| **GET**        | `/do/move/{:id_partita}/export?format={pdf,json}` | Esportazione della cronologia delle mosse di una partita (formato PDF o JSON).             | ✅                     |
+| **PUT**        | `/game-status/abandon-game/{:id_partita}`         | Abbandono di una partita in corso, con aggiornamento del punteggio.                        | ✅                     |
+| **GET**        | `/game-status/match-list?startDate=YYYY-MM-DD`    | Recupero della cronologia delle partite giocate da un giocatore con filtro data opzionale. | ✅                     |
 
 ## POST `/login`
 
@@ -934,12 +934,12 @@ Content-Type: application/json
 
 ### Parametri
 
-| **Posizione**      | **Nome**           | **Tipo** | **Descrizione**                                                                                                   | **Obbligatorio** |
-|--------------------|--------------------|----------|-------------------------------------------------------------------------------------------------------------------|------------------|
-| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP). Formato: `tuo_username@example.com` oppure `tuo_username@example.it`.          | ❌               |
-| Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA). I valori da inserire possono essere: `Amichevole`, `Normale` e `Competitiva`.        | ✅               |
-| Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA). I valore da inserire possono essere: `facile`, `normale` e `difficile`. | ❌               |
-| Header             | `Authorization`| `string`  | Token JWT per autenticazione                                                                                      | ✅               |
+| **Posizione**      | **Nome**           | **Tipo** | **Descrizione**                                                                                                                    | **Obbligatorio** |
+|--------------------|--------------------|----------|------------------------------------------------------------------------------------------------------------------------------------|------------------|
+| Richiesta nel body | `email_giocatore2`  | `string` | Email del secondo giocatore (PvP). Formato: `tuo_username@example.com` oppure `tuo_username@example.it`.                           | ❌               |
+| Richiesta nel body | `tipo`              | `string` | Tipo di partita (PvP o contro IA). I valori da inserire possono essere: `Amichevole`, `Normale` e `Competitiva`.                   | ✅               |
+| Richiesta nel body | `livello_IA`        | `string` | Livello di difficoltà IA (solo per partite IA). I valore da inserire possono essere: `facile`, `normale`, `difficile` ed `estrema`. | ❌               |
+| Header             | `Authorization`| `string`  | Token JWT per autenticazione                                                                                                       | ✅               |
 
 #### Esempio di richiesta per la creazione di una partita contro un giocatore
 ```http
@@ -1381,8 +1381,36 @@ Di seguito verranno esplicati i passaggi per eseguire correttamente l'applicazio
 L’applicazione sarà in ascolto all’indirizzo `http://localhost:3001`.
 
 5.	**Testing delle API**: Le rotte API, descritte nella sezione API Routes, possono essere testate utilizzando Postman. I file necessari per il testing si trovano nella directory `/postman`:
-   * Collection: Checkers_game_collection.postman_collection.json
-   * Environment: Auth.postman_environment.json
+   * Collection: `Checkers_game_collection.postman_collection.json`
+   * Environment: `Auth.postman_environment.json`
+ 
+Per accedere come un utente con ruolo pari a "giocatore" è possibile usare le seguenti credenziali:
+```
+email: simone@example.com
+password: progavanzata
+```
+
+oppure:
+
+```
+email: piero@example.com
+password: testtest
+```
+
+oppure:
+
+```
+email: davide@example.com
+password: cracovia
+```
+
+Per accedere come un utente con ruolo pari a "admin" è possibile usare le seguenti credenziali:
+```
+email: diego@example.com
+password: provaprova
+```
+
+
 
 Questi file ti permetteranno di configurare facilmente Postman e testare le rotte disponibili, come ad esempio http://localhost:3001/login.
 
@@ -1401,6 +1429,7 @@ Questi file ti permetteranno di configurare facilmente Postman e testare le rott
 * **WebStorm**: Editor di codice avanzato utilizzato per lo sviluppo del progetto.
 * **DBeaver**: Strumento per la gestione e l’interazione con il database PostgreSQL, utile per visualizzare e manipolare i dati.
 * **Rapid-draughts**: Libreria utilizzata per gestire la logica di gioco della dama, inclusa l’integrazione dell’intelligenza artificiale.
+* **Wait for it**: Script di shell utilizzato per sincronizzare l’avvio di servizi dipendenti in ambiente Docker. In questo progetto, viene utilizzato per assicurarsi che il database PostgreSQL sia completamente avviato e pronto per accettare connessioni prima di avviare l’applicazione Node.js. Questo previene errori di connessione (ad esempio, ECONNREFUSED) quando l’applicazione tenta di connettersi al database prima che sia pronto (di seguito viene inserito il link al quale è possibile trovare la corrispondente repository Github: [https://github.com/vishnubob/wait-for-it.git](https://github.com/vishnubob/wait-for-it.git)).
 
 # ✍🏼 Autori
 
