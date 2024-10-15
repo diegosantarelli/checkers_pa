@@ -191,42 +191,55 @@ Il diagramma dei casi d’uso permette di avere una visione ad alto livello dell
 
 
 ```mermaid
-%% Use Case Diagram in Mermaid.js
-
 graph TD
-  PublicUser["Public User"] --> playersRanking["playersRanking"]
-  PublicUser --> login["login"]
+    PublicUser["Public User"] --> playersRanking["playersRanking"]
+    PublicUser --> login["login"]
 
-  Player["Player"] --> createGame["createGame"]
-  Player --> makeMove["makeMove"]
-  Player --> exportMoveHistory["exportMoveHistory"]
-  Player --> AbandonGame["Abandon Game"]
-  Player --> CheckGameStatus["Check Game Status"]
-  Player --> ViewGameMoves["View Game Moves"]
-  Player --> ExportGameHistory["Export Game History"]
-  Player --> GetVictoryCertificate["Get Victory Certificate"]
-  Player --> getMatchList["getMatchList"]
+    Player["Player"] --> createGame["createGame"]
+    Player --> executeMove["executeMove"]
+    Player --> getMoveHistory["getMoveHistory"]
+    Player --> abandonGame["abandonGame"]
+    Player --> evaluateGame["evaluateGame"]
+    Player --> getGameDetails["getGameDetails"]
+    Player --> exportToPDF["exportToPDF"]
+    Player --> getVictoryCertify["getVictoryCertify"]
+    Player --> getMatchList["getMatchList"]
 
-  Admin["Admin"] --> RechargeUserTokens["Recharge User Tokens"]
+    Admin["Admin"] --> createGame["createGame"]
+    Admin --> executeMove["executeMove"]
+    Admin --> getMoveHistory["getMoveHistory"]
+    Admin --> abandonGame["abandonGame"]
+    Admin --> evaluateGame["evaluateGame"]
+    Admin --> getGameDetails["getGameDetails"]
+    Admin --> exportToPDF["exportToPDF"]
+    Admin --> getVictoryCertify["getVictoryCertify"]
+    Admin --> getMatchList["getMatchList"]
+    Admin --> RechargeUserTokens["Recharge User Tokens"]
 
-  AI["AI"] --> MakeMoveAI["Make Move"]
+    AI["AI"] --> executeAiMove["executeAiMove"]
 
-  System["System"] --> GenerateJSONFile["Generate JSON File"]
-  System --> GeneratePDF["Generate PDF"]
-  System --> CheckForGameEnd["Check For Game End"]
-  System --> VerifyMoveValidity["Verify Move Validity"]
-  System --> UpdateGameStatus["Update Game Status"]
-  System --> UpdatePlayerPoints["Update Player Points"]
-  System --> EditTokenCount["Edit Token Count"]
+    System["System"] --> GenerateJSONFile["Generate JSON File"]
+    System --> GeneratePDF["exportToPDF"]
+    System --> CheckForGameEnd["Check For Game End"]
+    System --> VerifyMoveValidity["Verify Move Validity"]
+    System --> UpdateGameStatus["Update Game Status"]
+    System --> UpdatePlayerPoints["Update Player Points"]
+    System --> removeCredits["removeCredits"]
 
-  createGame --> authenticateJWT["authenticateJWT"]
-  makeMove --> authenticateJWT
-  exportMoveHistory --> authenticateJWT
-  getMatchList --> authenticateJWT
+    createGame --> authenticateJWT["authenticateJWT"]
+    executeMove --> authenticateJWT["authenticateJWT"]
+    getMoveHistory --> authenticateJWT["authenticateJWT"]
+    abandonGame --> authenticateJWT["authenticateJWT"]
+    evaluateGame --> authenticateJWT["authenticateJWT"]
+    getGameDetails --> authenticateJWT["authenticateJWT"]
+    exportToPDF --> authenticateJWT["authenticateJWT"]
+    getVictoryCertify --> authenticateJWT["authenticateJWT"]
+    getMatchList --> authenticateJWT["authenticateJWT"]
+    RechargeUserTokens --> authenticateJWT["authenticateJWT"]
 
-  playersRanking --> SortPlayerRankings["Sort Player Rankings"]
-  ExportGameHistory --> FilterGamesByDate["Filter Games By Date"]
-  AbandonGame --> UpdatePlayerPoints
+    playersRanking --> SortPlayerRankings["Sort Player Rankings"]
+    exportToPDF --> FilterGamesByDate["Filter Games By Date"]
+    abandonGame --> UpdatePlayerPoints
 ```
 
 
