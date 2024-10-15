@@ -1,6 +1,4 @@
-import sequelize from '../database/database';
-import initPartita from '../models/Partita';
-import initGiocatore from '../models/Giocatore';
+import { Giocatore, Partita } from '../models';
 import ErrorFactory from "../factories/errorFactory";
 import {
     EnglishDraughts as Draughts
@@ -8,9 +6,6 @@ import {
 import { Op } from "sequelize";
 import { StatusCodes } from 'http-status-codes';
 import { format } from "date-fns";
-
-const Giocatore = initGiocatore(sequelize);
-const Partita = initPartita(sequelize);
 
 /**
  * @interface creaPartitaPvP

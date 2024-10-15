@@ -1,16 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import Giocatore from '../models/Giocatore';
+import { Giocatore } from '../models';
 import ErrorFactory from '../factories/errorFactory';
 import { StatusCodes } from 'http-status-codes';
-import { sequelize } from '../models';
-
-/**
- * Inizializza il modello `Giocatore` con l'istanza di Sequelize.
- *
- * @constant {typeof Giocatore} giocatore - Il modello `Giocatore` associato al database.
- */
-const giocatore = Giocatore(sequelize);
-
 /**
  * @class AdminController
  * @description Controlla le operazioni amministrative dell'applicazione, come la ricarica del credito di un giocatore.
@@ -52,7 +43,7 @@ class AdminController {
             }
 
             // Trova l'utente con l'email specificata
-            const user = await giocatore.findOne({ where: { email } });
+            const user = await Giocatore.findOne({ where: { email } });
             if (!user) {
                 throw ErrorFactory.createError('NOT_FOUND', `Utente con mail ${email} non trovato`);
             }

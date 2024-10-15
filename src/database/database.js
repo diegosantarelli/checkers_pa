@@ -55,5 +55,4 @@ DatabaseConnection.getInstance().authenticate()
         console.error('Impossibile connettersi al database:', err);
     });
 
-// Esportazione dell'istanza della connessione al database
-module.exports = DatabaseConnection.getInstance();
+export default DatabaseConnection;

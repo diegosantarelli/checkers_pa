@@ -1,51 +1,36 @@
-import { Sequelize } from 'sequelize';
+import DatabaseConnection from "../database/database";
 import createGiocatoreModel from './Giocatore';
 import createPartitaModel from './Partita';
 import createMossaModel from './Mossa';
 import createMossaIAModel from './MossaIA';
-import path from 'path';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 /**
  * @constant {Sequelize} sequelize
- * @description Inizializza un'istanza di Sequelize per la connessione al database PostgreSQL.
- * Le credenziali e i parametri del database vengono caricati dalle variabili d'ambiente specificate nel file `.env`.
+ * @description Ottiene l'istanza Singleton di Sequelize dal file DatabaseConnection.
  */
-const sequelize = new Sequelize(
-    process.env.POSTGRES_DB!,
-    process.env.POSTGRES_USER!,
-    process.env.POSTGRES_PASSWORD,
-    {
-        host: process.env.POSTGRES_HOST,
-        port: Number(process.env.POSTGRES_PORT) || 5432,
-        dialect: 'postgres',
-        logging: false,
-    }
-);
+const sequelize = DatabaseConnection.getInstance();
 
 /**
  * @constant {Model} Giocatore
- * @description Inizializza il modello Giocatore utilizzando l'istanza di Sequelize.
+ * @description Inizializza il modello Giocatore utilizzando l'istanza di Sequelize Singleton.
  */
 const Giocatore = createGiocatoreModel(sequelize);
 
 /**
  * @constant {Model} Partita
- * @description Inizializza il modello Partita utilizzando l'istanza di Sequelize.
+ * @description Inizializza il modello Partita utilizzando l'istanza di Sequelize Singleton.
  */
 const Partita = createPartitaModel(sequelize);
 
 /**
  * @constant {Model} Mossa
- * @description Inizializza il modello Mossa utilizzando l'istanza di Sequelize.
+ * @description Inizializza il modello Mossa utilizzando l'istanza di Sequelize Singleton.
  */
 const Mossa = createMossaModel(sequelize);
 
 /**
  * @constant {Model} MossaIA
- * @description Inizializza il modello MossaIA utilizzando l'istanza di Sequelize.
+ * @description Inizializza il modello MossaIA utilizzando l'istanza di Sequelize Singleton.
  */
 const MossaIA = createMossaIAModel(sequelize);
 

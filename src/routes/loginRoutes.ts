@@ -1,13 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
-import Giocatore from '../models/Giocatore';
+import {Giocatore} from "../models";
 import { verifyPassword } from '../helpers/passwordHelper';
 import { generateToken } from '../helpers/jwtHelper';
-import { sequelize } from "../models";
 import ErrorFactory from '../factories/errorFactory';
 import { StatusCodes } from "http-status-codes";
 
 const router = express.Router();
-const giocatore = Giocatore(sequelize);
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@example\.(com|it)$/;
 
@@ -30,7 +28,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
             throw ErrorFactory.createError('BAD_REQUEST', 'Formato email non valido, deve essere nel formato tuo_username@example.com o tuo_username@example.it');
         }
 
-        const user = await giocatore.findOne({ where: { email } });
+        const user = await Giocatore.findOne({ where: { email } });
 
         if (!user || !(await verifyPassword(password, user.hash))) {
             throw ErrorFactory.createError('UNAUTHORIZED', 'Credenziali non valide');

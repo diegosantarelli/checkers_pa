@@ -1,19 +1,9 @@
-import sequelize from '../database/database';
-import initPartita from '../models/Partita';
-import initGiocatore from '../models/Giocatore';
-import initMossa from '../models/Mossa';
-import initMossaIA from '../models/MossaIA';
+import {Giocatore, Partita, Mossa, MossaIA} from "../models";
 import ErrorFactory from '../factories/errorFactory';
 import { DraughtsPlayer, DraughtsSquare1D, DraughtsStatus } from 'rapid-draughts';
 import { EnglishDraughts as Draughts, EnglishDraughtsComputerFactory as ComputerFactory } from 'rapid-draughts/english';
 import PdfPrinter from 'pdfmake';
 import { format } from 'date-fns';
-
-const Giocatore = initGiocatore(sequelize);
-const Partita = initPartita(sequelize);
-const Mossa = initMossa(sequelize);
-const MossaIA = initMossaIA(sequelize);
-
 
 /**
  * @class MoveService
