@@ -453,7 +453,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3001/do/move/4/export?format=pdf",
+					"raw": "http://localhost:3001/do/move/1/export?format=pdf",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -462,7 +462,7 @@
 					"path": [
 						"do",
 						"move",
-						"4",
+						"1",
 						"export"
 					],
 					"query": [

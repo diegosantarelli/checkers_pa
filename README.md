@@ -1161,9 +1161,11 @@ Authorization: Bearer {{jwt_token}}
 #### Esempio di risposta
 ```
 {
-    "risultato": {
+    "data": {
         "success": true,
         "statusCode": 200,
+        "tipo_partita": "Partita contro IA",
+        "stato": "completata",
         "risultato": "La partita è stata vinta da Simone Recinelli"
     }
 }
@@ -1237,7 +1239,7 @@ Authorization: Bearer {{jwt_token}}
 #### Esempio di risposta
 ```
 {
-  "risultato": {
+  "data": {
     "success": true,
     "statusCode": 201,
     "risultato": "Il giocatore Simone Recinelli ha abbandonato la partita. Il giocatore Piero Matteotti ha vinto e ha ricevuto 1 punto."
