@@ -108,6 +108,17 @@ export const createGame = async (
     const costoCreazione = 0.45;
 
     try {
+        const validTypes = ["Amichevole", "Normale", "Competitiva"];
+        const validAILevels = ["facile", "normale", "difficile", "estrema", null];
+
+        if (!validTypes.includes(tipo)) {
+            throw ErrorFactory.createError('BAD_REQUEST', `Il tipo di partita inserito (${tipo}) non è valido. I tipi accettati sono: ${validTypes.join(', ')}.`);
+        }
+
+        if (livello_IA && !validAILevels.includes(livello_IA)) {
+            throw ErrorFactory.createError('BAD_REQUEST', `Il livello IA inserito (${livello_IA}) non è valido. I livelli accettati sono: ${validAILevels.filter(lvl => lvl !== null).join(', ')}.`);
+        }
+
         const giocatore1 = await Giocatore.findByPk(id_giocatore1);
         if (!giocatore1) {
             throw ErrorFactory.createError('FORBIDDEN', 'Il giocatore non esiste!');

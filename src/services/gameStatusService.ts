@@ -20,7 +20,7 @@ class GameStatusService {
      *
      * @throws {HttpException} - Se la partita o il vincitore non vengono trovati.
      */
-    public static async evaluateGame(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string }> {
+    public static async evaluateGame(id_partita: number, id_giocatore: number): Promise<{ success: boolean, statusCode: number, risultato: string, stato : string, tipo_partita: string }> {
         try {
             const partita = await Partita.findByPk(id_partita);
 
@@ -29,6 +29,8 @@ class GameStatusService {
             }
 
             let risultato = '';
+            const statoPartita = partita.stato;
+            const tipo_partita = partita.id_giocatore2 ? 'Partita tra due giocatori' : 'Partita contro IA';
 
             if (partita.stato === 'completata' && partita.id_vincitore) {
                 const vincitore = await Giocatore.findByPk(partita.id_vincitore);
@@ -45,7 +47,22 @@ class GameStatusService {
                     throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato');
                 }
 
-                risultato = `${giocatore.nome} ${giocatore.cognome} ha abbandonato la partita`;
+                let nome_vincitore: string;
+                let cognome_vincitore: string;
+
+                if (partita.id_giocatore2 === null) {
+                    nome_vincitore = "Intelligenza";
+                    cognome_vincitore = "Artificiale";
+                } else {
+                    const vincitore = await Giocatore.findByPk(partita.id_giocatore1 === id_giocatore ? partita.id_giocatore2 : partita.id_giocatore1);
+                    if (!vincitore) {
+                        throw ErrorFactory.createError('NOT_FOUND', 'Vincitore non trovato');
+                    }
+                    nome_vincitore = vincitore.nome;
+                    cognome_vincitore = vincitore.cognome;
+                }
+
+                risultato = `${giocatore.nome} ${giocatore.cognome} ha abbandonato la partita. La partita è stata vinta da ${nome_vincitore} ${cognome_vincitore}`;
             } else if (partita.stato === 'in corso') {
                 risultato = `Partita in corso`;
             }
@@ -53,7 +70,9 @@ class GameStatusService {
             return {
                 success: true,
                 statusCode: StatusCodes.OK,
-                risultato
+                tipo_partita,
+                stato: statoPartita,
+                risultato,
             };
         } catch (error: unknown) {
             return GameStatusService.handleError(error, 'Errore durante la valutazione della partita');

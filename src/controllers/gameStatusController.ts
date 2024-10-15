@@ -35,9 +35,9 @@ class GameStatusController {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta');
             }
 
-            const risultato = await GameStatusService.evaluateGame(Number(id_partita), id_giocatore);
+            const data = await GameStatusService.evaluateGame(Number(id_partita), id_giocatore);
 
-            res.status(StatusCodes.OK).json({ risultato });
+            res.status(StatusCodes.OK).json({ data });
         } catch (error) {
             next(error);
         }
@@ -65,9 +65,9 @@ class GameStatusController {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta');
             }
 
-            const risultato = await GameStatusService.abandonGame(Number(id_partita), id_giocatore);
+            const data = await GameStatusService.abandonGame(Number(id_partita), id_giocatore);
 
-            res.status(StatusCodes.OK).json({ risultato });
+            res.status(StatusCodes.OK).json({ data });
         } catch (error) {
             next(error);
         }
