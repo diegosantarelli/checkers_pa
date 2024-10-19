@@ -6,7 +6,7 @@ import createMossaIAModel from './MossaIA';
 
 /**
  * @constant {Sequelize} sequelize
- * @description Ottiene l'istanza Singleton di Sequelize dal file DatabaseConnection.
+ * @description Ottiene l'istanza Singleton di Sequelize dal file database.js.
  */
 const sequelize = DatabaseConnection.getInstance();
 
@@ -53,7 +53,7 @@ if (MossaIA.associate) {
 
 /**
  * @function syncModelli
- * @description Sincronizza i modelli definiti con il database PostgreSQL.
+ * @description Utilizzata per sincronizzare i modelli definiti nell'applicazione con le tabelle nel database PostgreSQL.
  * L'opzione `alter: true` aggiorna la struttura delle tabelle senza distruggere i dati esistenti.
  */
 sequelize.sync({ alter: true })  // Usa `force: true` solo in sviluppo, poiché distrugge i dati
@@ -68,4 +68,4 @@ sequelize.sync({ alter: true })  // Usa `force: true` solo in sviluppo, poiché 
  * @exports {Model} Giocatore, Partita, Mossa, MossaIA, sequelize
  * @description Esporta i modelli e l'istanza di Sequelize per essere utilizzati in altre parti dell'applicazione.
  */
-export { Giocatore, Partita, Mossa, MossaIA, sequelize };
+export { Giocatore, Partita, Mossa, MossaIA, sequelize }; //export nominato

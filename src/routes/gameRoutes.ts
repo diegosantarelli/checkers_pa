@@ -2,7 +2,7 @@ import { Router } from 'express';
 import GameController from '../controllers/gameController';
 import { authenticateJWT } from '../middleware/auth';
 
-const router = Router();
+const router = Router(); //nuova istanza di Router (agisce come una sotto-applicazione collegabile all'applicazione Express)
 
 /**
  * Rotta protetta per creare una partita.

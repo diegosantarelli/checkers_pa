@@ -28,9 +28,9 @@ class GameStatusController {
 
     public static async evaluateGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { id_partita } = req.params;
-            const id_giocatore = req.user?.id_giocatore;
-
+            const { id_partita } = req.params; // prendiamo l'id_partita dai parametri della richiesta
+            const id_giocatore = req.user?.id_giocatore; //se req.user esiste e ha la proprietà id_giocatore
+                                                                          // se null, non lancia un errore ma undefined
             if (!id_giocatore) {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta');
             }
@@ -58,9 +58,9 @@ class GameStatusController {
      */
     public static async abandonGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { id_partita } = req.params;
-            const id_giocatore = req.user?.id_giocatore;
-
+            const { id_partita } = req.params; //prendiamo id_partita dai parametri della richiesta
+            const id_giocatore = req.user?.id_giocatore;//se req.user esiste e ha la proprietà id_giocatore
+                                                                        // se null, non lancia un errore ma undefined
             if (!id_giocatore) {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta');
             }
@@ -86,7 +86,7 @@ class GameStatusController {
      */
     public static async playersRanking(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { order } = req.query;
+            const { order } = req.query; //preso l'order che preferiamo dalla richiesta
             const sortingOrder = order === 'desc' ? 'DESC' : 'ASC';
 
             const classifica = await GameStatusService.playersRanking(sortingOrder);
@@ -145,7 +145,7 @@ class GameStatusController {
             const { startDate } = req.query;
             const id_giocatore = req.user?.id_giocatore;
 
-            if (!id_giocatore) {
+            if (!id_giocatore) { //non serve
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta');
             }
 

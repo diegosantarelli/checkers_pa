@@ -45,6 +45,7 @@ class moveController {
      */
     public static async move(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
+            // NON NECESSARIO, c'è AuthenticateJWT
             if (!req.user) {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Utente non autenticato.');
             }
@@ -93,8 +94,8 @@ class moveController {
      */
     public static async exportMoveHistory(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { id_partita } = req.params;
-            const format = req.query.format as string;
+            const { id_partita } = req.params; //preso dalla rotta
+            const format = req.query.format as string; //req.query contiene parametri query (coppie chiave-valore -> ...?format=pdf)
 
             console.log(`Richiesta per esportare le mosse per la partita con ID: ${id_partita}`);
             console.log(`Formato richiesto: ${format}`);
@@ -106,7 +107,7 @@ class moveController {
 
             const moveHistory = await MoveService.getMoveHistory(Number(id_partita));
 
-            if (moveHistory.length === 0) {
+            if (moveHistory.length === 0) { // NON SERVE
                 console.log(`Nessuna mossa trovata per la partita con ID: ${id_partita}`);
             } else {
                 console.log(`Mosse trovate per la partita con ID: ${id_partita}:`, moveHistory);

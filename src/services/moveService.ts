@@ -80,17 +80,23 @@ class MoveService {
             throw ErrorFactory.createError('CONFLICT', "Non puoi effettuare una mossa in una partita che non è in corso.");
         }
 
+        // Recupera i dati salvati di una partita, ovvero la configurazione della tavola
         let savedData: { initialBoard: DraughtsSquare1D[] } | null;
         try {
-            savedData = typeof partita.tavola === 'string' ? JSON.parse(partita.tavola) : partita.tavola;
+            savedData = typeof partita.tavola === 'string' ? JSON.parse(partita.tavola) : partita.tavola; //Stringa -> oggetto Javascript
         } catch (error) {
             throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', "Errore nel parsing della tavola.");
         }
 
-        const savedBoard = savedData?.initialBoard;
-        if (!savedBoard || !Array.isArray(savedBoard)) {
+        const savedBoard = savedData?.initialBoard; //accedo a initialBoard solo se savedData non è null
+        if (!savedBoard || !Array.isArray(savedBoard)) { //deve essere un Array
             throw ErrorFactory.createError('INTERNAL_SERVER_ERROR', "La tavola salvata non è un array valido.");
         }
+
+        /*
+        Viene creata una nuova partita con Draughts.setup() e poi sovrascritta con la configurazione salvata in savedBoard.
+        Con il foreach() viene ripristinata ogni posizione nella scacchiera in base alla configurazione in savedBoard
+         */
 
         const draughts = Draughts.setup();
         savedBoard.forEach((square, index) => {
@@ -109,12 +115,15 @@ class MoveService {
         const destination = MoveService.convertPosition(to);
 
         const validMoves = draughts.moves;
+        /* Cerca la mossa che soddisfa i requisiti.
+         Verifica che se la casella di partenza della mossa corrisponde alla variabile origin, stesso per destination.*/
         const moveToMake = validMoves.find(move => move.origin === origin && move.destination === destination);
 
         if (!moveToMake) {
             throw ErrorFactory.createError('BAD_REQUEST', "Mossa non valida.");
         }
 
+        // Verifica che non si ripeta la stessa mossa consecutivamente
         const lastMove = await Mossa.findOne({
             where: { id_partita },
             order: [['numero_mossa', 'DESC']],
@@ -139,7 +148,7 @@ class MoveService {
             };
         }
 
-        partita.tavola = JSON.stringify({ initialBoard: draughts.board });
+        partita.tavola = JSON.stringify({ initialBoard: draughts.board }); //converte un oggetto JavaScript in una stringa JSON per il salvataggio nel DB
         partita.mosse_totali = (partita.mosse_totali || 0) + 1;
         await partita.save();
 
@@ -178,7 +187,7 @@ class MoveService {
                 };
             }
 
-            partita.tavola = JSON.stringify({ initialBoard: draughts.board });
+            partita.tavola = JSON.stringify({ initialBoard: draughts.board }); //converte un oggetto JavaScript in una stringa JSON per il salvataggio nel DB
             partita.mosse_totali += 1;
             await partita.save();
 
@@ -204,6 +213,7 @@ class MoveService {
             const colorePezzoIA = draughts.board[aiMove.origin]?.piece?.player === DraughtsPlayer.LIGHT ? 'bianco' : 'nero';
             const aiMoveDescription = `IA ha mosso ${draughts.board[aiMove.origin]?.piece?.king ? 'una dama' : 'un pezzo singolo'} di colore ${colorePezzoIA} da ${MoveService.convertPositionBack(aiMove.origin)} a ${MoveService.convertPositionBack(aiMove.destination)}.`;
 
+            // se PvIA
             return {
                 message: "Mossa eseguita con successo",
                 id_partita: partita.id_partita,
@@ -212,6 +222,7 @@ class MoveService {
             };
         }
 
+        //se PvP
         return {
             message: "Mossa eseguita con successo",
             id_partita: partita.id_partita,
@@ -283,6 +294,7 @@ class MoveService {
      * Deduce il costo di una mossa dal saldo di token del giocatore.
      *
      * @param {number} id_giocatore1 - L'ID del giocatore che ha effettuato la mossa.
+     * @param numberOfMoves - Numero delle mosse (2 se contro IA)
      * @returns {Promise<void>} - Effettua la deduzione del costo della mossa.
      * @throws {HttpException} - Se il giocatore non viene trovato o ci sono errori nel salvataggio.
      */
@@ -346,6 +358,7 @@ class MoveService {
             })
         ];
 
+        // Ordinamento dell'array tutteLeMosse in base alla proprietà numeroMossa di ciascun elemento dell'array.
         tutteLeMosse.sort((a, b) => a.numeroMossa - b.numeroMossa);
 
         return tutteLeMosse;

@@ -2,7 +2,7 @@ import express from 'express';
 import moveController from '../controllers/moveController';
 import { authenticateJWT } from '../middleware/auth';
 
-const router = express.Router();
+const router = express.Router(); //nuova istanza di Router (agisce come una sotto-applicazione collegabile all'applicazione Express)
 
 /**
  * @route POST /move

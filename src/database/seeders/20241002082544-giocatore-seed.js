@@ -19,8 +19,6 @@
  *
  * @returns {Promise<void>} - Restituisce una promise risolta quando i dati vengono inseriti con successo.
  */
-
-
 const bcrypt = require('bcrypt');
 
 module.exports = {

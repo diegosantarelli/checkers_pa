@@ -2,7 +2,7 @@ import { Router } from 'express';
 import AdminController from '../controllers/adminController';
 import { authenticateJWT, isAdmin } from '../middleware/auth';
 
-const router = Router();
+const router = Router(); //nuova istanza di Router (agisce come una sotto-applicazione collegabile all'applicazione Express)
 
 /**
  * @route PUT /admin/recharge

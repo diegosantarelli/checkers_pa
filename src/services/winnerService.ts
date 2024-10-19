@@ -41,7 +41,7 @@ class WinnerService {
                 throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato');
             }
 
-            const whereCondition: any = {
+            const whereCondition: any = { // prendiamo partite dove o gioc1 o gioc2 con stato completata
                 [Op.or]: [
                     { id_giocatore1: id_giocatore },
                     { id_giocatore2: id_giocatore }

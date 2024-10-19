@@ -2,7 +2,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import ErrorFactory from '../factories/errorFactory';
 
-dotenv.config();
+dotenv.config(); //INUTILE
 
 const secret = process.env.JWT_SECRET as string;
 

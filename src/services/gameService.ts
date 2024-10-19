@@ -104,7 +104,7 @@ export const createGame = async (
     email_giocatore2: string | null,
     tipo: "Amichevole" | "Normale" | "Competitiva",
     livello_IA: "facile" | "normale" | "difficile" | "estrema" | null
-): Promise<creaPartitaPvP | creaPartitaPvAI> => {
+): Promise<creaPartitaPvP | creaPartitaPvAI> => { //restituisce una Promise che risolve una valore che rispetta l'interfaccia
     const costoCreazione = 0.45;
 
     try {
@@ -169,7 +169,7 @@ export const createGame = async (
             }
         }
 
-        const draughts = Draughts.setup();
+        const draughts = Draughts.setup(); //inizializza una nuova partita
         const initialBoard = draughts.board.map((square: any, index: number) => {
             if (square && square.dark) {
                 return {
@@ -181,7 +181,7 @@ export const createGame = async (
             return null;
         }).filter(Boolean);
 
-        const tavola = JSON.stringify({ initialBoard });
+        const tavola = JSON.stringify({ initialBoard }); //converte un oggetto JavaScript in una stringa JSON per il salvataggio nel DB
 
         const partita = await Partita.create({
             id_giocatore1,

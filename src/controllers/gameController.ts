@@ -33,12 +33,12 @@ class GameController {
      */
     public static async createGame(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // Verifica che l'utente sia autenticato
+            // NON NECESSARIO, c'è AuthenticateJWT
             if (!req.user || !req.user.id_giocatore) {
                 throw ErrorFactory.createError('UNAUTHORIZED', 'Utente non autenticato o id_giocatore mancante');
             }
 
-            const { id_giocatore } = req.user!;
+            const { id_giocatore } = req.user!; //estrai id_giocatore da req.user, ! (non-null assertion) indica che req.user non è null
             const { email_giocatore2, tipo, livello_IA } = req.body;
 
             // Verifica che solo uno dei due parametri sia fornito (PvP o PvAI)

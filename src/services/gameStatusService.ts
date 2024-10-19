@@ -40,8 +40,8 @@ class GameStatusService {
                 }
 
                 risultato = `La partita è stata vinta da ${vincitore.nome} ${vincitore.cognome}`;
-            } else if (partita.stato === 'abbandonata') {
-                const giocatore = await Giocatore.findByPk(id_giocatore);
+            } else if (partita.stato === 'abbandonata') { //sbagliata
+                const giocatore = await Giocatore.findByPk(id_giocatore); //giocatore che fa la richiesta
 
                 if (!giocatore) {
                     throw ErrorFactory.createError('NOT_FOUND', 'Giocatore non trovato');
@@ -230,6 +230,7 @@ class GameStatusService {
      *
      * @throws {HttpException} - Se la partita o i dati necessari non vengono trovati.
      */
+    //Buffer utile per lavorare con dati binari (file, immagini, etc...)
     public static async getVictoryCertify(id_partita: number): Promise<Buffer> {
         const partita = await this.getGameDetails(id_partita);
 
@@ -306,7 +307,7 @@ class GameStatusService {
      * @param {string} defaultMessage - Il messaggio di default per l'errore.
      * @throws {HttpException} - Lancia un errore HTTP se necessario.
      */
-    private static handleError(error: unknown, defaultMessage: string): never {
+    private static handleError(error: unknown, defaultMessage: string): never { //non serve
         if (error instanceof HttpException) {
             throw error;
         }

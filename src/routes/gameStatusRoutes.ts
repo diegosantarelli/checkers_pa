@@ -8,7 +8,7 @@ import { authenticateJWT } from '../middleware/auth';
  * per la valutazione dello stato della partita, abbandono partita, classifica giocatori, certificato di vittoria,
  * e la lista delle partite giocate.
  */
-const router = Router();
+const router = Router(); //nuova istanza di Router (agisce come una sotto-applicazione collegabile all'applicazione Express)
 
 /**
  * @route PUT /check-status/:id_partita

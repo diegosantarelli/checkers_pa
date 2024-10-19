@@ -62,8 +62,8 @@ class AdminController {
                     token_residuo: user.token_residuo
                 }
             });
-        } catch (error) {
-            next(error); // Passa l'errore al middleware di gestione errori
+        } catch (error) { //errore che non fa parte di quelli gestiti
+            next(error); // Passa l'errore al middleware successivo
         }
     }
 }

@@ -38,7 +38,8 @@ interface PartitaCreationAttributes extends Optional<PartitaAttributes, 'id_part
 
 /**
  * @class Partita
- * @extends {Model<PartitaAttributes, PartitaCreationAttributes>}
+ * @extends {Model<PartitaAttributes, PartitaCreationAttributes>} - Partita eredita tutte le funzionalità di Sequelize
+ * per interagire con il database, come la creazione, l'aggiornamento, la cancellazione e la lettura di record dal database.
  * @description Rappresenta il modello Sequelize per la tabella `Partita`.
  * Ogni istanza della classe `Partita` rappresenta una partita di dama.
  */
@@ -140,7 +141,7 @@ export default (sequelize: Sequelize) => {
             defaultValue: 0,
         },
     }, {
-        sequelize,
+        sequelize, //istanza di Sequelize creata per connessione al database, necessaria per definire il modello e collegarlo al database.
         modelName: 'Partita',
         tableName: 'Partita',
         timestamps: false,

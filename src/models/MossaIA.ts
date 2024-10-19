@@ -14,7 +14,7 @@ export default (sequelize: Sequelize) => {
      */
     class MossaIA extends Model {
         public id_mossa!: number;
-        public numero_mossa!: number;
+        public numero_mossa!: number; //type assertion, dice al compilatore che la variabile verrà inizializzata prima di essere utilizzata
         public tavola!: object;
         public pezzo!: string | null;
         public id_partita!: number;
@@ -29,9 +29,9 @@ export default (sequelize: Sequelize) => {
          * @param {any} models - Gli altri modelli Sequelize con cui è associato il modello MossaIA.
          */
         static associate(models: any) {
-            MossaIA.belongsTo(models.Partita, {
+            MossaIA.belongsTo(models.Partita, { // molti a uno con Partita
                 foreignKey: 'id_partita',
-                as: 'partita',
+                as: 'partita', // alias per accedere alla partita associata a una mossa
             });
         }
     }
@@ -64,7 +64,7 @@ export default (sequelize: Sequelize) => {
                 model: 'Partita',
                 key: 'id_partita',
             },
-            onDelete: 'CASCADE',
+            onDelete: 'CASCADE', //se una partita viene eliminata, tutte le mosse associate a quella partita verranno eliminate.
         },
         from_position: {
             type: DataTypes.STRING,
@@ -80,7 +80,7 @@ export default (sequelize: Sequelize) => {
             defaultValue: DataTypes.NOW,
         },
     }, {
-        sequelize,
+        sequelize, //istanza di Sequelize creata per connessione al database, necessaria per definire il modello e collegarlo al database.
         modelName: 'MossaIA',
         tableName: 'MossaIA',
         timestamps: true,

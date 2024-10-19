@@ -5,7 +5,7 @@ import { generateToken } from '../helpers/jwtHelper';
 import ErrorFactory from '../factories/errorFactory';
 import { StatusCodes } from "http-status-codes";
 
-const router = express.Router();
+const router = express.Router(); //nuova istanza di Router (agisce come una sotto-applicazione collegabile all'applicazione Express)
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@example\.(com|it)$/;
 
@@ -21,7 +21,7 @@ const emailRegex = /^[a-zA-Z0-9._%+-]+@example\.(com|it)$/;
  * @returns {Promise<void>} - Restituisce un token JWT se le credenziali sono valide, altrimenti gestisce l'errore.
  */
 router.post('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { email, password } = req.body;
+    const { email, password } = req.body; //destructive assignment, estrae i valori di email e password dal body della richiesta
 
     try {
         if (!emailRegex.test(email)) {
@@ -40,7 +40,7 @@ router.post('/', async (req: Request, res: Response, next: NextFunction): Promis
             email: user.email
         });
 
-        res.status(StatusCodes.OK).json({ token });
+        res.status(StatusCodes.OK).json({ token }); //invia al client una risposta HTTP con codice 200 e ritorna il JWT token
     } catch (error) {
         next(error); // Passa l'errore al gestore centrale degli errori
     }

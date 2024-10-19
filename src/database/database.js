@@ -12,6 +12,7 @@ class DatabaseConnection {
 
     /**
      * Costruttore privato simulato per prevenire istanziazioni multiple.
+     * Il modificatore di visibilità non è supportato nella versione di JS corrente, utilizzabile solo in TS
      * Se viene chiamato esternamente, lancia un errore.
      */
     constructor() {

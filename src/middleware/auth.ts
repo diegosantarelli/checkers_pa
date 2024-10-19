@@ -29,20 +29,21 @@ interface TokenPayload extends JwtPayload {
  * o se il payload del token è mancante o non corretto.
  */
 export const authenticateJWT = (req: Request, res: Response, next: NextFunction): void => {
-    const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization; //contiene il jwt token presente nell'header Authentication della richiesta HTTP
 
     if (!authHeader) {
         return next(ErrorFactory.createError('UNAUTHORIZED', 'Autenticazione richiesta'));
     }
 
-    const token = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1]; // [0] è la parola Bearer, [1] è il token
 
     try {
         const decoded = verifyToken(token);
         // Verifica che il token decodificato abbia la struttura corretta
         if (decoded && typeof decoded !== 'string' && 'id_giocatore' in decoded && 'email' in decoded) {
-            req.user = decoded as TokenPayload;
-            next(); // Continua verso il controller
+            req.user = decoded as TokenPayload; // aggiunge i dati decodificati dal token JWT all'oggetto req sotto la proprietà user,
+                                                // per poterli usare nei middleware successivi.
+            next();
         } else {
             return next(ErrorFactory.createError('UNAUTHORIZED', 'Token non valido o payload mancante'));
         }
@@ -62,10 +63,10 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
  * @throws {HttpException} - Lancia un'eccezione se l'utente non ha il ruolo di "admin".
  */
 export const isAdmin = (req: Request, res: Response, next: NextFunction): void => {
-    const user = req.user;
+    const user = req.user; //contiene dati utente autenticato
 
     if (user && user.ruolo === 'admin') {
-        return next(); // Se l'utente ha il ruolo di admin, continua al middleware successivo
+        return next(); // Se l'utente ha il ruolo di admin, continua al middleware successivo (AdminController)
     }
     next(ErrorFactory.createError('FORBIDDEN', 'Accesso non autorizzato, solo gli admin possono accedere'));
 };

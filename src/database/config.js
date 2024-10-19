@@ -6,7 +6,10 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
  * @description Configurazione delle impostazioni del database per l'ambiente di sviluppo utilizzando Sequelize e Postgres.
  *
  * Le impostazioni vengono caricate dal file `.env` che contiene le variabili d'ambiente per la connessione al database.
- * Questa configurazione viene utilizzata per inizializzare la connessione al database PostgreSQL in ambiente di sviluppo.
+ * Questa configurazione viene utilizzata per inizializzare la connessione al database PostgreSQL ed effettuare i comandi
+ * di migrations e seeders.
+ * Non è possibile utilizzare il file database.js per la connessione al database tramite il pattern Singleton poiché
+ * migrazioni e i seeders di Sequelize utilizzano una configurazione diversa rispetto a quella che per la connessione dell'applicazione.
  *
  * @property {object} development - Configurazione dell'ambiente di sviluppo.
  * @property {string} development.username - Nome utente per la connessione al database.

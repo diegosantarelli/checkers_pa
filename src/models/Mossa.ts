@@ -15,7 +15,7 @@ export default (sequelize: Sequelize) => {
      */
     class Mossa extends Model {
         public id_mossa!: number;
-        public numero_mossa!: number;
+        public numero_mossa!: number; //type assertion, dice al compilatore che la variabile verrà inizializzata prima di essere utilizzata
         public tavola!: object;
         public pezzo!: string | null;
         public id_partita!: number;
@@ -31,14 +31,14 @@ export default (sequelize: Sequelize) => {
          * @param {any} models - Gli altri modelli Sequelize con cui è associato il modello Mossa.
          */
         static associate(models: any) {
-            Mossa.belongsTo(models.Partita, {
+            Mossa.belongsTo(models.Partita, { // relazione molti a uno tra Mossa e Partita
                 foreignKey: 'id_partita',
-                as: 'partita',
+                as: 'partita', // alias per accedere alla partita associata a una mossa
             });
 
             Mossa.belongsTo(models.Giocatore, {
                 foreignKey: 'id_giocatore',
-                as: 'giocatore',
+                as: 'giocatore', // alias per accedere al giocatore associato a una mossa.
             });
         }
     }
@@ -88,7 +88,7 @@ export default (sequelize: Sequelize) => {
                 model: 'Partita',
                 key: 'id_partita',
             },
-            onDelete: 'CASCADE',
+            onDelete: 'CASCADE', //se una partita viene eliminata, tutte le mosse associate a quella partita verranno eliminate.
         },
         id_giocatore: {
             type: DataTypes.INTEGER,
@@ -108,7 +108,7 @@ export default (sequelize: Sequelize) => {
             defaultValue: DataTypes.NOW,
         },
     }, {
-        sequelize,
+        sequelize, //istanza di Sequelize creata per connessione al database, necessaria per definire il modello e collegarlo al database.
         modelName: 'Mossa',
         tableName: 'Mossa',
         timestamps: true,

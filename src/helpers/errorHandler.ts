@@ -20,17 +20,20 @@ class HttpException extends Error {
      * @param {string} message - Il messaggio descrittivo dell'errore.
      */
     constructor(statusCode: number, message: string) {
-        super(message);
+        super(message); //richiama il costruttore della superclasse Error
         this.statusCode = statusCode;
         this.message = message;
 
+        /* Utilizzato per correggere la catena dei prototipi quando si estende una classe nativa (Error),
+        garantendo che l'istanza di HttpException sia trattata correttamente come una sottoclasse. */
         Object.setPrototypeOf(this, new.target.prototype);
-        Error.captureStackTrace(this);
+        Error.captureStackTrace(this); /* Utilizzato per catturare e tracciare lo stack di chiamate nel momento in cui l'errore viene
+                                       istanziato, utile per il debugging.*/
     }
 }
 
 /**
- * Funzione per gestire l'errore e inviare una risposta HTTP.
+ * Funzione per gestire l'errore nell'applicazione Express e inviare una risposta HTTP al client.
  *
  * @function handleError
  * @param {HttpException} err - L'errore di tipo `HttpException` che si è verificato.

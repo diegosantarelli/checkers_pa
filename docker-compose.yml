@@ -1,14 +1,14 @@
 services:
-  app:
-    build: .
+  app: # Nome del servizio principale
+    build: . #Indica a Docker di costruire l'immagine a partire dai file presenti nella directory corrente
     container_name: node-app
     ports:
-      - "3001:3000"
+      - "3001:3000" # Mappa la porta 3001 dell'host alla porta 3000 del container
     depends_on:
-      - db
+      - db # App dipende dal servizio db
     env_file:
-      - .env
-    command: >
+      - .env # Recupera le variabili d'ambiente dal file '.env'
+    command: > # comando in una shell bash, aspetta 1 secondo prima di eseguirli, attende 60 secondi che Postgres sia pronto -> errore
       bash -c "
       sleep 1 &&
             ./wait-for-it.sh db:5432 --timeout=60 --strict -- 
@@ -19,10 +19,10 @@ services:
       npm start"
 
   db:
-    image: postgres:13
+    image: postgres:13 #utilizza l'immagine ufficiale di PostgreSQL
     container_name: postgres-database
-    restart: always
-    environment:
+    restart: always # si riavvia da solo se si arresta inaspettatamente
+    environment: # Variabili d'ambiente necessarie per configurare il database PostgreSQL, prese dal file '.env'
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}

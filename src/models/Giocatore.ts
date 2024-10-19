@@ -41,7 +41,8 @@ interface GiocatoreCreationAttributes extends Optional<GiocatoreAttributes, 'id_
 
 /**
  * @class Giocatore
- * @extends {Model<GiocatoreAttributes, GiocatoreCreationAttributes>}
+ * @extends {Model<GiocatoreAttributes, GiocatoreCreationAttributes>} - Giocatore eredita tutte le funzionalità di Sequelize
+ * per interagire con il database, come la creazione, l'aggiornamento, la cancellazione e la lettura di record dal database.
  * @description Modello Sequelize che rappresenta il giocatore. Include metodi per la gestione dei token e del punteggio,
  * oltre alle associazioni con altri modelli.
  *
@@ -57,7 +58,7 @@ interface GiocatoreCreationAttributes extends Optional<GiocatoreAttributes, 'id_
  * @property {Date} updatedAt - Timestamp di aggiornamento del record.
  */
 class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> implements GiocatoreAttributes {
-    public id_giocatore!: number;
+    public id_giocatore!: number; //type assertion, dice al compilatore che la variabile verrà inizializzata prima di essere utilizzata
     public nome!: string;
     public cognome!: string;
     public email!: string;
@@ -75,9 +76,9 @@ class Giocatore extends Model<GiocatoreAttributes, GiocatoreCreationAttributes> 
      * @param {any} models - I modelli associati.
      */
     static associate(models: any) {
-        Giocatore.hasMany(models.Mossa, {
-            foreignKey: 'id_giocatore',
-            as: 'mosse',
+        Giocatore.hasMany(models.Mossa, { //1 a molti tra Giocatore e Mossa
+            foreignKey: 'id_giocatore', //chiave esterna
+            as: 'mosse', //alias per accedere alle mosse del giocatore
         });
     }
 }
@@ -129,7 +130,7 @@ export default (sequelize: Sequelize) => {
             defaultValue: 'utente',
         },
     }, {
-        sequelize,
+        sequelize, //istanza di Sequelize creata per connessione al database, necessaria per definire il modello e collegarlo al database.
         modelName: 'Giocatore',
         tableName: 'Giocatore',
         timestamps: true,

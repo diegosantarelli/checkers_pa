@@ -14,7 +14,7 @@ import ErrorFactory from './factories/errorFactory';
  */
 
 /** Carica le variabili d'ambiente da file .env */
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') }); // INUTILE
 
 /**
  * Crea un'istanza dell'applicazione Express.
@@ -32,8 +32,9 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 /**
- * Middleware per interpretare il corpo delle richieste in formato JSON.
- * Utilizza `express.json()` per il parsing automatico dei payload JSON nelle richieste.
+ * Middleware per interpretare il corpo delle richieste HTTP in formato JSON.
+ * Utilizza `express.json()` (middleware integrato in Express) per il parsing automatico dei payload JSON nelle richieste
+ * e lo trasforma in un oggetto Javascript utilizzabile.
  */
 app.use(express.json());
 
